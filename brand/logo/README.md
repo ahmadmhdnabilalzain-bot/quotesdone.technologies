@@ -15,6 +15,7 @@ Owner-confirmed: concept "Engineered". All files in `final/` are the master asse
 - **Masters:** `final/*.svg`: 13 files, paths only; no embedded raster, no live text, no fonts, no external references (checked by script).
 - **Print / signage vendors:** `exports/pdf/*.pdf`: vector PDFs, one page each, 0 embedded images, 0 fonts (checked with `pdfimages` / `pdffonts`). Scale freely.
 - **Raster copies (convenience only, never masters):** `exports/png/`, transparent: wordmarks 600 to 2400 px wide, marks 512/1024, favicons 16/32/48/180/192 from `mark-small`.
-- **Regenerate everything:** `python3 brand/logo/source/build.py` (masters), then `python3 brand/logo/source/export_assets.py` (PDF + PNG). Set `LOGO_EXPORT_VERBOSE=1` for logging.
-- **Not included:** native `.ai`/`.eps` (no Adobe tools here). Any vendor that insists on EPS/AI can convert the PDF in seconds; give them the PDF, never the PNG.
+- **Regenerate everything:** `python3 brand/logo/source/build.py` (masters), then `python3 brand/logo/source/export_assets.py` (PDF + PNG), then `for f in brand/logo/exports/pdf/*.pdf; do pdftocairo -eps "$f" "brand/logo/exports/eps/$(basename "${f%.pdf}").eps"; done`. Set `LOGO_EXPORT_VERBOSE=1` for logging.
+- **EPS:** `exports/eps/*.eps` (13 files, made from the PDFs with `pdftocairo -eps`; vector paths, no embedded images or fonts). Not tested in Adobe/Corel here, so have the vendor open one first.
+- **Not included:** native `.ai` (no Adobe tools here). A vendor that needs AI can open the PDF or EPS in Illustrator and save as AI; give them the PDF/EPS, never the PNG.
 - **Backup:** the repo on GitHub is the system of record; also keep a copy of `brand/logo/` in the owner's own cloud storage.

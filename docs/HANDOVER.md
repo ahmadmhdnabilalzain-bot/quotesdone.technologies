@@ -39,6 +39,12 @@ Each product keeps its own brand; the parent logo must not imitate any of them. 
 - 3D/motion: the 99designs 3D gallery is the MINIMUM; aim above it with real-time 3D and scroll-driven choreography, and avoid the generic crypto/AI tropes logged in `docs/references/website-inspiration.md`.
 - Copy: Apple-grade: short, concrete, declarative, product-first; no filler or hype words. Every factual claim must be true and checkable (e.g. do not claim market dominance, user numbers or awards we cannot prove); product facts come from the live sites/repos.
 
+## Skills to apply in the website phase (installed; the logo phase used custom agents and did not invoke them: be sure to use these next)
+- Copy: `copywriting-kit:brand-voice`, `landing-page-copy`, `copy-edit`, `copy-proof-check`; `anti-ai-writing` / `humanizer` / `unslop` to strip AI-sounding text; `marketing:brand-review`.
+- Design/build: `frontend-design:frontend-design`, `superdesign`, `design-superpowers:*` (creative, design-review), `audit-suite:web-animation-design`, `audit-suite:emil-design-engineering`, `audit-suite:vercel-react-best-practices`, `modern-web-guidance`, `ui-consistency:*`, `vectorlab-ux-skills:*` (motion, reduced-motion, viewports), `tweenkit:animation-html`, `remotion:*` (video), `design:accessibility-review`.
+- Assets/brand: `zizi-skills:design-assets` (logos, favicons, raster-to-vector), `aitopia:aitopia-brand-kit` (second-opinion brand kit), Canva connector (`canva:*`) for decks and social templates.
+- Audit before release: `audit-suite:full-audit`, `engineering:code-review`, `supermatt:code-review`, `zizi-skills:security-and-hardening`.
+
 ## Checkpoint 1 — 2026-11-26
 **Done**
 - Repo was empty. Added standing rules skill, `CLAUDE.md` (imports rules/handover/ledger so they reload after compaction), `docs/LEDGER.md`, this handover.
