@@ -1,0 +1,99 @@
+/*
+ * Self-hosted faces. Why these faces, licences, and how to change them: site/docs/typography.md.
+ * Files are built by scripts/fonts/build_fonts.py from the pinned @fontsource packages
+ * (Archivo 5.3.0, Fragment Mono 5.3.0), cut to the axis ranges we use and subset to Latin.
+ * Vite fingerprints the URLs below, so they are cached immutable.
+ *
+ * Preload: only Archivo (the critical face, used by every heading and paragraph above the
+ * fold). Base.astro preloads the same hashed URL. Fragment Mono is never preloaded.
+ *
+ * The unicode-range is Google Fonts' "latin" range plus arrows; keep it identical to
+ * LATIN_RANGE in scripts/fonts/build_fonts.py. Arabic never matches these faces, so an Arabic
+ * run falls through to the Arabic stack in tokens.css instead of a Latin face.
+ */
+
+/* ---- Archivo (Omnibus-Type, SIL OFL 1.1). One variable file: wght 400-600, wdth 100-125. ---- */
+@font-face {
+  font-family: "Archivo";
+  src: url("../assets/fonts/archivo-latin-var.woff2") format("woff2");
+  font-weight: 400 600;
+  font-stretch: 100% 125%;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---- Fragment Mono (Wei Huang, SIL OFL 1.1). Regular only: small technical labels. ---- */
+@font-face {
+  font-family: "Fragment Mono";
+  src: url("../assets/fonts/fragment-mono-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * ---- Metric-matched fallbacks (CLS ~0 while the real face swaps in) ----
+ * Values come from the font files (scripts/fonts/build_fonts.py prints nothing for these; the
+ * numbers were measured with fontTools, method in docs/typography.md §Fallbacks):
+ *   Archivo  : UPM 1000, ascender 878, descender -210, line gap 0.
+ *              Mean advance of English text (letter-frequency weighted, spaces included):
+ *              wdth 100 / wght 400 = 0.4409 em; wdth 112.5 / wght 600 = 0.5250 em;
+ *              wdth 125 / wght 600 = 0.5913 em (wght 500: 0.5769 em).
+ *   Arial    : mean advance 0.4471 em (measured on Liberation Sans, Arial's metric clone).
+ *   size-adjust     = Archivo advance / Arial advance
+ *   ascent-override = 0.878 / size-adjust, descent-override = 0.210 / size-adjust, line-gap 0.
+ * The weight range on each fallback stops the browser faking bold on Arial for 500/600, which
+ * would widen the text and reflow it on swap. The Latin unicode-range keeps Arial's Arabic
+ * glyphs (Windows) out of the way of the Arabic stack.
+ */
+@font-face {
+  font-family: "Archivo Fallback";
+  src: local("Arial"), local("ArialMT"), local("Helvetica Neue"), local("Helvetica"), local("Liberation Sans");
+  font-weight: 100 900;
+  size-adjust: 98.6%;
+  ascent-override: 89.05%;
+  descent-override: 21.3%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+
+/* Headings (wdth 112.5 / wght 600, h3 and h4): about 17% wider than Arial. */
+@font-face {
+  font-family: "Archivo Heading Fallback";
+  src: local("Arial"), local("ArialMT"), local("Helvetica Neue"), local("Helvetica"), local("Liberation Sans");
+  font-weight: 100 900;
+  size-adjust: 117.4%;
+  ascent-override: 74.79%;
+  descent-override: 17.89%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+
+/* Display (wdth 125, h1 and h2): about 32% wider than Arial. Tuned to wght 600, which every
+   current heading uses; at 500 the real face is 2.4% narrower than this fallback. */
+@font-face {
+  font-family: "Archivo Display Fallback";
+  src: local("Arial"), local("ArialMT"), local("Helvetica Neue"), local("Helvetica"), local("Liberation Sans");
+  font-weight: 100 900;
+  size-adjust: 132.3%;
+  ascent-override: 66.36%;
+  descent-override: 15.87%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+
+/* Fragment Mono advance 0.618 em; Courier New / Liberation Mono / Menlo advance ~0.600 em. */
+@font-face {
+  font-family: "Fragment Mono Fallback";
+  src: local("Menlo"), local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono");
+  font-weight: 100 900;
+  size-adjust: 103%;
+  ascent-override: 92.23%;
+  descent-override: 24.27%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212;
+}

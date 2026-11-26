@@ -1,58 +1,131 @@
 /*
  * Design tokens. One source for colour, space, type and motion.
- * Palette: brand/logo/README.md. Contrast ratios: structure-v1 §4.7.
+ * Palette: brand/logo/README.md. Type system and contrast table: site/docs/typography.md.
  * Use CSS logical properties everywhere (RTL ready, structure-v1 §5.3).
+ *
+ * Contract with the rest of the codebase: token NAMES are stable. Add new ones; never rename or
+ * remove one (other components and scenes read them). Values may be tuned here.
  */
 :root {
   /* ---- Palette (brand) ---- */
   --carbon: #0e1013;     /* the void; logo on light */
-  --alloy: #eceae4;      /* reversed logo; primary text on Carbon (15.8:1) */
+  --alloy: #eceae4;      /* reversed logo; primary text on Carbon (15.84:1) */
   --rhodamine: #e3185b;  /* LIGHT and STATUS only. Never text under 24px, never inside the wordmark */
-  --graphite: #5e636b;   /* secondary text on Alloy only (5.0:1); decorative on Carbon (3.15:1) */
-  --mist: #8a8f97;       /* secondary text on Carbon (5.9:1). Provisional, final value in M1 */
+  --graphite: #5e636b;   /* secondary text on Alloy only (5.03:1); decorative on Carbon (3.15:1) */
+  --mist: #8a8f97;       /* secondary text on Carbon (5.86:1); never on Alloy (2.70:1) */
 
-  /* ---- Semantic colour ---- */
+  /* ---- Semantic colour (dark ground is the default surface) ---- */
   --bg: var(--carbon);
   --fg: var(--alloy);
   --fg-muted: var(--mist);
   --rule: color-mix(in srgb, var(--alloy) 14%, transparent);
+  --rule-strong: color-mix(in srgb, var(--alloy) 32%, transparent);
   --signal: var(--rhodamine);
   --focus: var(--alloy);
+  --selection-bg: var(--alloy);
+  --selection-fg: var(--carbon);
 
   /*
    * ---- The 2.4-unit grid ----
-   * The logo's joints are exactly 2.4 design units (strokes.json). We map one joint to
-   * 0.6rem and build every space and gutter as a multiple of it, so the page and the
-   * mark share one unit system.
+   * The logo's joints are exactly 2.4 design units (strokes.json). One joint = 0.6rem, and every
+   * space and gutter is a multiple of it, so the page and the mark share one unit system.
+   * The type baseline is a quarter joint: 0.15rem = 2.4px at the default root size, so text
+   * line heights (in rem) are whole multiples of the same 2.4 unit.
    */
   --joint: 0.6rem;
-  --s-1: calc(var(--joint) * 1);   /* 0.6rem */
-  --s-2: calc(var(--joint) * 2);   /* 1.2rem */
+  --baseline: calc(var(--joint) / 4); /* 0.15rem = 2.4px */
+  --s-1: calc(var(--joint) * 1);   /* 0.6rem  = 9.6px */
+  --s-2: calc(var(--joint) * 2);   /* 1.2rem  = 19.2px */
   --s-3: calc(var(--joint) * 3);   /* 1.8rem */
   --s-4: calc(var(--joint) * 4);   /* 2.4rem */
+  --s-5: calc(var(--joint) * 5);   /* 3rem */
   --s-6: calc(var(--joint) * 6);   /* 3.6rem */
   --s-8: calc(var(--joint) * 8);   /* 4.8rem */
+  --s-10: calc(var(--joint) * 10); /* 6rem */
   --s-12: calc(var(--joint) * 12); /* 7.2rem */
   --s-16: calc(var(--joint) * 16); /* 9.6rem */
+  --s-20: calc(var(--joint) * 20); /* 12rem */
+  --s-24: calc(var(--joint) * 24); /* 14.4rem */
+  --s-half: calc(var(--joint) / 2); /* 0.3rem: micro gaps inside one component only */
   --gutter: clamp(var(--s-2), 4vw, var(--s-6));
-  --measure: 34rem;      /* body line length, under 80 characters */
+  --section-gap: clamp(var(--s-10), 6vw + var(--s-4), var(--s-24));
+
+  /* ---- Containers ---- */
+  --measure: 31.2rem;        /* body line length: 52 joints, about 70 characters of Archivo text */
+  --measure-narrow: 24rem;   /* captions, notes: about 54 characters */
+  --measure-wide: 40.8rem;   /* lead paragraphs at --t-md: about 70 characters */
+  --container-text: 45.6rem; /* a text column with its headings */
+  --container-wide: 80rem;
   --page-max: 96rem;
   --hairline: 1px;
 
   /*
-   * ---- Type ----
-   * Placeholder stack until the owner picks the Latin + Arabic family (structure-v1 §4.6, Q7).
-   * No font is downloaded in M0. Scale: 1.25 ratio (major third), fluid at the top end.
+   * ---- Type: families ----
+   * Archivo (variable: wght 400-600, wdth 100-125) for everything, with width as the optical
+   * size: expanded (125%) for display, 112.5% for small headings, normal (100%) for text.
+   * Fragment Mono for small technical labels. Arabic companions (planned, not shipped yet):
+   * Noto Kufi Arabic for display, Noto Sans Arabic for text. They are named first in the
+   * :lang(ar) stacks below so they take over the moment they are added (docs/typography.md).
    */
-  --font-text: ui-sans-serif, "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-  --lh-tight: 1.04;
-  --lh-text: 1.5;
-  --track-display: -0.022em;
-  --t-sm: 0.875rem;
-  --t-base: 1rem;
-  --t-md: 1.25rem;
-  --t-lg: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
-  --t-xl: clamp(2.25rem, 1.4rem + 3.6vw, 4.75rem);
+  --font-text: "Archivo", "Archivo Fallback", system-ui, sans-serif;
+  --font-display: "Archivo", "Archivo Display Fallback", system-ui, sans-serif;
+  --font-heading: "Archivo", "Archivo Heading Fallback", system-ui, sans-serif; /* wdth 112.5 */
+  --font-mono: "Fragment Mono", "Fragment Mono Fallback", ui-monospace, monospace;
+  --font-arabic-text: "Noto Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif;
+  --font-arabic-display: "Noto Kufi Arabic", "Noto Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif;
+
+  /* Width axis = optical size (font-stretch). */
+  --wdth-display: 125%;
+  --wdth-heading: 112.5%;
+  --wdth-text: 100%;
+
+  /* Three weights only (400 / 500 / 600); the font file holds nothing outside that range. */
+  --w-text: 400;
+  --w-medium: 500;
+  --w-display: 500;   /* expanded display sizes */
+  --w-strong: 600;    /* small headings, where 500 looks weak */
+
+  /*
+   * ---- Type: scale ----
+   * Fixed sizes for reading text; fluid sizes (clamp) for headings, from a 360px to a 1600px
+   * viewport. The ratio widens as the screen grows: about 1.25 on a phone, about 1.5 on a
+   * desktop. Every clamp has rem bounds, so browser zoom and text-size settings still scale it.
+   */
+  --t-xs: 0.75rem;   /* 12px: meta and technical labels only. The floor: nothing smaller */
+  --t-sm: 0.875rem;  /* 14px: secondary text, navigation */
+  --t-base: 1rem;    /* 16px: body */
+  --t-md: clamp(1.125rem, 1.052rem + 0.323vw, 1.375rem);   /* 18 -> 22px: lead paragraph, small heading */
+  --t-lg: clamp(1.5rem, 1.282rem + 0.968vw, 2.25rem);      /* 24 -> 36px: statements, h3 */
+  --t-xl: clamp(2.25rem, 1.597rem + 2.903vw, 4.5rem);      /* 36 -> 72px: page titles, h1/h2 */
+  --t-2xl: clamp(2.75rem, 1.806rem + 4.194vw, 6rem);       /* 44 -> 96px: section display */
+  --t-3xl: clamp(3.25rem, 1.726rem + 6.774vw, 8.5rem);     /* 52 -> 136px: one hero line per page */
+
+  /*
+   * ---- Type: line height ----
+   * Display lines are tight (ratio); reading text sits on the 2.4px baseline (rem multiples).
+   */
+  --lh-display: 1.1;
+  --lh-tight: 1.1;
+  --lh-snug: 1.2;
+  --lh-text: 1.5;                               /* unitless, inherited: 16px -> 24px (10 baselines) */
+  --leading-base: calc(var(--baseline) * 10);   /* 1.5rem  = 24px   on 16px */
+  --leading-sm: calc(var(--baseline) * 9);      /* 1.35rem = 21.6px on 14px (1.54) */
+  --leading-xs: calc(var(--baseline) * 7);      /* 1.05rem = 16.8px on 12px (1.4) */
+  --leading-md: 1.45;
+
+  /*
+   * ---- Type: tracking ----
+   * Tighter as size grows (display only); 0 for text; 0 for all Arabic (tracking breaks
+   * joined script; see :lang(ar) below).
+   */
+  --track-display: -0.02em;   /* t-lg and t-xl */
+  --track-hero: -0.03em;      /* t-2xl and t-3xl */
+  --track-text: 0em;
+  --track-sm: 0.005em;        /* a hair open at 14px and below, for Carbon grounds */
+  --track-mono: 0em;
+
+  /* ---- Numbers ---- */
+  --num-tabular: tabular-nums lining-nums;
 
   /*
    * ---- Motion: named curves and durations (structure-v1 §6.5) ----
@@ -66,4 +139,46 @@
   --dur-swap: 150ms;     /* still <-> canvas swap; also the reduced-motion fade ceiling */
   --dur-reveal: 640ms;   /* line reveals (marketing pacing, rare) */
   --dur-intro: 1200ms;   /* wordmark intro (placeholder for scene 1a) */
+}
+
+/*
+ * ---- Light surface (Alloy ground) ----
+ * Put data-surface="alloy" on any block to flip it. Graphite replaces Mist for muted text,
+ * because Mist fails AA on Alloy.
+ */
+[data-surface="alloy"] {
+  --bg: var(--alloy);
+  --fg: var(--carbon);
+  --fg-muted: var(--graphite);
+  --rule: color-mix(in srgb, var(--carbon) 14%, transparent);
+  --rule-strong: color-mix(in srgb, var(--carbon) 32%, transparent);
+  --focus: var(--carbon);
+  --selection-bg: var(--carbon);
+  --selection-fg: var(--alloy);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/*
+ * ---- Arabic (ships later; the metrics are set now) ----
+ * Arabic needs taller lines (ascenders, dots and marks stack higher) and no tracking. Families
+ * switch to the Arabic stacks; Latin words inside Arabic text still render in Archivo because
+ * the Arabic families come after it only for Latin code points (unicode-range).
+ */
+:lang(ar) {
+  --font-text: "Archivo", var(--font-arabic-text);
+  --font-display: "Archivo", var(--font-arabic-display);
+  --font-heading: "Archivo", var(--font-arabic-display);
+  --lh-display: 1.35;
+  --lh-tight: 1.35;
+  --lh-snug: 1.45;
+  --lh-text: 1.8;
+  --leading-base: calc(var(--baseline) * 12);   /* 1.8rem  on 16px */
+  --leading-sm: calc(var(--baseline) * 11);     /* 1.65rem on 14px (1.89) */
+  --leading-xs: calc(var(--baseline) * 9);      /* 1.35rem on 12px */
+  --leading-md: 1.7;
+  --w-display: 600;   /* Kufi at 500 reads lighter than expanded Archivo at 500 (specimen) */
+  --track-display: 0em;
+  --track-hero: 0em;
+  --track-sm: 0em;
 }

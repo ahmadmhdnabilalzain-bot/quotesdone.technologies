@@ -1,2 +1,5 @@
-/** STUB: replaced by the real scene. Re-exports the smoke scene so the page works until then. */
-export { default } from '../smoke/index.ts';
+/** Scene 5, Sonobolt: "One continuous line". Implementation in scene.ts; notes in README.md. */
+import { createSonoboltScene } from './scene.ts';
+
+export { createSonoboltScene };
+export default createSonoboltScene;

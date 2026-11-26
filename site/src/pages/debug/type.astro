@@ -1,0 +1,171 @@
+---
+/**
+ * /debug/type: dev-only type specimen (noindex; every build is noindex until M5, and /debug must
+ * not ship to production per structure-v1 §3.7). Shows the scale, weights, widths, text roles and
+ * an Arabic metrics test on Carbon and Alloy. Docs: site/docs/typography.md.
+ *
+ * The Arabic faces here are the PLANNED companions (Noto Kufi Arabic, Noto Sans Arabic). They are
+ * loaded on this page only, from the pinned @fontsource packages, to test metrics and harmony.
+ * They are not part of the public pages yet.
+ */
+import Base from '../../layouts/Base.astro';
+import kufiUrl from '@fontsource-variable/noto-kufi-arabic/files/noto-kufi-arabic-arabic-wght-normal.woff2?url';
+import naskhUrl from '@fontsource-variable/noto-sans-arabic/files/noto-sans-arabic-arabic-wght-normal.woff2?url';
+import home from '../../content/en/home.json';
+
+/** A home statement by index; the specimen must still render if the copy deck changes length. */
+const statement = (i: number) => home.statements[i] ?? { title: '', body: '' };
+
+const AR_RANGE = 'U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC';
+const arabicFaces = `
+@font-face{font-family:"Noto Kufi Arabic";src:url(${kufiUrl}) format("woff2");font-weight:100 900;font-display:swap;unicode-range:${AR_RANGE}}
+@font-face{font-family:"Noto Sans Arabic";src:url(${naskhUrl}) format("woff2");font-weight:100 900;font-display:swap;unicode-range:${AR_RANGE}}`;
+
+const scale = [
+  { token: '--t-3xl', role: 'Hero line', range: '52 to 136px', cls: 'type-hero', text: home.hero.headline },
+  { token: '--t-2xl', role: 'Section display', range: '44 to 96px', cls: 'type-display', text: home.closing.headline },
+  { token: '--t-xl', role: 'Page title, h1 and h2', range: '36 to 72px', cls: 'type-title', text: statement(0).title },
+  { token: '--t-lg', role: 'Statement, h3', range: '24 to 36px', cls: 'type-heading', text: statement(1).title },
+  { token: '--t-md', role: 'Lead paragraph', range: '18 to 22px', cls: 'type-lead', text: home.hero.subline },
+  { token: '--t-base', role: 'Body', range: '16px', cls: 'type-body', text: statement(2).body },
+  { token: '--t-sm', role: 'Secondary, navigation', range: '14px', cls: 'type-small', text: statement(3).body },
+  { token: '--t-xs', role: 'Meta (the floor)', range: '12px', cls: 'type-meta', text: 'Dubai, United Arab Emirates. Updated 26 November 2026.' },
+];
+const surfaces = [
+  { id: 'carbon', label: 'On Carbon', attr: undefined },
+  { id: 'alloy', label: 'On Alloy', attr: 'alloy' },
+];
+const widths = [
+  { wdth: '100%', label: 'wdth 100: text' },
+  { wdth: '112.5%', label: 'wdth 112.5: small headings' },
+  { wdth: '125%', label: 'wdth 125: display' },
+];
+const weights = [400, 500, 600];
+const figures: Array<[string, string]> = [
+  ['QuotesDone reveal fee', '3%'],
+  ['Sonobolt Mix, per hour', 'AED 99'],
+  ['Logo joint', '2.4 units'],
+  ['Baseline', '2.4px'],
+];
+// Contrast: computed by tests/unit/contrast.test.ts from tokens.css (WCAG 2.2 relative luminance).
+const contrast: string[][] = [
+  ['Alloy #ECEAE4', 'Carbon #0E1013', '15.84', 'Body and headings on dark', 'AAA'],
+  ['Mist #8A8F97', 'Carbon #0E1013', '5.86', 'Muted text on dark', 'AA'],
+  ['Carbon #0E1013', 'Alloy #ECEAE4', '15.84', 'Body and headings on light; skip link', 'AAA'],
+  ['Graphite #5E636B', 'Alloy #ECEAE4', '5.03', 'Muted text on light', 'AA'],
+  ['Rhodamine #E3185B', 'Carbon #0E1013', '4.13', 'Light and status only: 24px+ or non-text (3:1)', 'AA large'],
+  ['Graphite #5E636B', 'Carbon #0E1013', '3.15', 'Decorative only, never text', 'n/a'],
+  ['Mist #8A8F97', 'Alloy #ECEAE4', '2.70', 'Not allowed', 'Fail'],
+];
+---
+<Base title="Type specimen (debug)" description="Development-only type specimen for the QuotesDone Technologies hub: scale, weights, widths, Arabic metrics and contrast.">
+  <Fragment set:html={`<style>${arabicFaces}</style>`} />
+  <div class="frame spec">
+    <header class="spec__head">
+      <h1 class="type-display">Type specimen</h1>
+      <p class="type-lead muted">Archivo for every word, with width as the optical size. Fragment Mono for technical labels. Planned Arabic: Noto Kufi Arabic and Noto Sans Arabic.</p>
+      <p class="type-mono muted">archivo 5.3.0 wght 400-600 wdth 100-125 / fragment-mono 5.3.0 / baseline 0.15rem = 2.4px / joint 0.6rem</p>
+    </header>
+
+    {surfaces.map((s) => (
+      <section class="spec__surface" data-surface={s.attr} aria-labelledby={`scale-${s.id}`}>
+        <h2 id={`scale-${s.id}`} class="spec__label type-small">Scale. {s.label}</h2>
+        <ol class="spec__scale" role="list">
+          {scale.map((row) => (
+            <li class="spec__row">
+              <p class="type-mono muted spec__meta"><span>{row.token}</span> <span>{row.range}</span> <span>{row.role}</span></p>
+              <p class={row.cls}>{row.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
+
+    <section class="spec__block" aria-labelledby="axes">
+      <h2 id="axes" class="spec__label type-small">Width and weight</h2>
+      <div class="spec__axes">
+        {widths.map((w) => (
+          <div>
+            <p class="type-mono muted">{w.label}</p>
+            {weights.map((wt) => (
+              <p class="spec__axis" style={`font-stretch:${w.wdth};font-weight:${wt}`}>Sonobolt {wt}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="spec__block spec__text" aria-labelledby="text">
+      <h2 id="text" class="spec__label type-small">Reading text on the baseline grid</h2>
+      <div class="spec__grid">
+        <h3>{statement(1).title}</h3>
+        <p class="type-body">{statement(1).body} {statement(2).body} {statement(3).body}</p>
+        <p class="type-body">Links look like <a href="#text">this inline link</a>; keyboard focus draws a 2px outline. Select any text to see the selection colours.</p>
+      </div>
+      <div>
+        <hr />
+        <p class="type-small muted">{home.meta.description}</p>
+      </div>
+      <table class="spec__figures num">
+        <caption class="spec__label type-small">Tabular figures (.num)</caption>
+        <tbody>
+          {figures.map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="spec__block" aria-labelledby="arabic">
+      <h2 id="arabic" class="spec__label type-small">Arabic metrics test (planned faces; test text, not final copy)</h2>
+      <div class="spec__pair">
+        <div>
+          <p class="type-title">{home.hero.headline}</p>
+          <p class="type-body">{home.hero.subline}</p>
+        </div>
+        <div lang="ar" dir="rtl">
+          <p class="type-title">برمجيات تُبنى وتُدار في دبي.</p>
+          <p class="type-body">تبني كوتس دن للتكنولوجيا منتجات برمجية وتديرها بعد إطلاقها. QuotesDone و Sonobolt متاحان الآن.</p>
+        </div>
+      </div>
+      <p class="type-mono muted">Arabic tokens: display line 1.35, text line 1.8 (1.8rem = 12 baselines), display weight 600, tracking 0</p>
+    </section>
+
+    <section class="spec__block" aria-labelledby="contrast">
+      <h2 id="contrast" class="spec__label type-small">Contrast (WCAG 2.2, computed)</h2>
+      <div class="spec__scroll"><table class="spec__contrast num">
+        <thead><tr><th scope="col">Text</th><th scope="col">Ground</th><th scope="col">Ratio</th><th scope="col">Use</th><th scope="col">Level</th></tr></thead>
+        <tbody>
+          {contrast.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}
+        </tbody>
+      </table></div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .spec { padding-block: var(--s-8) var(--s-16); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-12); }
+  .spec__head { display: grid; gap: var(--s-2); }
+  .spec__label { grid-column: 1 / -1; color: var(--fg-muted); font-family: var(--font-text); font-stretch: var(--wdth-text); line-height: var(--leading-sm); font-weight: var(--w-medium); letter-spacing: var(--track-sm); margin-block-end: var(--s-3); text-align: start; }
+  .spec__surface { padding: var(--s-6) var(--gutter); margin-inline: calc(var(--gutter) * -1); border-block-start: var(--hairline) solid var(--rule); }
+  .spec__scale { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-4); }
+  .spec__row { display: grid; gap: var(--s-1); padding-block-end: var(--s-4); border-block-end: var(--hairline) solid var(--rule); }
+  .spec__meta { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .spec__axes { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr)); }
+  .spec__axis { font-size: var(--t-lg); line-height: var(--lh-snug); }
+  .spec__text { display: grid; gap: var(--s-6); grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); align-items: start; }
+  .spec__grid {
+    display: grid;
+    /* Overlay: one line per body line (10 baselines = 1.5rem). Reading text and the gaps between
+       blocks (multiples of the joint) land on it; fluid headings do not, by design. */
+    background-image: repeating-linear-gradient(to bottom, transparent 0 calc(var(--leading-base) - 1px), color-mix(in srgb, var(--signal) 30%, transparent) calc(var(--leading-base) - 1px) var(--leading-base));
+  }
+  .spec__grid h3 { font-size: var(--t-lg); line-height: calc(var(--leading-base) * 2); }
+  .spec__grid { gap: var(--leading-base); }
+  .spec__scroll { overflow-x: auto; }
+  table { border-collapse: collapse; inline-size: 100%; font-size: var(--t-sm); line-height: var(--leading-sm); }
+  caption { caption-side: top; }
+  th, td { text-align: start; padding-block: var(--s-1); padding-inline-end: var(--s-2); border-block-end: var(--hairline) solid var(--rule); font-weight: var(--w-text); }
+  thead th { color: var(--fg-muted); font-weight: var(--w-medium); }
+  .spec__figures td { text-align: end; }
+  .spec__pair { display: grid; gap: var(--s-6); grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr)); margin-block-end: var(--s-3); }
+  .spec__pair > div { display: grid; gap: var(--s-2); align-content: start; padding-block-start: var(--s-2); border-block-start: var(--hairline) solid var(--rule-strong); }
+</style>

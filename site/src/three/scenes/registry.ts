@@ -13,4 +13,5 @@ export const SCENES: Readonly<Record<string, SceneLoader>> = {
   sonobolt: () => import('./sonobolt/index.ts').then((m) => m.default),
   mubinflow: () => import('./mubinflow/index.ts').then((m) => m.default),
   close: () => import('./close/index.ts').then((m) => m.default),
+  company: () => import('./company/index.ts').then((m) => m.default),
 };

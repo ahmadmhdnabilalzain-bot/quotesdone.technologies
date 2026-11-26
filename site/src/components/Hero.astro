@@ -1,59 +1,318 @@
 ---
-import wordmarkRaw from '../assets/logo/wordmark-dark.svg?raw';
-import SceneSlot from './SceneSlot.astro';
+/**
+ * Hero = scene 1 'Assembly' (structure-v1 §2.2 scene 1, §2.2.2).
+ *
+ * 1a, no JS needed: the wordmark draws itself from brand/logo/final/strokes.json, part by part in
+ * `order`. Parts with butt_reproducible = true stroke their centre line (stroke-width = weight, butt
+ * caps); the other 5 (Q bowl-tail, both N braces, C, G) reveal their outline through a mask made of
+ * that centre-line stroke. Every part ends on its exact `outline` fill (weights vary along strokes).
+ * Then the Rhodamine datum draws under the wordmark, never through it. Pure CSS, ~2.4 s, plays once.
+ * 1b-1d: the logo scene (src/three/scenes/logo) takes over on a sticky full-viewport stage and
+ * docks into the header. The script below measures the DOM boxes for it and runs the hand-off.
+ *
+ * The SVG paths come straight from strokes.json (the master data), never redrawn.
+ * The H1 and the sub-line are in the DOM from the first paint and never move.
+ */
+import strokes from '../../../brand/logo/final/strokes.json';
 import home from '../content/en/home.json';
 import ui from '../content/en/ui.json';
-import { inlineSvg } from '../lib/svg.ts';
 
-// wordmark-dark = Alloy logo for dark grounds (brand/logo/README.md). Rendered >= 480px wide on
-// desktop, so the open master joints are correct; below that the compact cut takes over (M1).
-const wordmark = inlineSvg(wordmarkRaw, { className: 'logo-svg hero__wordmark', label: ui.wordmarkLabel });
+interface StrokePart {
+  id: string;
+  line: string;
+  order: number;
+  weight: number;
+  centerline: string;
+  outline: string;
+  butt_reproducible: boolean;
+}
+
+/** Draw-on timing (ms). Total = last start + its draw + fill swap ~ 1.8 s, then the datum to ~2.4 s. */
+const TIMING = { staggerMs: 32, line1Ms: 560, line2Ms: 340, fillMs: 120, datumDelayMs: 1760, datumMs: 640 } as const;
+/** Mask strokes are wider than the nominal weight so they cover the modulated outline. */
+const MASK_WEIGHT_FACTOR = 1.6;
+
+const parts = ([...strokes.strokes] as StrokePart[]).sort((a, b) => a.order - b.order);
+if (parts.length !== 43) throw new Error(`Hero: strokes.json must have 43 parts, found ${parts.length}`);
+const viewBox = strokes.viewBox;
+
+const drawMs = (p: StrokePart): number => (p.line === 'QUOTESDONE' ? TIMING.line1Ms : TIMING.line2Ms);
+const styleFor = (p: StrokePart): string => {
+  const delay = p.order * TIMING.staggerMs;
+  return `--draw-delay:${delay}ms;--draw-dur:${drawMs(p)}ms;--fill-delay:${delay + drawMs(p)}ms`;
+};
+const maskId = (p: StrokePart): string => `qdt-draw-mask-${p.order}`;
+const masked = parts.filter((p) => !p.butt_reproducible);
 ---
-<section class="hero" aria-labelledby="hero-title">
-  <div class="frame hero__frame">
-    <div class="hero__mark">
-      <Fragment set:html={wordmark} />
-      <span class="hero__datum" aria-hidden="true"></span>
+<section
+  class="hero"
+  aria-labelledby="hero-title"
+  data-logo-hero
+  data-scene-slot="hero"
+  data-scene="logo"
+  data-scene-state="still"
+  data-scene-start="top top"
+  data-scene-end="bottom bottom"
+  style={`--fill-ms:${TIMING.fillMs}ms;--datum-delay:${TIMING.datumDelayMs}ms;--datum-ms:${TIMING.datumMs}ms`}
+>
+  <div class="hero__sticky">
+    <!-- The logo scene's stage: the whole viewport, so the wordmark can travel into the header. -->
+    <div class="hero__stage scene-stage" data-scene-stage>
+      <!-- This scene's still is the DOM wordmark itself; the figure is kept for the runtime contract. -->
+      <figure class="scene-still" aria-hidden="true"></figure>
     </div>
-    <SceneSlot slot="hero" scene="smoke" class="hero__slot">
+    <div class="frame hero__frame">
+      <div class="hero__mark" data-logo-mark>
+        <svg class="logo-svg hero__wordmark" viewBox={viewBox} role="img" aria-label={ui.wordmarkLabel} focusable="false" data-logo-wordmark>
+          <defs>
+            {masked.map((p) => (
+              <mask id={maskId(p)} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+                <path class="hero__draw hero__draw--mask" d={p.centerline} pathLength="1" stroke-width={p.weight * MASK_WEIGHT_FACTOR} style={styleFor(p)} />
+              </mask>
+            ))}
+          </defs>
+          {parts.map((p) =>
+            p.butt_reproducible ? (
+              <g data-part={p.id}>
+                <path class="hero__draw hero__draw--stroke" d={p.centerline} pathLength="1" stroke-width={p.weight} style={styleFor(p)} />
+                <path class="hero__fill" d={p.outline} style={styleFor(p)} />
+              </g>
+            ) : (
+              <g data-part={p.id}>
+                <path class="hero__fill hero__fill--masked" d={p.outline} mask={`url(#${maskId(p)})`} style={styleFor(p)} />
+              </g>
+            ),
+          )}
+        </svg>
+        <span class="hero__datum" data-logo-datum aria-hidden="true"></span>
+      </div>
       <div class="hero__text">
         <h1 id="hero-title" class="hero__title">{home.hero.headline}</h1>
         <p class="hero__subline">{home.hero.subline}</p>
       </div>
-    </SceneSlot>
+      <p class="scene-fallback">{ui.fallback3d}</p>
+    </div>
   </div>
 </section>
 
-<style>
-  .hero__frame {
-    display: grid;
-    gap: var(--s-6);
-    padding-block: var(--s-6) var(--s-12);
+<script>
+  // Hand-off between the DOM wordmark and the logo scene. DOM-only (no three.js): it measures the
+  // boxes the scene must match, and switches which of the two is visible at the same progress
+  // marks the scene uses (params.ts). Phases on the section (data-logo-phase):
+  //   dom     3D not live: the DOM SVG is the logo (no JS, still tier, failures, released scene)
+  //   rest    3D live, progress < pSwap: DOM SVG on top of an identical canvas frame
+  //   flight  canvas owns the wordmark; the header logo is hidden and the header is transparent
+  //   docked  progress >= pDockEnd: the DOM header logo is back (the canvas hides at pHide)
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { gsap } from 'gsap';
+  import { publishLogoLayout } from '../three/scenes/logo/layout.ts';
+  import { LOGO_PARAMS } from '../three/scenes/logo/params.ts';
+  import { currentFlags } from '../lib/flags.ts';
+  import { createLogger } from '../lib/log.ts';
+
+  const log = createLogger('hero:logo');
+  const INTRO_FALLBACK_MS = 3200;
+
+  function init(): void {
+    const hero = document.querySelector<HTMLElement>('[data-logo-hero]');
+    const stage = hero?.querySelector<HTMLElement>('[data-scene-stage]');
+    const svg = hero?.querySelector<SVGSVGElement>('[data-logo-wordmark]');
+    const datum = hero?.querySelector<HTMLElement>('[data-logo-datum]');
+    if (!hero || !stage || !svg || !datum) return;
+    const html = document.documentElement;
+    const flags = currentFlags();
+    // ?scene=hero|logo&p=n (and the /debug/logo scrubber) pin the progress instead of the scroll.
+    let pinned: number | null = flags.scene === 'hero' || flags.scene === 'logo' ? (flags.progress ?? 0) : null;
+    let progress = pinned ?? 0;
+
+    // ---- 1a intro gate: never show a live canvas behind a half-drawn SVG ----
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const introDone = (): void => {
+      if (hero.dataset.intro !== 'done') hero.dataset.intro = 'done';
+    };
+    if (reduced || pinned !== null) introDone();
+    else {
+      hero.dataset.intro = 'running';
+      datum.addEventListener('animationend', introDone, { once: true });
+      window.setTimeout(introDone, INTRO_FALLBACK_MS);
+    }
+
+    // ---- Boxes for the scene (CSS px relative to the stage) ----
+    const measure = (): void => {
+      const s = stage.getBoundingClientRect();
+      const w = svg.getBoundingClientRect();
+      const d = datum.getBoundingClientRect();
+      const headerLogo = document.querySelector<SVGElement>('.site-header__logo');
+      const dockRect = headerLogo && headerLogo.getBoundingClientRect().width > 0 ? headerLogo.getBoundingClientRect() : null;
+      // The header is sticky at the top and the stage is sticky at the top, so the dock box's
+      // viewport y IS its stage y; x is relative to the stage.
+      const dock = dockRect
+        ? { x: dockRect.left - s.left, y: dockRect.top, width: dockRect.width, height: dockRect.height }
+        : { x: w.left - s.left, y: 0, width: 0.0001, height: 0.0001 };
+      publishLogoLayout({
+        stageWidth: s.width,
+        stageHeight: s.height,
+        hero: { x: w.left - s.left, y: w.top - s.top, width: w.width, height: w.height },
+        datum: { x: d.left - s.left, y: d.top - s.top, width: d.width, height: d.height },
+        dock,
+      });
+      log.debug(`measured stage ${s.width}x${s.height}, wordmark ${w.width.toFixed(1)} px, dock ${dock.width.toFixed(1)} px`);
+    };
+    measure();
+    new ResizeObserver(measure).observe(stage);
+    document.fonts?.ready.then(measure).catch(() => undefined);
+
+    // ---- Phase switch ----
+    const p = LOGO_PARAMS;
+    const apply = (): void => {
+      const live = hero.dataset.sceneState === 'live';
+      const phase = !live ? 'dom' : progress < p.pSwap.value ? 'rest' : progress >= p.pDockEnd.value ? 'docked' : 'flight';
+      if (hero.dataset.logoPhase !== phase) hero.dataset.logoPhase = phase;
+      // While parts are out of their joints the datum steps back, so it never runs through them.
+      const exploded = live && progress >= p.pExplodeStart.value && progress < p.pReseatEnd.value;
+      hero.toggleAttribute('data-logo-exploded', exploded);
+      const handoff = live && progress < p.pDockEnd.value ? 'flight' : 'dom';
+      if (html.dataset.logoHandoff !== handoff) html.dataset.logoHandoff = handoff;
+    };
+    new MutationObserver(apply).observe(hero, { attributes: true, attributeFilter: ['data-scene-state'] });
+
+    if (pinned === null) {
+      gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.create({
+        trigger: hero,
+        start: hero.dataset.sceneStart ?? 'top top',
+        end: hero.dataset.sceneEnd ?? 'bottom bottom',
+        onUpdate: (self) => {
+          progress = self.progress;
+          apply();
+        },
+        onRefresh: (self) => {
+          progress = self.progress;
+          apply();
+        },
+      });
+    }
+    window.addEventListener('qdt:logo-progress', (event) => {
+      const value = Number((event as CustomEvent<number>).detail);
+      if (!Number.isFinite(value)) return;
+      pinned = value;
+      progress = value;
+      apply();
+    });
+    apply();
   }
-  .hero__mark { position: relative; max-inline-size: 60rem; }
-  .hero__wordmark { inline-size: 100%; block-size: auto; color: var(--fg); }
-  /* The datum: Rhodamine as light, under the wordmark, never through it. */
+
+  init();
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    /* The stage starts under the sticky header, so the wordmark can dock into it (Header.astro). */
+    margin-block-start: calc(-1 * var(--header-h));
+  }
+  /* The pinned scroll range only exists where the 3D can run; stills get a plain hero (no dead scroll). */
+  :global(html.js[data-tier="low"]) .hero,
+  :global(html.js[data-tier="mid"]) .hero,
+  :global(html.js[data-tier="high"]) .hero {
+    block-size: var(--hero-scroll, 280svh);
+  }
+  .hero__sticky {
+    position: sticky;
+    inset-block-start: 0;
+    min-block-size: 100svh;
+    display: grid;
+    align-items: start;
+  }
+  .hero__stage {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .hero__stage .scene-still { position: absolute; inset: 0; margin: 0; }
+  .hero__frame {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--s-8);
+    padding-block: calc(var(--header-h) + var(--s-12)) var(--s-12);
+  }
+  .hero__mark {
+    position: relative;
+    inline-size: min(100%, 60rem);
+  }
+  .hero__wordmark {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    color: var(--fg);
+    overflow: visible;
+    /* motion.css still carries the M0 placeholder clip intro on this class: switched off here. */
+    animation: none;
+  }
+
+  /* ---- 1a: the draw-on (CSS only) ---- */
+  .hero__draw {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 1;
+    animation: qdt-draw var(--draw-dur) var(--ease-enter) var(--draw-delay) both;
+  }
+  .hero__draw--mask { stroke: #fff; }
+  /* A stroked part hands over to its exact outline as soon as its own stroke ends. */
+  .hero__draw--stroke {
+    animation:
+      qdt-draw var(--draw-dur) var(--ease-enter) var(--draw-delay) both,
+      qdt-hide var(--fill-ms) var(--ease-hover) var(--fill-delay) forwards;
+  }
+  .hero__fill {
+    fill: currentColor;
+    opacity: 0;
+    animation: qdt-show var(--fill-ms) var(--ease-hover) var(--fill-delay) forwards;
+  }
+  .hero__fill--masked { opacity: 1; animation: none; }
+  @keyframes qdt-draw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes qdt-show { to { opacity: 1; } }
+  @keyframes qdt-hide { to { opacity: 0; } }
+
+  /* The datum: Rhodamine as light, one joint under the wordmark, never through it. */
   .hero__datum {
     display: block;
     margin-block-start: var(--s-2);
     block-size: var(--hairline);
     inline-size: 100%;
     background: var(--signal);
+    transform-origin: 0 50%;
+    animation: qdt-datum-draw var(--datum-ms) var(--ease-enter) var(--datum-delay) both;
   }
-  /* SceneSlot renders the .hero__slot element, so these selectors must be global to reach it. */
-  :global(.hero__slot) .hero__text { align-self: end; }
-  :global(.hero__slot .scene-stage) { max-inline-size: min(34rem, 52svh); }
-  :global(.hero__slot) {
-    display: grid;
-    gap: var(--s-4);
-    align-items: center;
+  :global(:dir(rtl)) .hero__datum { transform-origin: 100% 50%; }
+  @keyframes qdt-datum-draw {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
+
+  /* ---- Hand-off with the canvas (phases set by the script above) ---- */
+  /* Until the draw-on ends, the mark box covers the canvas behind it with the page ground. */
+  :global(html.js) .hero:not([data-intro="done"]) .hero__mark { background: var(--bg); }
+  .hero[data-logo-phase="flight"] .hero__wordmark,
+  .hero[data-logo-phase="docked"] .hero__wordmark { visibility: hidden; }
+
+  .hero__datum { transition: opacity var(--dur-reveal) var(--ease-hover); }
+  .hero[data-logo-exploded] .hero__datum { opacity: 0; }
+
+  .hero__text { max-inline-size: 48rem; }
   .hero__title {
     font-size: var(--t-xl);
     line-height: var(--lh-tight);
     letter-spacing: var(--track-display);
     font-weight: 600;
-    max-inline-size: 14ch;
+    max-inline-size: 18ch;
     text-wrap: balance;
   }
   .hero__subline {
@@ -62,9 +321,17 @@ const wordmark = inlineSvg(wordmarkRaw, { className: 'logo-svg hero__wordmark', 
     font-size: var(--t-md);
     color: var(--fg-muted);
   }
-  @media (min-width: 60rem) {
-    :global(.hero__slot) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    :global(.hero__slot .scene-stage) { justify-self: end; }
-    :global(.hero__slot .scene-fallback) { grid-column: 2; justify-self: end; }
+  .hero .scene-fallback {
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+  :global(html.js) .hero:not([data-scene-state="failed"]) .scene-fallback { visibility: hidden; }
+  :global(html.js[data-tier="still"]) .hero .scene-fallback { visibility: visible; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__draw, .hero__draw--stroke { animation: none; display: none; }
+    .hero__draw--mask { display: inline; stroke-dashoffset: 0; }
+    .hero__fill { animation: none; opacity: 1; }
+    .hero__datum { animation: none; }
   }
 </style>

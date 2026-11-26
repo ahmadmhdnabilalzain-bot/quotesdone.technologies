@@ -1,25 +1,173 @@
 ---
+/**
+ * Home scene 3, "The line" (structure-v1 §2.2): the product index from copy deck §2, beside the
+ * rail scene's docking stations.
+ *
+ * Two layouts, one markup:
+ * - Static (no JS, reduced motion, the 'still' tier, or a failed scene): a plain list. Every word
+ *   is in the HTML from first paint.
+ * - Staged (JS and a 3D tier): the section is tall, the stage is sticky and full-bleed, and each
+ *   label is anchored beside its station. The anchors are computed HERE at build time from the
+ *   scene's own layout maths (three-free), so the canvas and the DOM cannot drift apart. Each
+ *   label reveals when its product has docked (the same beats the scene uses).
+ *
+ * Handover from scene 2: Statements.astro ends with a quiet beat holding the DOM datum line at
+ * the stage centre; this section overlaps it by one viewport, so the canvas datum (progress 0)
+ * lies exactly under the DOM line before the DOM line leaves.
+ */
 import home from '../content/en/home.json';
 import SceneSlot from './SceneSlot.astro';
+import { RAIL_BEATS, RAIL_PARAMS } from '../three/scenes/rail/params.ts';
+import { labelAnchors } from '../three/scenes/rail/layout.ts';
+
+const anchors = new Map(labelAnchors(home.productIndex.items, RAIL_PARAMS).map((a) => [a.slug, a]));
+const items = home.productIndex.items.map((p, i) => {
+  const a = anchors.get(p.slug);
+  const beat = RAIL_BEATS.docks[i] ?? RAIL_BEATS.docks[RAIL_BEATS.docks.length - 1]!;
+  const style = a ? `--ax:${a.inlineFraction.toFixed(4)};--ak:${a.k.toFixed(4)};--t:${(beat[1] - 0.02).toFixed(3)}` : '';
+  return { ...p, style };
+});
 ---
 <section class="products" id={home.productIndex.id}>
-  <SceneSlot slot="rail" scene="rail" start="top top" end="bottom bottom" class="products__slot">
+  <SceneSlot slot="rail" scene="rail" start="top -45%" end="bottom bottom" class="products__slot">
     <ul class="products__list">
-      {home.productIndex.items.map((p) => (
-        <li class="product" data-status={p.status}>
+      {items.map((p) => (
+        <li class="product" data-status={p.status} data-product={p.slug} style={p.style}>
+          <span class="product__status" aria-hidden="true"></span>
           <h2 class="product__name">{p.name}</h2>
           <p class="product__line">{p.line}</p>
+          {p.href
+            ? <a class="product__label" href={p.href} rel="noopener">{p.label}</a>
+            : <span class="product__label">{p.label}</span>}
         </li>
       ))}
     </ul>
   </SceneSlot>
 </section>
 
+<script>
+  /*
+   * Mirrors the scene's progress into --rail-p for the label reveals. Same trigger and range as
+   * motion/scroll.ts uses for the slot, so labels and docks agree. No three.js on this path.
+   * ?scene=rail&p=<n> freezes it, like the scene itself (debug links and screenshots).
+   */
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { currentFlags } from '../lib/flags.ts';
+  import { createLogger } from '../lib/log.ts';
+
+  const log = createLogger('ui:products');
+  const slot = document.querySelector<HTMLElement>('[data-scene-slot="rail"]');
+  if (slot) {
+    const set = (p: number): void => slot.style.setProperty('--rail-p', p.toFixed(4));
+    const flags = currentFlags();
+    if (flags.scene === 'rail' && flags.progress !== null) {
+      set(flags.progress);
+      slot.dataset.railFrozen = '';
+    } else if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.create({
+        trigger: slot,
+        start: slot.dataset.sceneStart ?? 'top top',
+        end: slot.dataset.sceneEnd ?? 'bottom bottom',
+        onUpdate: (self) => {
+          if (slot.dataset.railFrozen === undefined) set(self.progress);
+        },
+      });
+      log.debug('label reveals bound to scroll');
+    }
+  }
+</script>
+
 <style>
-  .products { position: relative; }
-  :global(html.js:not([data-tier="still"])) .products { block-size: 400svh; }
-  :global(html.js:not([data-tier="still"]) .products__slot) { block-size: 100%; }
-  :global(html.js:not([data-tier="still"]) .products__slot .scene-stage) {
-    position: sticky; inset-block-start: 0; block-size: 100svh; aspect-ratio: auto;
+  /* ---------- Static layout: a list (no JS, reduced motion, 'still' tier, failed scene) ---------- */
+  .products__list { margin: 0; padding: 0; list-style: none; }
+  .product {
+    display: grid;
+    grid-template-columns: var(--s-2) minmax(0, 1fr);
+    column-gap: var(--s-2);
+    row-gap: var(--s-1);
+    padding-block: var(--s-4);
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+  .product__status {
+    inline-size: 0.5rem; block-size: 0.5rem;
+    margin-block-start: 0.55em;
+    border-radius: 50%;
+    border: var(--hairline) solid var(--fg-muted);
+  }
+  /* Rhodamine dot = live; outline only = in development (structure-v1 scene 3). */
+  .product[data-status="live"] .product__status { background: var(--signal); border-color: var(--signal); }
+  .product__name { font-size: var(--t-md); font-weight: 600; letter-spacing: var(--track-display); }
+  .product__line, .product__label { grid-column: 2; }
+  .product__line { color: var(--fg-muted); max-inline-size: var(--measure); }
+  .product__label { font-size: var(--t-sm); justify-self: start; }
+  :global(.products__slot) { padding-inline: var(--gutter); max-inline-size: var(--page-max); margin-inline: auto; }
+  :global(.products__slot .scene-stage) { aspect-ratio: 21 / 9; }
+  @media (min-width: 60rem) {
+    .product { grid-template-columns: var(--s-2) minmax(0, 3fr) minmax(0, 6fr) minmax(0, 3fr); align-items: baseline; }
+    .product__line, .product__label { grid-column: auto; }
+    .product__label { justify-self: end; }
+  }
+
+  /* ---------- Staged layout: JS + a 3D tier, while the scene has not failed ---------- */
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .products { block-size: 420svh; }
+  /* Overlap the quiet end beat of Statements by one viewport (the datum handover). */
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .products { margin-block-start: -100svh; }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) {
+    block-size: 100%;
+    max-inline-size: none;
+    padding-inline: 0;
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"]) .scene-stage) {
+    position: sticky;
+    inset-block-start: 0;
+    block-size: 100svh;
+    aspect-ratio: auto;
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"]) .scene-fallback) { display: none; }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .products__list {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    block-size: 100svh;
+    margin-block-end: -100svh; /* the stage, next, occupies the same box */
+    container-type: size;
+    pointer-events: none;
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product {
+    position: absolute;
+    /* Anchors from the scene's layout maths: x is a fraction of the width; y is a multiple of half
+       the WIDTH from the centre (fixed horizontal field of view; see rail/layout.ts). */
+    inset-inline-start: calc(var(--ax) * 100cqw - var(--s-1));
+    inset-block-start: calc(50cqh - var(--ak) * 50cqw + var(--s-4));
+    inline-size: min(17rem, 24cqw);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--s-1);
+    padding-block: 0;
+    padding-inline-start: var(--s-1);
+    border-block-start: 0;
+    border-inline-start: var(--hairline) solid var(--rule);
+    pointer-events: auto;
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__status {
+    display: none; /* the station's own status light carries it in the staged layout */
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product > * {
+    grid-column: 1;
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__label {
+    justify-self: start;
+  }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__line {
+    font-size: var(--t-sm);
+  }
+  /* Reveal each label once its product has docked. Only while the scene is live: in every other
+     state the words stay visible. Opacity and a short rise only (transform + opacity). */
+  :global(.products__slot[data-scene-state="live"]) .product {
+    --rv: clamp(0, calc((var(--rail-p, 1) - var(--t, 0)) * 28), 1);
+    opacity: var(--rv);
+    transform: translateY(calc((1 - var(--rv)) * var(--s-1)));
   }
 </style>

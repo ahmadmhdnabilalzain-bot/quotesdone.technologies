@@ -1,0 +1,56 @@
+---
+/**
+ * Dev harness for scene 1 'Assembly' (not linked from anywhere; noindex like every pre-launch build,
+ * and listed in no sitemap). It mounts the real Hero (so the DOM boxes, the header dock target and
+ * the hand-off are the production ones) and nothing else, plus a progress scrubber.
+ *
+ *   /debug/logo?tier=high&hud&scene=hero&p=0.4    one frozen frame (time 0), for screenshots
+ *   then drag the scrubber, or call window.__qdt.setProgress('hero', 0.7)
+ * Software GPUs (SwiftShader) default to the still tier: always pass ?tier=high.
+ */
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+---
+<Base title="Debug: logo scene" description="Development harness for the logo scene.">
+  <Hero />
+  <form class="debug-scrubber" data-debug-scrubber aria-label="Logo scene progress">
+    <label>
+      <span>p</span>
+      <input type="range" min="0" max="1" step="0.001" value="0" data-debug-progress />
+      <output data-debug-output>0.000</output>
+    </label>
+  </form>
+</Base>
+
+<script>
+  import { currentFlags } from '../../lib/flags.ts';
+
+  const input = document.querySelector<HTMLInputElement>('[data-debug-progress]');
+  const output = document.querySelector<HTMLOutputElement>('[data-debug-output]');
+  const flags = currentFlags();
+  if (input && output) {
+    const set = (value: number): void => {
+      output.value = value.toFixed(3);
+      window.__qdt?.setProgress('hero', value);
+      window.dispatchEvent(new CustomEvent('qdt:logo-progress', { detail: value }));
+    };
+    input.value = String(flags.progress ?? 0);
+    output.value = (flags.progress ?? 0).toFixed(3);
+    input.addEventListener('input', () => set(Number(input.value)));
+  }
+</script>
+
+<style>
+  .debug-scrubber {
+    position: fixed;
+    inset-block-end: var(--s-2);
+    inset-inline: var(--s-2);
+    z-index: 20;
+    padding: var(--s-1) var(--s-2);
+    background: color-mix(in srgb, var(--carbon) 85%, transparent);
+    border: var(--hairline) solid var(--rule);
+    font-size: var(--t-sm);
+  }
+  .debug-scrubber label { display: flex; gap: var(--s-2); align-items: center; }
+  .debug-scrubber input { flex: 1; }
+</style>

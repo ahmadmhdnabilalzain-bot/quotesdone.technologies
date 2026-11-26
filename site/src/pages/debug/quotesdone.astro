@@ -1,0 +1,93 @@
+---
+/**
+ * Dev harness for scene 4 (QuotesDone "Sealed"). Mounts ONLY this scene in a full-width stage.
+ * Not linked from anywhere, not in sitemap.xml (static route list), always noindex.
+ *
+ *   /debug/quotesdone?tier=high&scene=quotesdone&p=0.5   frozen frame at p, time 0 (screenshots)
+ *   /debug/quotesdone?tier=high&hud&p=0.5                live time + HUD + the scrubber below
+ *   &w=1200&h=800                                         stage size in CSS px (default: the home
+ *                                                         page's pinned stage, 7/12 of 1440 x 100svh)
+ *
+ * The scrubber needs window.__qdt, which exists only with ?hud or ?debug (site/README.md).
+ * SwiftShader/headless maps to the still tier unless ?tier= is given.
+ * The words on this page are developer labels, not site copy.
+ */
+import Base from '../../layouts/Base.astro';
+import SceneSlot from '../../components/SceneSlot.astro';
+---
+<Base
+  title="Debug: QuotesDone sealed scene"
+  description="Developer harness for the QuotesDone sealed-plates scene. It mounts one scene, freezes it at a progress value and offers a scrubber for review."
+  noindex
+>
+  <div class="dbg">
+    <h1 class="visually-hidden">Debug: QuotesDone sealed scene</h1>
+    <SceneSlot slot="quotesdone" scene="quotesdone" class="dbg__slot" />
+    <form class="dbg__bar" data-dbg-bar hidden>
+      <label for="dbg-p">p</label>
+      <input id="dbg-p" type="range" min="0" max="1" step="0.001" value="0" data-dbg-range />
+      <output data-dbg-out>0.000</output>
+    </form>
+  </div>
+</Base>
+
+<style>
+  .dbg { padding-inline: 0; }
+  :global(.dbg__slot .scene-stage) { aspect-ratio: auto; inline-size: 58vw; block-size: 100svh; margin-inline: auto; }
+  :global(.dbg__slot .scene-fallback) { display: none; }
+  .dbg__bar {
+    position: fixed;
+    inset-inline: var(--s-2);
+    inset-block-end: var(--s-2);
+    z-index: 5;
+    display: flex;
+    gap: var(--s-2);
+    align-items: center;
+    padding: var(--s-1) var(--s-2);
+    background: color-mix(in srgb, var(--carbon) 80%, transparent);
+    font-size: var(--t-sm);
+  }
+  .dbg__bar[hidden] { display: none; }
+  .dbg__bar input { flex: 1; }
+  .dbg__bar output { font-variant-numeric: tabular-nums; min-inline-size: 4ch; }
+</style>
+
+<script>
+  import { createLogger } from '../../lib/log.ts';
+
+  const log = createLogger('debug:quotesdone');
+  const params = new URLSearchParams(location.search);
+  const initial = Math.min(1, Math.max(0, Number(params.get('p') ?? 0) || 0));
+  const bar = document.querySelector<HTMLFormElement>('[data-dbg-bar]');
+  const range = document.querySelector<HTMLInputElement>('[data-dbg-range]');
+  const out = document.querySelector<HTMLOutputElement>('[data-dbg-out]');
+  const stage = document.querySelector<HTMLElement>('.dbg__slot [data-scene-stage]');
+  const w = Number(params.get('w'));
+  const h = Number(params.get('h'));
+  if (stage && w > 0) stage.style.inlineSize = `${w}px`;
+  if (stage && h > 0) stage.style.blockSize = `${h}px`;
+
+  // __qdt appears once the 3D chunk mounts (after load + idle). Poll briefly; no rAF (lint rule).
+  let tries = 0;
+  const timer = setInterval(() => {
+    const qdt = window.__qdt;
+    if (!qdt) {
+      if (++tries > 200) {
+        clearInterval(timer);
+        log.warn('window.__qdt not found: add ?hud or ?debug (and ?tier=high on a software GPU)');
+      }
+      return;
+    }
+    clearInterval(timer);
+    const set = (p: number): void => {
+      qdt.setProgress('quotesdone', p);
+      if (out) out.value = p.toFixed(3);
+    };
+    set(initial);
+    if (bar && range) {
+      bar.hidden = false;
+      range.value = String(initial);
+      range.addEventListener('input', () => set(Number(range.value)));
+    }
+  }, 50);
+</script>

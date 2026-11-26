@@ -1,12 +1,156 @@
 ---
-/** Home scene section for sonobolt. Owned by the sonobolt scene agent. Copy comes from content/en/products/sonobolt.json */
+/**
+ * Home §4 Sonobolt, scene 5 "One continuous line" (structure-v1 §2.2 row 5).
+ * Owned by the sonobolt scene agent. Every word comes from content/en/products/sonobolt.json;
+ * `ownerToConfirm` is a note for us and is never rendered, and app.sonobolt.com is not linked.
+ *
+ * Layout (desktop, the design target): two columns. The copy scrolls in the inline-start column;
+ * the 3D stage is sticky in the other column for the whole section, so scroll progress 0..1
+ * (slot top at viewport top -> slot bottom at viewport bottom) drives the scene while the words
+ * stay readable. Text never sits over the stage. Below 60rem the stage sits above the copy and
+ * is not sticky (phone tuning is a later milestone, ledger #36).
+ */
 import SceneSlot from '../SceneSlot.astro';
 import p from '../../content/en/products/sonobolt.json';
+
+const available = (state: string): boolean => state === 'available';
 ---
 <section class="home-sonobolt" aria-labelledby="sonobolt-title" data-section="sonobolt">
   <div class="frame">
-    <h2 id="sonobolt-title">{p.headline}</h2>
-    <p>{p.promise}</p>
-    <SceneSlot slot="sonobolt" scene="sonobolt" />
+    <SceneSlot slot="sonobolt" scene="sonobolt" class="sono-slot" start="top top" end="bottom bottom">
+      <div class="sono-copy">
+        <header class="sono-intro">
+          <p class="sono-name">{p.name}</p>
+          <h2 id="sonobolt-title" class="sono-headline" data-reveal="line">{p.headline}</h2>
+          <p class="sono-promise">{p.promise}</p>
+        </header>
+
+        <ul class="sono-proofs">
+          {p.proof.map((item) => (
+            <li class="sono-proof">
+              <h3 class="sono-proof__title">{item.title}</h3>
+              <p class="sono-proof__body">{item.body}</p>
+            </li>
+          ))}
+        </ul>
+
+        <div class="sono-family">
+          <ul class="sono-family__list">
+            {p.family.map((f) => (
+              <li class="sono-family__item" data-state={available(f.state) ? 'available' : 'soon'}>
+                <span class="sono-family__light" aria-hidden="true"></span>
+                <span class="sono-family__name">{f.name}</span>
+                <span class="sono-family__state">{f.state}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="sono-status">{p.statusLine}</p>
+          <p class="sono-cta">
+            {p.cta.map((c) => <a href={c.href} rel="noopener">{c.label}</a>)}
+          </p>
+        </div>
+      </div>
+    </SceneSlot>
   </div>
 </section>
+
+<style>
+  .home-sonobolt {
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+
+  /* ---- Copy column ---- */
+  .sono-copy {
+    display: grid;
+    gap: var(--s-12);
+    padding-block: var(--s-12);
+  }
+  .sono-intro { display: grid; gap: var(--s-3); }
+  .sono-name {
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+  .sono-headline {
+    font-size: var(--t-xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-display);
+    font-weight: 600;
+    max-inline-size: 12ch;
+  }
+  .sono-promise {
+    font-size: var(--t-md);
+    max-inline-size: 26ch;
+    color: var(--fg);
+  }
+
+  .sono-proofs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--s-8);
+  }
+  .sono-proof {
+    display: grid;
+    gap: var(--s-1);
+    padding-block-start: var(--s-2);
+    border-block-start: var(--hairline) solid var(--rule);
+    max-inline-size: var(--measure);
+  }
+  .sono-proof__title { font-size: var(--t-md); font-weight: 600; line-height: 1.25; }
+  .sono-proof__body { color: var(--fg-muted); }
+
+  .sono-family { display: grid; gap: var(--s-3); max-inline-size: var(--measure); }
+  .sono-family__list { margin: 0; padding: 0; list-style: none; }
+  .sono-family__item {
+    display: grid;
+    grid-template-columns: var(--s-2) minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: var(--s-2);
+    padding-block: var(--s-2);
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+  .sono-family__item:last-child { border-block-end: var(--hairline) solid var(--rule); }
+  /* The same status rule as the product index: a lit Rhodamine dot only for what is available. */
+  .sono-family__light {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    border: var(--hairline) solid var(--fg-muted);
+    align-self: center;
+  }
+  .sono-family__item[data-state="available"] .sono-family__light { background: var(--signal); border-color: var(--signal); }
+  .sono-family__name { font-weight: 600; }
+  .sono-family__state { font-size: var(--t-sm); color: var(--fg-muted); }
+  .sono-status { font-size: var(--t-sm); color: var(--fg-muted); }
+  .sono-cta a { font-size: var(--t-base); }
+
+  /* ---- Stage: override SceneSlot's square default ---- */
+  .sono-slot :global(.scene-stage) { aspect-ratio: 4 / 5; }
+
+  /* ---- Desktop (design target): sticky stage beside the scrolling copy ---- */
+  @media (min-width: 60rem) {
+    .sono-slot {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: var(--s-6);
+      align-items: start;
+    }
+    .sono-copy {
+      grid-column: 1;
+      grid-row: 1;
+      /* Long enough that the scene has room to play: about 3 viewports of scroll. */
+      padding-block: 18svh 30svh;
+      gap: 34svh;
+    }
+    .sono-slot :global(.scene-stage) {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      position: sticky;
+      inset-block-start: 0;
+      aspect-ratio: auto;
+      block-size: 100svh;
+    }
+    .sono-slot :global(.scene-fallback) { grid-column: 1; grid-row: 2; padding-block-end: var(--s-4); }
+  }
+</style>

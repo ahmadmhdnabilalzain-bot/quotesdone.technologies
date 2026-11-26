@@ -219,8 +219,9 @@ then render scale 0.85, then 0.7.
 - **The meshopt decoder** is copied from `three` into `public/decoders/`. It embeds its wasm as
   base64, so the CSP will need `'wasm-unsafe-eval'` once a .glb loads. `loader.ts` is type-checked
   but not exercised in M0, because no .glb exists yet.
-- **No font is downloaded.** It is a system stack until the owner picks the Latin and Arabic
-  family (Q7).
+- **Fonts:** Archivo (variable, wght 400 to 600, wdth 100 to 125) and Fragment Mono, self-hosted, Latin
+  subset, 52.8 KB in total, with only Archivo preloaded. The planned Arabic pair is Noto Kufi Arabic and Noto Sans Arabic.
+  Details, licences, the scale and the rules: `docs/typography.md`. Specimen: `/debug/type`.
 - **Every build is `noindex`** until launch (M5).
 - **Nav lists Products only.** Company and Contact pages do not exist yet, so there are no dead links.
 

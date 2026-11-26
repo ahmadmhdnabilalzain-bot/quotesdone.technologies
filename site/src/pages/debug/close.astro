@@ -1,0 +1,75 @@
+---
+/**
+ * Dev harness for home scenes 7 (company) and 8 (close). noindex; not in sitemap.xml.ts.
+ * Mounts ONE of the two real sections (words included) and freezes its scene:
+ *   /debug/close?scene=close&p=0.5&tier=high&debug
+ *   /debug/close?scene=company&p=0.3&tier=high&debug
+ * The scrubber calls window.__qdt.setProgress (needs ?debug or ?hud) and keeps ?p in the URL,
+ * so any frame can be shared as a link. Owned by the company/close agent.
+ */
+import Base from '../../layouts/Base.astro';
+import CompanySection from '../../components/home/CompanySection.astro';
+import Closing from '../../components/Closing.astro';
+---
+<Base title="Scene harness: company and close" description="Development harness for the company and close scenes. Not part of the public site." noindex>
+  <div data-harness="company"><CompanySection /></div>
+  <div data-harness="close"><Closing /></div>
+  <script is:inline>
+    // Runs during parse, before the deferred boot module: keep only the requested section, so
+    // the scene host registers one slot.
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var want = params.get('scene') === 'company' ? 'company' : 'close';
+      document.querySelectorAll('[data-harness]').forEach(function (el) {
+        if (el.getAttribute('data-harness') !== want) el.remove();
+      });
+      document.documentElement.setAttribute('data-harness-scene', want);
+    })();
+  </script>
+  <form class="harness" aria-label="Scene progress" onsubmit="return false">
+    <label for="harness-p">p</label>
+    <input id="harness-p" type="range" min="0" max="1" step="0.005" value="0" />
+    <output for="harness-p" id="harness-out">0</output>
+  </form>
+  <script is:inline>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var scene = document.documentElement.getAttribute('data-harness-scene') || 'close';
+      var input = document.getElementById('harness-p');
+      var out = document.getElementById('harness-out');
+      var p = Number(params.get('p') || 0);
+      input.value = String(p);
+      out.textContent = p.toFixed(3);
+      input.addEventListener('input', function () {
+        var v = Number(input.value);
+        out.textContent = v.toFixed(3);
+        if (window.__qdt) window.__qdt.setProgress(scene, v);
+        params.set('p', String(v));
+        params.set('scene', scene);
+        history.replaceState(null, '', location.pathname + '?' + params.toString());
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  :global(html[data-harness-scene]) :global(.site-header),
+  :global(html[data-harness-scene]) :global(.site-footer) { display: none; }
+  :global(html[data-harness-scene] .home-company),
+  :global(html[data-harness-scene] .closing) { padding-block-start: 0; }
+  .harness {
+    position: fixed;
+    inset-block-end: var(--s-2);
+    inset-inline: var(--s-2);
+    z-index: 20;
+    display: flex;
+    gap: var(--s-2);
+    align-items: center;
+    padding: var(--s-1) var(--s-2);
+    background: color-mix(in srgb, var(--carbon) 80%, transparent);
+    border: var(--hairline) solid var(--rule);
+    font-size: var(--t-sm);
+  }
+  .harness input { flex: 1; }
+  :global(html[data-shot]) .harness { display: none; }
+</style>

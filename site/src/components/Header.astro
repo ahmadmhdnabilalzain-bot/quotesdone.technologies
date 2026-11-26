@@ -21,3 +21,23 @@ const mark = inlineSvg(markRaw, { className: 'logo-svg site-header__mark' });
     </nav>
   </div>
 </header>
+
+<style is:global>
+  /*
+   * Logo hand-off (scene 1, structure-v1 §2.2): the wordmark docks into the header logo box, so the
+   * header must stay at the top while the hero scrolls. --header-h is the bar's fixed height; the
+   * hero pulls its stage up under the header by the same amount (Hero.astro).
+   */
+  :root { --header-h: var(--s-8); }
+  /* html prefix: wins over base.css's `.site-header { position: relative }` whatever the CSS order. */
+  html .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    background: var(--bg);
+  }
+  html .site-header__bar { block-size: var(--header-h); }
+  /* While the canvas carries the wordmark: the DOM logo is hidden and the header lets the canvas
+     show through. Set only by Hero.astro's script while the logo scene is live. */
+  html[data-logo-handoff="flight"] .site-header { background: transparent; }
+  html[data-logo-handoff="flight"] .site-header__logo { visibility: hidden; }
+</style>

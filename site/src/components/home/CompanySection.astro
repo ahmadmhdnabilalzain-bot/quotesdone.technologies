@@ -1,4 +1,127 @@
 ---
-/** Company section (scene 7). Owned by the company/close agent. Copy: docs/website/copy-v1.md section 3. */
+/**
+ * Home scene 7, Company. Owned by the company/close agent.
+ * Copy: content/en/company.json (copy deck section 3). The 3D frame is a full-bleed band: the
+ * line seen from a distance, with the headline set under it. The About text and the three
+ * principles follow in plain flow, each revealed by line as it arrives (motion/reveal.ts).
+ * The layout is identical with and without 3D, so the still -> live swap never moves a word.
+ */
+import SceneSlot from '../SceneSlot.astro';
+import company from '../../content/en/company.json';
 ---
-<section class="home-company" data-section="company"><div class="frame"></div></section>
+<section class="home-company" aria-labelledby="company-title" data-section="company">
+  <SceneSlot slot="company" scene="company" start="top bottom" end="bottom top" class="home-company__slot">
+    <div class="frame home-company__over">
+      <h2 id="company-title" class="home-company__title" data-reveal="line">{company.headline}</h2>
+    </div>
+  </SceneSlot>
+
+  <div class="frame home-company__body">
+    <div class="home-company__about">
+      {company.about.map((para) => <p data-reveal="line">{para}</p>)}
+      <p class="home-company__more"><a href={company.home.aboutLink.href}>{company.home.aboutLink.label}</a></p>
+    </div>
+    <div class="home-company__principles">
+      <h3 class="visually-hidden">{company.principlesHeading}</h3>
+      <ol class="home-company__list">
+        {company.principles.map((pr) => (
+          <li class="home-company__principle" id={`principle-${pr.id}`}>
+            <h4 class="home-company__ptitle" data-reveal="line">{pr.title}</h4>
+            <p class="home-company__pbody" data-reveal="line">{pr.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .home-company { position: relative; padding-block-start: var(--s-16); }
+
+  /* One grid cell: the stage and the headline overlay share it, so the still and the live frame
+     occupy exactly the same box. */
+  .home-company :global(.home-company__slot) { display: grid; }
+  .home-company :global(.home-company__slot > *) { grid-area: 1 / 1; }
+  .home-company :global(.home-company__slot .scene-stage) {
+    aspect-ratio: auto;
+    block-size: clamp(30rem, 92svh, 64rem);
+  }
+  /* The still: the datum as a hairline across the band (the real still is rendered in M1). */
+  .home-company :global(.home-company__slot .scene-still__plate) {
+    inline-size: 100%;
+    aspect-ratio: auto;
+    block-size: var(--hairline);
+    transform: none;
+    border: 0;
+    background: color-mix(in srgb, var(--signal) 55%, transparent);
+    translate: 0 -12svh;
+  }
+  .home-company :global(.home-company__slot .scene-fallback) {
+    grid-area: 2 / 1;
+    padding-inline: var(--gutter);
+  }
+
+  .home-company__over {
+    position: relative;
+    z-index: 1;
+    align-self: end;
+    padding-block-end: var(--s-8);
+    pointer-events: none;
+  }
+  .home-company__title {
+    max-inline-size: 14ch;
+    font-size: var(--t-xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-display);
+    font-weight: 600;
+  }
+
+  .home-company__body {
+    display: grid;
+    gap: var(--s-8) var(--s-6);
+    padding-block-start: var(--s-6);
+  }
+  @media (min-width: 60rem) {
+    .home-company__body { grid-template-columns: 5fr 1fr 6fr; }
+    .home-company__about { grid-column: 1; }
+    .home-company__principles { grid-column: 3; }
+  }
+
+  .home-company__about { display: grid; gap: var(--s-2); align-content: start; max-inline-size: var(--measure); }
+  .home-company__about p { font-size: var(--t-md); line-height: var(--lh-text); }
+  .home-company__about p:first-child { color: var(--fg); }
+  .home-company__about p:not(:first-child) { color: var(--fg-muted); }
+  .home-company__more { margin-block-start: var(--s-2); }
+  .home-company__more a {
+    color: var(--fg);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.3em;
+    transition: text-decoration-color var(--dur-micro) var(--ease-hover);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .home-company__more a:hover { text-decoration-color: var(--signal); }
+  }
+
+  .home-company__list { margin: 0; padding: 0; list-style: none; display: grid; }
+  /* The principles are three separate commitments: each takes its own band, divided by the
+     same hairline as the header, so they arrive one at a time as the page scrolls. */
+  .home-company__principle {
+    display: grid;
+    gap: var(--s-1);
+    padding-block: var(--s-4) var(--s-6);
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+  .home-company__principle + .home-company__principle { margin-block-start: var(--s-4); }
+  .home-company__ptitle {
+    font-size: var(--t-lg);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-display);
+    font-weight: 600;
+  }
+  .home-company__pbody { max-inline-size: var(--measure); color: var(--fg-muted); line-height: var(--lh-text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-company__more a { transition: none; }
+  }
+</style>

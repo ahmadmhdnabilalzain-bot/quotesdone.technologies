@@ -1,0 +1,87 @@
+---
+/**
+ * Dev harness for home scenes 2 ("Datum", Statements) and 3 ("The line", the rail scene with the
+ * product index). noindex; not linked; not in sitemap.xml.ts (which lists public pages only).
+ *
+ *   /debug/rail?scene=rail&p=0.5&tier=high&debug     the rail scene frozen at p, labels included
+ *   /debug/rail?scene=rail&p=1&tier=high&debug&rtl   the same, right to left (pseudo-RTL)
+ *   /debug/rail?view=statements                      scene 2 on its own (DOM only, scroll it)
+ *
+ * The scrubber calls window.__qdt.setProgress (needs ?debug or ?hud), drives the labels' --rail-p,
+ * and keeps ?p in the URL so any frame can be shared as a link. Add &shot to hide the scrubber.
+ * Owned by the rail agent.
+ */
+import Base from '../../layouts/Base.astro';
+import Statements from '../../components/Statements.astro';
+import ProductIndex from '../../components/ProductIndex.astro';
+---
+<Base title="Scene harness: datum and rail" description="Development harness for the datum and rail scenes. Not part of the public site." noindex>
+  <div data-harness="statements"><Statements /></div>
+  <div data-harness="rail"><ProductIndex /></div>
+  <script is:inline>
+    // Runs during parse, before the deferred boot module: keep one view and set the direction,
+    // so the scene host registers one slot and reads the right `dir`.
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var want = params.get('view') === 'statements' ? 'statements' : 'rail';
+      document.querySelectorAll('[data-harness]').forEach(function (el) {
+        if (el.getAttribute('data-harness') !== want) el.remove();
+      });
+      var root = document.documentElement;
+      root.setAttribute('data-harness-view', want);
+      if (params.has('rtl')) root.setAttribute('dir', 'rtl');
+      if (params.has('shot')) root.setAttribute('data-shot', '');
+    })();
+  </script>
+  <form class="harness" aria-label="Scene progress" onsubmit="return false">
+    <label for="harness-p">p</label>
+    <input id="harness-p" type="range" min="0" max="1" step="0.005" value="0" />
+    <output for="harness-p" id="harness-out">0</output>
+  </form>
+  <script is:inline>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var input = document.getElementById('harness-p');
+      var out = document.getElementById('harness-out');
+      var slot = document.querySelector('[data-scene-slot="rail"]');
+      var p = Number(params.get('p') || 0);
+      input.value = String(p);
+      out.textContent = p.toFixed(3);
+      input.addEventListener('input', function () {
+        var v = Number(input.value);
+        out.textContent = v.toFixed(3);
+        if (window.__qdt) window.__qdt.setProgress('rail', v);
+        if (slot) {
+          slot.dataset.railFrozen = '';
+          slot.style.setProperty('--rail-p', v.toFixed(4));
+        }
+        params.set('p', String(v));
+        params.set('scene', 'rail');
+        history.replaceState(null, '', location.pathname + '?' + params.toString());
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  :global(html[data-harness-view]) :global(.site-header),
+  :global(html[data-harness-view]) :global(.site-footer) { display: none; }
+  /* In the harness the rail section stands alone: no overlap with a Statements section above. */
+  :global(html[data-harness-view="rail"] .products) { margin-block-start: 0 !important; }
+  .harness {
+    position: fixed;
+    inset-block-end: var(--s-2);
+    inset-inline: var(--s-2);
+    z-index: 20;
+    display: flex;
+    gap: var(--s-2);
+    align-items: center;
+    padding: var(--s-1) var(--s-2);
+    background: color-mix(in srgb, var(--carbon) 80%, transparent);
+    border: var(--hairline) solid var(--rule);
+    font-size: var(--t-sm);
+  }
+  .harness input { flex: 1; }
+  :global(html[data-shot]) .harness { display: none; }
+  :global(html[data-harness-view="statements"]) .harness { display: none; }
+</style>

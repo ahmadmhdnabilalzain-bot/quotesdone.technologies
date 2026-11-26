@@ -29,5 +29,34 @@
       "body": "QuotesDone's guide prices are orientation, never a quotation. Sonobolt marks each song's BPM, key and energy as estimates. MubinFlow lists every figure it cannot yet compute, instead of guessing."
     }
   ],
-  "ownerToConfirm": "Optional founder line (name spelling 'Al Zain' vs 'Alzain', and whether the hub names the founder at all). Omitted."
+  "ownerToConfirm": "Optional founder line (name spelling 'Al Zain' vs 'Alzain', and whether the hub names the founder at all). Omitted.",
+  "home": {
+    "$note": "Home scene 7 (Company) and scene 8 (Close). Added by the company/close scene agent. Copy deck sections 3, 5 and 6 only.",
+    "aboutLink": {
+      "label": "About",
+      "href": "/company"
+    },
+    "contact": {
+      "headline": "Write to us.",
+      "href": "/contact",
+      "routingLead": "For a product, write to the product:",
+      "routing": [
+        {
+          "product": "Sonobolt",
+          "label": "support@sonobolt.com",
+          "href": "mailto:support@sonobolt.com"
+        },
+        {
+          "product": "QuotesDone",
+          "label": "quotesdone.com/contact",
+          "href": "https://quotesdone.com/contact"
+        }
+      ],
+      "identity": [
+        "QuotesDone Technologies",
+        "Sole Establishment",
+        "Dubai, United Arab Emirates"
+      ]
+    }
+  }
 }

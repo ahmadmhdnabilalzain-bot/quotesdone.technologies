@@ -1,0 +1,67 @@
+---
+/**
+ * Dev harness for scene 6 (MubinFlow). Mounts ONLY the mubinflow slot, at the same stage size
+ * as the home section, with a progress scrubber. Not linked from anywhere; noindex like every
+ * pre-launch page (Base.astro). Open:
+ *   /debug/mubinflow?tier=high&debug&scene=mubinflow&p=0.5
+ *   add &maturity=1 for the launch (solid Alloy) state.
+ * The scrubber calls window.__qdt.setProgress (needs ?debug or ?hud).
+ */
+import Base from '../../layouts/Base.astro';
+import SceneSlot from '../../components/SceneSlot.astro';
+---
+<Base
+  title="Debug: MubinFlow scene"
+  description="Development harness for the MubinFlow drafting scene. It renders one scene slot at a fixed progress for screenshots and is not part of the site."
+>
+  <div class="frame harness">
+    <h1>MubinFlow scene harness</h1>
+    <label class="harness__scrub">
+      <span>Progress</span>
+      <input type="range" min="0" max="1" step="0.001" value="0" data-harness-progress />
+      <output data-harness-value>0</output>
+    </label>
+    <SceneSlot slot="mubinflow" scene="mubinflow" class="mubinflow-slot harness__slot" />
+  </div>
+</Base>
+
+<script>
+  import { DEBUG_OVERRIDES } from '../../three/scenes/mubinflow/params.ts';
+
+  const query = new URLSearchParams(location.search);
+  const maturity = Number(query.get('maturity'));
+  if (query.has('maturity') && Number.isFinite(maturity)) DEBUG_OVERRIDES.maturity = maturity;
+
+  const input = document.querySelector<HTMLInputElement>('[data-harness-progress]');
+  const output = document.querySelector<HTMLOutputElement>('[data-harness-value]');
+  const initial = Number(query.get('p') ?? '0');
+  if (input && output) {
+    input.value = String(Number.isFinite(initial) ? initial : 0);
+    output.value = input.value;
+    input.addEventListener('input', () => {
+      output.value = Number(input.value).toFixed(3);
+      const qdt = (window as unknown as { __qdt?: { setProgress(id: string, p: number): boolean } }).__qdt;
+      qdt?.setProgress('mubinflow', Number(input.value));
+    });
+  }
+</script>
+
+<style>
+  .harness { padding-block: var(--s-4); }
+  .harness h1 { font-size: var(--t-md); font-weight: 500; }
+  .harness__scrub {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-block: var(--s-2) var(--s-3);
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+  .harness__scrub input { inline-size: min(40rem, 70vw); }
+  /* Same stage box as the home section (MubinFlowSection.astro): 16:9, capped for full DPR 2. */
+  :global(.harness__slot .scene-stage) {
+    aspect-ratio: 16 / 9;
+    inline-size: min(100%, 73rem);
+    margin-inline: auto;
+  }
+</style>

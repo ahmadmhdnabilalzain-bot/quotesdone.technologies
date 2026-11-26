@@ -10,7 +10,14 @@ html {
   color: var(--fg);
   font-family: var(--font-text);
   font-size: 100%;
+  font-weight: var(--w-text);
+  font-stretch: var(--wdth-text);
   line-height: var(--lh-text);
+  letter-spacing: var(--track-text);
+  /* Never fake a bold: the file holds 400-600 and nothing else. Italic may be synthesised. */
+  font-synthesis-weight: none;
+  font-optical-sizing: auto;
+  font-variant-numeric: proportional-nums;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -22,20 +29,124 @@ body {
   font-kerning: normal;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img, svg, canvas { display: block; max-inline-size: 100%; }
 
-a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: var(--hairline); }
-a:hover { text-decoration-color: var(--signal); }
+::selection { background: var(--selection-bg); color: var(--selection-fg); }
 
+/* ---- Type defaults (docs/typography.md). Components may override size, never the family. ---- */
+h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+
+h1, h2 {
+  font-family: var(--font-display);
+  font-stretch: var(--wdth-display);
+  font-weight: var(--w-display);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-display);
+  text-wrap: balance;
+}
+h3, h4 {
+  font-family: var(--font-heading);
+  font-stretch: var(--wdth-heading);
+  font-weight: var(--w-strong);
+  line-height: var(--lh-snug);
+  text-wrap: balance;
+}
+p, li, dd, figcaption { text-wrap: pretty; }
+/* Safari only; elsewhere a no-op. Quotes and bullets hang into the margin. */
+p, blockquote { hanging-punctuation: first allow-end; }
+
+small { font-size: var(--t-sm); line-height: var(--leading-sm); letter-spacing: var(--track-sm); }
+strong, b { font-weight: var(--w-strong); }
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  letter-spacing: var(--track-mono);
+  font-variant-numeric: var(--num-tabular);
+}
+
+/* ---- Links ---- */
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--hairline);
+  text-underline-offset: 0.24em;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  transition: text-decoration-color var(--dur-micro) var(--ease-hover);
+}
+a:hover { text-decoration-color: var(--signal); }
+@media (prefers-reduced-motion: reduce) { a { transition: none; } }
+
+/* ---- Focus: visible for keyboard, quiet for pointer ---- */
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
   border-radius: 2px;
 }
+:focus:not(:focus-visible) { outline: none; }
+@media (forced-colors: active) { :focus-visible { outline-color: Highlight; } }
 
-h1, h2, h3, p { margin: 0; }
+/* ---- Hairline rules ---- */
+hr {
+  block-size: 0;
+  margin-block: var(--s-4);
+  border: 0;
+  border-block-start: var(--hairline) solid var(--rule);
+}
+.rule-strong { border-color: var(--rule-strong); }
+
+/*
+ * ---- Type roles (opt-in classes; same values as the tokens) ----
+ * Use these instead of re-declaring size + leading + tracking in a component.
+ */
+.type-hero, .type-display, .type-title {
+  font-family: var(--font-display);
+  font-stretch: var(--wdth-display);
+  font-weight: var(--w-display);
+  line-height: var(--lh-display);
+  text-wrap: balance;
+}
+.type-hero { font-size: var(--t-3xl); letter-spacing: var(--track-hero); }
+.type-display { font-size: var(--t-2xl); letter-spacing: var(--track-hero); }
+.type-title { font-size: var(--t-xl); letter-spacing: var(--track-display); }
+.type-heading {
+  font-family: var(--font-heading);
+  font-size: var(--t-lg);
+  font-stretch: var(--wdth-heading);
+  font-weight: var(--w-medium);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--track-display);
+  text-wrap: balance;
+}
+.type-lead { font-size: var(--t-md); line-height: var(--leading-md); max-inline-size: var(--measure-wide); }
+.type-body { font-size: var(--t-base); line-height: var(--leading-base); max-inline-size: var(--measure); }
+.type-small { font-size: var(--t-sm); line-height: var(--leading-sm); letter-spacing: var(--track-sm); }
+.type-meta { font-size: var(--t-xs); line-height: var(--leading-xs); letter-spacing: var(--track-sm); color: var(--fg-muted); }
+/* Technical labels: coordinates, versions, units. Sentence case; never all caps. */
+.type-mono {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  line-height: var(--leading-xs);
+  letter-spacing: var(--track-mono);
+  font-variant-numeric: var(--num-tabular);
+}
+.num { font-variant-numeric: var(--num-tabular); }
+.muted { color: var(--fg-muted); }
+/* Trims the line box to cap height and baseline where supported (progressive), so a heading's
+   spacing measures from the ink. Use on display lines that sit on the joint grid. */
+.trim { text-box: trim-both cap alphabetic; }
+
+/* A block in another language re-resolves the family and line height from its own tokens
+   (the root's inherited values were computed from the Latin tokens). Attribute selector, not
+   :lang(), so heading and code rules keep their own families inside it. */
+[lang="ar"] { font-family: var(--font-text); line-height: var(--lh-text); }
+
+/* Arabic: no tracking anywhere, no width axis (the Arabic faces have none). */
+:lang(ar) h1, :lang(ar) h2, :lang(ar) h3, :lang(ar) h4,
+:lang(ar) [class*="type-"] { letter-spacing: 0; }
 
 .visually-hidden {
   position: absolute !important;
@@ -99,6 +210,9 @@ h1, h2, h3, p { margin: 0; }
   display: inline-block;
   padding-block: var(--s-1);
   font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  line-height: var(--leading-sm);
+  letter-spacing: var(--track-sm);
   text-decoration: none;
   color: var(--fg);
 }
@@ -122,6 +236,8 @@ h1, h2, h3, p { margin: 0; }
   padding-block: var(--s-6) var(--s-8);
   color: var(--fg-muted);
   font-size: var(--t-sm);
+  line-height: var(--leading-sm);
+  letter-spacing: var(--track-sm);
 }
 .site-footer p + p { margin-block-start: var(--s-1); }
 .site-footer__identity { color: var(--fg); }
