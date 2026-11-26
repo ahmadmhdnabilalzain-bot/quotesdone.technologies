@@ -4,9 +4,17 @@
  * Every word comes from content/en/products/mubinflow.json. No CTA and no link: the product has
  * no site and the owner has not approved one (copy deck §4; the JSON's `cta` is empty).
  *
- * Layout: headline and promise, then the drafting scene on a 16:9 stage that plays as it crosses
- * the viewport, then the three "built so far" points and the status line. Without JS, with
- * reduced motion or with no WebGL, the stage shows its still and every word is still in the HTML.
+ * Layout: headline and promise, then the drafting scene, then the three "built so far" points and
+ * the status line. Without JS, with reduced motion, on the still tier or after a failure, the stage
+ * is an ordinary 16:9 block with its still and every word is still in the HTML.
+ *
+ * Pin (desktop >= 60rem, live 3D only): the slot is 320svh tall and its 16:9 stage is sticky,
+ * centred in the viewport. Progress 0..1 = slot top at 75% of the viewport -> slot bottom at the
+ * viewport bottom (about 295svh of scroll; set by the script below, only >= 60rem). Progress starts
+ * while the stage scrolls in, so the ring is already drawing when the stage settles (at p 0 the
+ * sheet is empty: starting at "top top" left a blank viewport, checked by screenshot). The
+ * runtime measures a sticky stage's visibility from its slot (motion/scroll.ts), so the scene
+ * stays live for the whole pin and is freed after.
  *
  * Stage size: capped at 73rem (1168 px) wide so a 16:9 stage stays under the 'high' tier's 3.1 MP
  * target cap and renders at the full DPR 2 (lines stay crisp).
@@ -20,7 +28,7 @@ import p from '../../content/en/products/mubinflow.json';
     <p class="mf-promise">{p.promise}</p>
   </div>
 
-  <div class="frame">
+  <div class="frame mf-pin">
     <SceneSlot slot="mubinflow" scene="mubinflow" start="top 65%" end="top 5%" class="mubinflow-slot" />
   </div>
 
@@ -39,6 +47,20 @@ import p from '../../content/en/products/mubinflow.json';
     </p>
   </div>
 </section>
+
+<script>
+  /*
+   * The pinned range applies only where the pin CSS does (>= 60rem). Narrower, the stage is an
+   * ordinary block and keeps the default "top 65%" -> "top 5%" scrub (a pinned range on a short
+   * slot would end before it starts). Runs before three/mount.ts reads the attributes (mount is
+   * imported after load + idle). A later resize across 60rem keeps the range read at mount.
+   */
+  const slot = document.querySelector<HTMLElement>('.home-mubinflow [data-scene-slot="mubinflow"]');
+  if (slot && window.matchMedia('(min-width: 60rem)').matches) {
+    slot.dataset.sceneStart = 'top 75%';
+    slot.dataset.sceneEnd = 'bottom bottom';
+  }
+</script>
 
 <style>
   .home-mubinflow { padding-block: var(--s-16) var(--s-12); }
@@ -77,11 +99,22 @@ import p from '../../content/en/products/mubinflow.json';
     margin-inline: auto;
   }
   /*
-   * No sticky stage on purpose: the runtime measures distance and coverage on the stage's
-   * layout position (motion/scroll.ts), so a sticky stage is released while it is still on
-   * screen. The scene scrubs from when the stage is two thirds in view until it reaches the top
-   * (start/end on the slot); a pinned version needs sticky-aware measuring in scroll.ts.
+   * The pin. `cqi` = the frame's content width, so the stage height (and the sticky offset that
+   * centres it) is known in CSS: height = width * 9/16, top = (100svh - height) / 2. The width is
+   * also capped by the viewport height so the whole stage always fits on screen.
    */
+  .mf-pin { container-type: inline-size; }
+  @media (min-width: 60rem) {
+    :global(html.js:not([data-tier="still"])) .home-mubinflow :global(.mubinflow-slot:not([data-scene-state="failed"])) {
+      --mf-stage-w: min(100cqi, 73rem, (100svh - 2 * var(--s-4)) * 16 / 9);
+      block-size: 320svh;
+    }
+    :global(html.js:not([data-tier="still"])) .home-mubinflow :global(.mubinflow-slot:not([data-scene-state="failed"]) .scene-stage[data-scene-stage]) {
+      position: sticky;
+      inset-block-start: calc((100svh - var(--mf-stage-w) * 9 / 16) / 2);
+      inline-size: var(--mf-stage-w);
+    }
+  }
 
   .mf-body { margin-block-start: var(--s-8); }
   .mf-proof {

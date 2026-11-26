@@ -15,6 +15,8 @@ export interface HudInfo {
   tier: string;
   tierReasons: string[];
   ladder: string;
+  /** Look summary (runtime/look.ts): AO quality, signal objects, aux passes. Optional. */
+  look?: { ao: string; signalObjects: number; signalPasses: number; aoPasses: number } | null;
   dpr: number;
   gpu: string;
   slots: Array<{ slotId: string; sceneId: string; status: string; progress: number }>;
@@ -61,6 +63,7 @@ export function createHud(doc: Document = document): Hud {
         `geo ${info.geometries}  tex ${info.textures}  ~${info.estimatedMb.toFixed(1)} MB`,
         `tier ${info.tier} (${info.tierReasons.join(', ')})`,
         `ladder ${info.ladder}  dpr ${info.dpr}`,
+        ...(info.look ? [`look ao ${info.look.ao}  signal objs ${info.look.signalObjects}  passes sig ${info.look.signalPasses} ao ${info.look.aoPasses}`] : []),
         `gpu ${info.gpu}`,
         ...info.slots.map((s) => `${s.slotId}[${s.sceneId}] ${s.status} p=${s.progress.toFixed(3)}`),
         error ? `last error: ${error.ns} ${error.message}` : 'last error: none',

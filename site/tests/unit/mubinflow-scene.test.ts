@@ -7,7 +7,7 @@ import { Color, type Material, type Mesh, type Object3D, type ShaderMaterial } f
 import { createMubinFlowScene } from '../../src/three/scenes/mubinflow/index.ts';
 import { buildSegmentAttributes } from '../../src/three/scenes/mubinflow/draft-line.ts';
 import { buildRamp, sampleRamp } from '../../src/three/scenes/mubinflow/color-ramp.ts';
-import { displayed } from '../../src/three/scenes/logo/agx.ts';
+import { displayed } from '../../src/three/shared/agx.ts';
 import { hatch, plateBox } from '../../src/three/scenes/mubinflow/sheet.ts';
 import { payslipContent, seeded, type Layout } from '../../src/three/scenes/mubinflow/geometry.ts';
 import { TIMELINE, indexTurn, stripPhases } from '../../src/three/scenes/mubinflow/timeline.ts';

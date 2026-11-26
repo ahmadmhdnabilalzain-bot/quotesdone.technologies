@@ -27,3 +27,13 @@
 - Pinning: the stage is sticky. `motion/scroll.ts` must measure a sticky stage's section for
   visibility, otherwise the host disposes the scene one viewport into the pin (see the agent
   report for the 3-line patch).
+
+## Runtime look: signal opt-in for the owner (not applied)
+The datum and status dots use the AgX pre-compensated `RAIL_SIGNAL_LINEAR` (shared with company
+and close; a unit test keeps all three equal). To show true #E3185B, change all of these together:
+1. `shared/rail.ts`: `RAIL_SIGNAL_LINEAR = [0.7681, 0.0091, 0.1046]` (linear #E3185B).
+2. `materials.ts createDatumMaterial`: add `userData: { signal: true }` to the ShaderMaterial.
+3. `materials.ts createStatusMaterial`: add `userData: { signal: true }`.
+4. `close/shared.ts` datum material and `company/index.ts` `liveLight`: add `userData: { signal: true }`.
+Then lower `datumIntensity` to 1 if the line should be the exact hex (above 1 it gets brighter, with
+the hue kept). AO is on: plates and docks now sit on the rail.

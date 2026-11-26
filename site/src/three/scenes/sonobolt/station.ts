@@ -131,9 +131,9 @@ export function createStation(layout: StationLayout, datumGlow: number): Station
   machinedAlloy.name = 'sonobolt-machined';
   const capAlloy = new MeshPhysicalMaterial({ color: ALLOY, metalness: 1, roughness: 0.56 });
   capAlloy.name = 'sonobolt-cap';
-  const datumMat = new MeshBasicMaterial({ color: RHODAMINE.clone().multiplyScalar(datumGlow) });
+  const datumMat = new MeshBasicMaterial({ color: RHODAMINE.clone().multiplyScalar(datumGlow), userData: { signal: true } }); // runtime signal opt-in (runtime/README.md)
   datumMat.name = 'sonobolt-datum';
-  const statusMat = new MeshBasicMaterial({ color: RHODAMINE.clone() });
+  const statusMat = new MeshBasicMaterial({ color: RHODAMINE.clone(), userData: { signal: true } }); // runtime signal opt-in
   statusMat.name = 'sonobolt-status';
 
   // ---- Rail: a chamfered profile extruded along x ----

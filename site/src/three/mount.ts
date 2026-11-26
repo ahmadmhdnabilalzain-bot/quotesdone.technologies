@@ -49,6 +49,8 @@ export interface DebugInfo {
   dpr: number;
   gpu: string;
   framesDrawn: number;
+  /** What the look did last frame (AO quality, signal objects, aux passes). */
+  look: ReturnType<Presenter['lookStats']>;
   slots: ReturnType<SceneHost['describe']>;
 }
 
@@ -112,8 +114,10 @@ export async function mount3d({ decision, flags, gpuRenderer }: MountOptions): P
   }
 
   let environment = createNeutralEnvironment(renderer);
-  const presenter = new Presenter(renderer, tierConfig, dir);
+  const presenter = new Presenter(renderer, tierConfig, dir, flags.look ?? []);
   const ladder = new QualityLadder({ pinned: flags.level });
+  // A pinned ?level=n must reach the presenter (render scale, AO step) from the first frame.
+  presenter.setQuality(ladder.current);
   const frameStats = new FrameStats(120);
   let framesDrawn = 0;
   let lastInfo = { drawCalls: 0, triangles: 0 };
@@ -134,6 +138,8 @@ export async function mount3d({ decision, flags, gpuRenderer }: MountOptions): P
     },
     events: {
       onReady: (slotId) => {
+        // A scene built after a step down (or under ?level=n) starts at the current level.
+        if (ladder.current.index > 0) host.applyQuality(ladder.current);
         const section = sectionOf.get(slotId);
         if (section) setSlotState(section, 'loading');
       },
@@ -194,6 +200,7 @@ export async function mount3d({ decision, flags, gpuRenderer }: MountOptions): P
       dpr: renderer.getPixelRatio(),
       gpu: gpuRenderer,
       framesDrawn,
+      look: presenter.lookStats(),
       slots: host.describe(),
     };
   };

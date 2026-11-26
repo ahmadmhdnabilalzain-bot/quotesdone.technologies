@@ -27,3 +27,12 @@ Rhodamine filament. No text, no data, no textures, no teal or gold.
 - Stills: `stillAt = [0, 0.3, 0.9]`.
 - Debug: `/debug/quotesdone?tier=high&scene=quotesdone&p=0.5` (frozen, for screenshots),
   `/debug/quotesdone?tier=high&hud` (scrubber), `&w=&h=` sets the stage size in px.
+
+## Runtime look (runtime/README.md)
+- Applied: the floor datum ShaderMaterial carries `userData: { signal: true }` (one line), so it
+  bypasses AgX.
+- Owner TODO: the filament. Add `userData: { signal: true }` and set `datumGlow` to 1. At 2.6 it
+  would show as (255, 28, 103), brighter than the brand hex. The wash is light falling on a
+  surface, so it stays tone-mapped.
+- This scene keeps its own studio cube, so the new shared environment does not reach it. AO and
+  the dither fix do.

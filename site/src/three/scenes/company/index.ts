@@ -35,7 +35,7 @@ import { disposeObject3D } from '../../runtime/disposal.ts';
 import { COMPANY_PARAMS, DOCK_ORDER, type DockKind } from './params.ts';
 import {
   ALLOY,
-  RHODAMINE,
+  SIGNAL,
   alloyMaterial,
   anodisedMaterial,
   chamferedBox,
@@ -131,7 +131,7 @@ export function createCompanyScene(): RenderableScene {
       const railMat = anodisedMaterial(0.44);
       const capMat = anodisedMaterial(0.72); // satin cap: no glint, an empty dock stays quiet
       const line = new LineBasicMaterial({ color: ALLOY, transparent: true, opacity: params.linework.value, depthWrite: false });
-      const liveLight = new MeshBasicMaterial({ color: RHODAMINE, toneMapped: false });
+      const liveLight = new MeshBasicMaterial({ color: SIGNAL, toneMapped: false });
 
       const rail = new Mesh(railBar(-params.railLead.value, runLength + params.railTail.value, H, D, params.railChamfer.value), railMat);
       rail.name = COMPANY_NAMES.rail;

@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { TRANSFER_BUDGETS_KB, THREE_RUNTIME_TOLERANCE } from '../src/lib/budgets.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
+const dist = process.env.QDT_DIST ? resolve(process.env.QDT_DIST) : join(root, 'dist');
 if (!existsSync(dist)) {
   console.error('[budgets] dist/ not found. Run `npm run build` first.');
   process.exit(1);

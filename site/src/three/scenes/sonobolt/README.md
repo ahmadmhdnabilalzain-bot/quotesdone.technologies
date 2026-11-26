@@ -23,3 +23,13 @@ structure-v1 §2.2 row 5. Station 2 on the rail.
 - **Debug:** `/debug/sonobolt?tier=high&debug&scene=sonobolt&p=0.5` gives a frozen frame.
   `?tier=high&hud` gives live time with a scrubber.
 - **Tests:** `tests/unit/sonobolt-scene.test.ts`.
+
+## Runtime look (runtime/README.md)
+- Applied: `userData: { signal: true }` on `datumMat` and `statusMat` in `station.ts`, so both
+  bypass AgX. Measured: the lit status ring shows (242, 26, 97) = sRGB(1.15 x #E3185B) exactly,
+  because `statusGlow` is 1.15. Set it to 1 for #E3185B itself. Without the signal pass the ring
+  shows (197, 78, 102).
+- The weld emissive is part of the lit ribbon material, so it stays tone-mapped (the mask is per
+  material).
+- New studio and AO: the coil now reads as dark metal with bright edges and deep gaps, where it
+  was flat grey.

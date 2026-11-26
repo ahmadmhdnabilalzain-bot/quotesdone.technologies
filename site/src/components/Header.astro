@@ -33,7 +33,10 @@ const mark = inlineSvg(markRaw, { className: 'logo-svg site-header__mark' });
   html .site-header {
     position: sticky;
     inset-block-start: 0;
-    background: var(--bg);
+    /* Painted as an image, not a colour: with a solid background-color, Chromium (headless,
+       SwiftShader, GPU and software compositing) dropped the bottom --header-h of the WebGL
+       canvas under the page. Same pixels, no band. See site/docs/integration-notes.md §4. */
+    background: linear-gradient(var(--bg), var(--bg));
   }
   html .site-header__bar { block-size: var(--header-h); }
   /* While the canvas carries the wordmark: the DOM logo is hidden and the header lets the canvas

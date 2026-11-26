@@ -34,9 +34,12 @@ npm run preview        # serve dist/ on :4321 (Astro 7 also has `astro preview -
 | `test` | Vitest unit tests (`tests/unit`) |
 | `test:watch` | Vitest in watch mode |
 | `test:e2e` | Builds, then runs Playwright (`tests/e2e`) at desktop 1440x900 @2x and iPhone 13 390x844 @3x (Chromium + SwiftShader; emulation only). Screenshots go to `tests/artifacts/` |
+| `test:walk` | Opt-in full-page scroll walk of `/` (desktop 1440x900 and 1920x1080, real wheel input): no console errors, no horizontal scroll, no visible scene left undrawn; records section and pin lengths to `tests/artifacts/walk/`. About 20 minutes on SwiftShader. Results: `docs/integration-notes.md` |
 | `check` | Content rules on `dist/` (`scripts/check-content.mjs`), then transfer budgets (`scripts/check-budgets.mjs`). Run after `build` |
 | `lint` | `astro check` (TypeScript strict, .astro and .ts), then `scripts/lint-source.mjs` (project rules, below) |
 | `decoders` | Copies the meshopt decoder from `three` into `public/decoders/` |
+
+Parallel builds: `QDT_DIST=/tmp/x` moves the build output (build, preview, `check`), and `QDT_E2E_PORT` / `QDT_E2E_OUT` move the Playwright server port and its results dir.
 
 Full local gate: `npm run lint && npm test && npm run build && npm run check && npx playwright test`.
 
@@ -50,7 +53,8 @@ All flags are parsed in one place: `src/lib/flags.ts`.
 | `?hud` | The HUD only: fps, p95 frame ms, draw calls, triangles, geometries/textures, estimated MB, tier and reasons, ladder level, DPR, GPU string, each slot's status and progress, last error |
 | `?tier=still\|low\|mid\|high` | Force a tier. Numeric aliases: `0`=still, `1`=low, `2`=mid, `3`=high |
 | `?still` | Force the fallback (no 3D is fetched) |
-| `?level=<n>` | Pin the quality ladder (0 = full, 3 = lowest) |
+| `?level=<n>` | Pin the quality ladder (0 = full, 3 = lowest); applied from the first frame |
+| `?look=noao,nosignal,bloom` / `?look=ao` / `?look=mask` | Look debug: switch AO, the signal pass or signal bloom; or show the AO buffer or the signal mask (`src/three/runtime/README.md`) |
 | `?scene=<slot or scene id>&p=<0..1>` | Freeze one slot at one progress, with time frozen at 0. For bug reports |
 
 `window.__qdt` (only with `?debug` or `?hud`) provides `dumpInfo()`, `setProgress(id, p)`,
@@ -76,6 +80,8 @@ src/
     runtime/               renderer, presenter (post pass), environment, loop, tiers, tier-types,
                            ladder, frame-stats, scene (contract + SceneHost), loader, disposal,
                            hud, errors
+    shared/                scene-side maths shared by scenes: agx.ts (AgX forward/inverse),
+                           rail.ts (rail palette, signal colour, profile ratios)
     scenes/registry.ts     scene id -> lazy loader
     scenes/smoke/          the pipeline-proof scene (index.ts, params.ts, README.md)
 public/decoders/           meshopt decoder (copied at dev/build, git-ignored)
@@ -111,7 +117,7 @@ masters change, copy them again. **Never edit the copies.**
 | mid | phones (an iPhone 13 lands here without deviceMemory or a GPU string), tablets, desktops with fewer than 4 cores | DPR 1.5, MSAA 4, vignette |
 | high | capable desktop (**design target**) | DPR 2, MSAA 4, vignette, soft contact shadow |
 
-All tiers get AgX tone mapping, sRGB output and dithering in the post pass. Missing signals
+All tiers get AgX tone mapping, sRGB output, dithering and the signal pass (Rhodamine light bypasses AgX) in the post pass; 'high' adds full screen-space AO, 'mid' cheap AO. How the look is built: `src/three/runtime/README.md`. Missing signals
 count as neutral. The ladder (`ladder.ts`) steps down only at rest (300 ms after the last
 scroll), never steps up, and leaves a steady 30 Hz alone. Its steps are: contact shadow off,
 then render scale 0.85, then 0.7.

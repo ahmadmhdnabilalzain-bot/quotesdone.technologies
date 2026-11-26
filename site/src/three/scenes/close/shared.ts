@@ -3,8 +3,8 @@
  * palette, materials, the chamfered rail profile, chamfered boxes, the alpha fade pass and
  * the small pure easing helpers. Everything here is procedural: no textures, no downloads.
  *
- * Owned by the company/close agent. Other scenes should not import from here (they own their
- * own rail); the rail profile numbers are kept in params so they can be matched by hand.
+ * Owned by the company/close agent. Other scenes should not import from here. The palette, the
+ * signal colour and the datum height come from three/shared/rail.ts, shared with the rail scene.
  */
 import {
   BufferGeometry,
@@ -21,14 +21,18 @@ import {
   Shape,
   ZeroFactor,
 } from 'three';
+import { ALLOY_HEX, RAIL_PROFILE, RHODAMINE_HEX, railSignalColor } from '../../shared/rail.ts';
 
-export const ALLOY = new Color('#ECEAE4');
-export const RHODAMINE = new Color('#E3185B');
+export const ALLOY = new Color(ALLOY_HEX);
+/** Brand Rhodamine as authored (for checks such as "the mark is never Rhodamine"). */
+export const RHODAMINE = new Color(RHODAMINE_HEX);
+/** Rhodamine as it is DRAWN: the rail scene's AgX-compensated signal colour (three/shared/rail.ts). */
+export const SIGNAL = railSignalColor();
 /**
  * Datum height on the rail's front face, as a fraction of the rail height below the top face.
  * Matches the rail scene (scenes/rail/params.ts: grooveY -0.2 of railHeight 0.34).
  */
-export const DATUM_Y = 0.59;
+export const DATUM_Y = RAIL_PROFILE.datumDepth;
 
 /** Dark anodised metal for the rail and docks: a lifted Carbon so it reads against the page. */
 export const ANODISED = new Color('#1c1f24');
@@ -47,9 +51,11 @@ export function anodisedMaterial(roughness: number): MeshPhysicalMaterial {
  * Rhodamine as LIGHT only: an unlit line. It emits nothing into the scene (MeshBasicMaterial
  * does not light other meshes), so it can never tint the Alloy or the mark.
  * `transparent` is fixed at creation so changing opacity never recompiles a program mid-scroll.
+ * Colour: SIGNAL, the same drawn Rhodamine as the rail scene's datum (the post pass tone-maps
+ * everything, so `toneMapped: false` alone would not keep the hex).
  */
 export function datumMaterial(): MeshBasicMaterial {
-  return new MeshBasicMaterial({ color: RHODAMINE, transparent: true, depthWrite: false, toneMapped: false });
+  return new MeshBasicMaterial({ color: SIGNAL, transparent: true, depthWrite: false, toneMapped: false });
 }
 
 /** A rectangle with 45-degree chamfered corners, centred on the origin. */

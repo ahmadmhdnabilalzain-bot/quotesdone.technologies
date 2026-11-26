@@ -46,3 +46,11 @@ stay in the DOM from first paint, under the wordmark (`components/Hero.astro`).
 `/debug/logo/?tier=high&hud&scene=hero&p=0.4`, then the scrubber. Screenshots:
 `node tests/e2e/shoot-logo.mjs http://127.0.0.1:<port> <outDir> 0,0.1,0.45,0.86,0.97`.
 `?debug` logs `layout (dom|fallback)`: `fallback` on the home page means the DOM boxes were not published.
+
+## Runtime look (runtime/README.md)
+- Applied: `wordmarkMaterial.userData.wordmark = true` (one line). The runtime then refuses any
+  signal flag on it and never blooms signals in this scene.
+- The studio environment replaced RoomEnvironment: lit faces are a touch darker (median about -4 %)
+  and side walls read darker. Tune `envIntensity` if wanted. The flat rest frame (p < pSwap) is
+  untouched: interior pixels match, and only AA edges move with the new pixel cap.
+- AO is on (contact darkening between parts). The datum stays a DOM line: no signal needed.

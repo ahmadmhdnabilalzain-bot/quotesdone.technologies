@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { findContentViolations, visibleText } from './content-rules.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
+const dist = process.env.QDT_DIST ? resolve(process.env.QDT_DIST) : join(root, 'dist');
 if (!existsSync(dist)) {
   console.error('[check-content] dist/ not found. Run `npm run build` first.');
   process.exit(1);

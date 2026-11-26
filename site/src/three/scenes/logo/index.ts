@@ -35,7 +35,7 @@ import { disposeObject3D } from '../../runtime/disposal.ts';
 import { LOGO_PARAMS, type LogoParams } from './params.ts';
 import { explodeAt, hash01, lerp, poseAt, sealForWidth, type Pose } from './choreography.ts';
 import { logoLayoutVersion, resolveLogoLayout, WORDMARK_VIEWBOX, type LogoLayout } from './layout.ts';
-import { inverseAgx } from './agx.ts';
+import { inverseAgx } from '../../shared/agx.ts';
 import type { LogoAsset, LogoPart } from './parts.ts';
 
 export const LAYER_WORDMARK = 1;
@@ -161,6 +161,7 @@ export function createLogoScene(options: LogoSceneOptions = {}): RenderableScene
       });
       wordmarkMaterial.name = 'logo-alloy';
       wordmarkMaterial.onBeforeCompile = (shader: WebGLProgramParametersWithUniforms) => patchWordmarkShader(shader, uniforms);
+      wordmarkMaterial.userData.wordmark = true; // runtime guard: never signal, no signal bloom in this scene (runtime/README.md)
       wordmarkMaterial.customProgramCacheKey = () => 'logo-alloy-v1';
 
       const parts: PartRig[] = [];

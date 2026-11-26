@@ -128,8 +128,16 @@ const items = home.productIndex.items.map((p, i) => {
     block-size: 100%;
     max-inline-size: none;
     padding-inline: 0;
+    /* One grid cell as tall as the section: the label layer and the stage share it, each sticky
+       for the whole range and released together at the section's end. (A negative margin to
+       stack them shrank the list's margin box, so it stayed stuck one viewport too long and
+       covered the QuotesDone intro.) */
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"]) .scene-stage) {
+    grid-area: 1 / 1;
+    align-self: start;
     position: sticky;
     inset-block-start: 0;
     block-size: 100svh;
@@ -137,11 +145,12 @@ const items = home.productIndex.items.map((p, i) => {
   }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"]) .scene-fallback) { display: none; }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .products__list {
+    grid-area: 1 / 1;
+    align-self: start;
     position: sticky;
     inset-block-start: 0;
     z-index: 1;
     block-size: 100svh;
-    margin-block-end: -100svh; /* the stage, next, occupies the same box */
     container-type: size;
     pointer-events: none;
   }

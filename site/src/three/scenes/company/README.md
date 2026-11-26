@@ -6,7 +6,7 @@ chamfered caps that run out of frame (room for more, no claim). The datum dims t
 the frame steps back (alpha) so the About text takes over in the DOM.
 
 **Status is drawn, never written:** live = solid Alloy plus a Rhodamine status dot (QuotesDone:
-five sealed plates; Sonobolt: a flat coil, one continuous line). In development = linework only
+three sealed plates, as the rail scene (`plateCount`); scene 4 shows five; Sonobolt: a flat coil, one continuous line). In development = linework only
 plus an outline status ring (MubinFlow: a ring of 12 month segments as edges). Empty = cap.
 Objects are low detail on purpose: this is the distance shot.
 
@@ -24,3 +24,7 @@ The stage fills the viewport at p ~0.5, so the wide shot lands there (an unpinne
 **Stills:** `stillAt = [0, 0.55, 1]`. **Harness:** `/debug/close?scene=company&p=0.6&tier=high&debug`.
 Shares `../close/shared.ts`. The rail ratios (height to depth, chamfer, datum height) follow
 `scenes/rail/params.ts`, scaled down. Absolute sizes and the dock pitch differ (see the agent report).
+
+## Runtime look (runtime/README.md)
+Signal opt-in must happen together with rail and close (shared `RAIL_SIGNAL_LINEAR`, unit test
+"same Rhodamine signal colour"): see `../rail/README.md`. AO is on.

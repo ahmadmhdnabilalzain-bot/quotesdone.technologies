@@ -2,8 +2,10 @@
 // Static output only: every word ships in HTML; JS and 3D are progressive enhancement.
 import { defineConfig } from 'astro/config';
 
+// QDT_DIST: alternative output dir (parallel builds by several agents/CI jobs); default dist/.
 export default defineConfig({
   output: 'static',
+  ...(process.env.QDT_DIST ? { outDir: process.env.QDT_DIST } : {}),
   trailingSlash: 'ignore',
   build: {
     format: 'directory',

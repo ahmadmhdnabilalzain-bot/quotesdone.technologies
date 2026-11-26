@@ -5,12 +5,13 @@ import { defineConfig, devices } from '@playwright/test';
  * smoke scene really renders headless. This is emulation: it proves the pipeline, not iPhone
  * performance (a real iPhone 13 check is a manual milestone gate).
  */
-const PORT = 4329;
+// QDT_E2E_PORT / QDT_DIST let several builds run e2e side by side (astro.config reads QDT_DIST too).
+const PORT = Number(process.env.QDT_E2E_PORT ?? 4329);
 const CHROMIUM_ARGS = ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  outputDir: 'test-results',
+  outputDir: process.env.QDT_E2E_OUT ?? 'test-results',
   fullyParallel: false,
   workers: 1,
   retries: 0,

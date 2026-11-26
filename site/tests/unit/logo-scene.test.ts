@@ -14,7 +14,7 @@ import { parseLogoGlb, type LogoAsset } from '../../src/three/scenes/logo/parts.
 import { LOGO_PARAMS } from '../../src/three/scenes/logo/params.ts';
 import { explodeAt, poseAt, sealForWidth } from '../../src/three/scenes/logo/choreography.ts';
 import { fallbackLayout, publishLogoLayout, resetLogoLayout, resolveLogoLayout, WORDMARK_VIEWBOX } from '../../src/three/scenes/logo/layout.ts';
-import { displayed, hexToSrgb, inverseAgx } from '../../src/three/scenes/logo/agx.ts';
+import { displayed, hexToSrgb, inverseAgx } from '../../src/three/shared/agx.ts';
 import type { SceneContext, Viewport } from '../../src/three/runtime/scene.ts';
 import { TIER_CONFIGS } from '../../src/three/runtime/tier-types.ts';
 import { createLogger } from '../../src/lib/log.ts';

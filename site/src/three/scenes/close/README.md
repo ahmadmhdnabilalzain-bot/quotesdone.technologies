@@ -26,3 +26,8 @@ Timed on real scroll at 1440x900: the Q enters the viewport at p ~0.27 and the s
 **Stills:** `stillAt = [0, 0.5, 0.75]`. **Harness:** `/debug/close?scene=close&p=0.5&tier=high&debug`.
 **Files:** `index.ts` (scene), `params.ts` (every number), `mark.ts` (SVG to geometry), `shared.ts`
 (rail profile, chamfered boxes, fade pass, easing; also used by `scenes/company`).
+
+## Runtime look (runtime/README.md)
+Signal opt-in for the datum must happen together with rail and company (see `../rail/README.md`).
+The fade pass (CustomBlending) works unchanged: the composite reads colour from the main buffer.
+AO is on: the Q now sits on its cap with a contact line.

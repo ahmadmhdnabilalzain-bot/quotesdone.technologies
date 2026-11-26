@@ -232,6 +232,7 @@ export function createMubinFlowScene(): RenderableScene {
       ramps.alloy = buildRamp(HEX.carbon, HEX.alloy);
       ramps.rhodamine = buildRamp(HEX.carbon, HEX.rhodamine);
       object3d.environment = ctx.envMap;
+      object3d.userData.ao = false; // runtime look opt-out: linework gets no ambient occlusion (runtime/README.md)
       object3d.environmentIntensity = value('envIntensity');
       const l: Layout = {
         ringOuter: value('ringOuter'),

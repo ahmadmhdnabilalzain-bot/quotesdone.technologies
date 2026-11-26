@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "npm run build && playwright test",
+    "test:walk": "QDT_WALK=1 playwright test tests/e2e/scroll-walk.spec.ts --project=desktop",
     "check": "node scripts/check-content.mjs && node scripts/check-budgets.mjs",
     "lint": "astro check && node scripts/lint-source.mjs",
     "geo": "node scripts/geo-logo.mjs",

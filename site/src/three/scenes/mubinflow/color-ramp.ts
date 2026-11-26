@@ -7,7 +7,7 @@
  * A ramp of 33 samples is solved once at create(); update() only interpolates (cheap, pure).
  * Rhodamine is outside AgX's output gamut: the inverse returns the closest reachable colour.
  */
-import { hexToSrgb, inverseAgx } from '../logo/agx.ts';
+import { hexToSrgb, inverseAgx } from '../../shared/agx.ts';
 
 export type Rgb = [number, number, number];
 

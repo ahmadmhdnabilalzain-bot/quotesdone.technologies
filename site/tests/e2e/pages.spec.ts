@@ -43,9 +43,13 @@ for (const entry of PAGES) {
       expect(response?.status()).toBe(200);
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('h1')).toHaveText(entry.h1);
-      await expect(page.locator('header')).toHaveCount(1);
+      // Landmarks, by role: exactly one banner and one contentinfo. A <header> inside a <section>
+      // (the home product sections' intros) is a section header, not a banner landmark (HTML-AAM).
+      await expect(page.getByRole('banner')).toHaveCount(1);
+      await expect(page.locator('header.site-header')).toHaveCount(1);
       await expect(page.locator('main#main')).toHaveCount(1);
-      await expect(page.locator('footer')).toHaveCount(1);
+      await expect(page.getByRole('contentinfo')).toHaveCount(1);
+      await expect(page.locator('footer.site-footer')).toHaveCount(1);
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
       await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
       expect(await page.locator('body').innerText()).not.toMatch(FORBIDDEN);

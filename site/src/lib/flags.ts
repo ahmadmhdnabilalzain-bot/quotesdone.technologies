@@ -18,7 +18,15 @@ export interface Flags {
   /** Deep link: render one scene slot frozen at one progress (`?scene=smoke&p=0.5`). */
   scene: string | null;
   progress: number | null;
+  /**
+   * Look debug switches (`?look=noao,nosignal,bloom` or a view: `?look=ao` | `?look=mask`), see
+   * three/runtime/README.md. Undefined when absent.
+   */
+  look?: LookFlag[];
 }
+
+export type LookFlag = 'noao' | 'nosignal' | 'ao' | 'mask' | 'bloom';
+const LOOK_FLAGS: readonly LookFlag[] = ['noao', 'nosignal', 'ao', 'mask', 'bloom'];
 
 const TIER_NAMES: readonly Tier[] = ['still', 'low', 'mid', 'high'];
 /** Numeric aliases: structure-v1 §6.6 documents `?tier=0|1|2`; 0 = still, 1 = low, 2 = mid, 3 = high. */
@@ -51,6 +59,13 @@ function parseId(raw: string | null): string | null {
   return /^[a-z0-9-]{1,40}$/.test(value) ? value : null;
 }
 
+function parseLook(raw: string | null): LookFlag[] {
+  return (raw ?? '')
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter((v): v is LookFlag => (LOOK_FLAGS as readonly string[]).includes(v));
+}
+
 export function parseFlags(search: string): Flags {
   const params = new URLSearchParams(search);
   const debug = isOn(params, 'debug');
@@ -63,6 +78,7 @@ export function parseFlags(search: string): Flags {
     level: level === null ? null : Math.round(level),
     scene: parseId(params.get('scene')),
     progress: parseNumber(params.get('p'), 0, 1),
+    look: params.has('look') ? parseLook(params.get('look')) : undefined,
   };
 }
 

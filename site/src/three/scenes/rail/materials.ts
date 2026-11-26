@@ -21,8 +21,9 @@ import {
   type IUniform,
 } from 'three';
 import type { RailParams } from './params.ts';
+import { ALLOY_HEX, railSignalColor } from '../../shared/rail.ts';
 
-export const ALLOY = new Color('#ECEAE4');
+export const ALLOY = new Color(ALLOY_HEX);
 export const CARBON_METAL = new Color('#16181c');
 
 /**
@@ -31,7 +32,7 @@ export const CARBON_METAL = new Color('#16181c');
  * forward transform) to land as close as AgX allows: about rgb(192, 66, 83) on screen, versus
  * rgb(206, 88, 111) for the plain hex. See the scene README for the limitation.
  */
-export const RHODAMINE_LIGHT = new Color().setRGB(0.5548, 0, 0.0499, LinearSRGBColorSpace);
+export const RHODAMINE_LIGHT = railSignalColor(); // shared with company and close (three/shared/rail.ts)
 /** Unlit status socket colour (a dark recess on the pad face). */
 export const SOCKET = new Color().setRGB(0.004, 0.0045, 0.005, LinearSRGBColorSpace);
 

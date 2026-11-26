@@ -319,7 +319,7 @@ export function createQuotesDoneScene(): RenderableScene {
       floorDatumMaterial = new ShaderMaterial({
         vertexShader: FLOOR_DATUM_VERTEX,
         fragmentShader: FLOOR_DATUM_FRAGMENT,
-        uniforms: { uColor: { value: RHODAMINE.clone() }, uOpacity: { value: 0 } },
+        uniforms: { uColor: { value: RHODAMINE.clone() }, uOpacity: { value: 0 } }, userData: { signal: true }, // runtime signal opt-in
         transparent: true,
         depthWrite: false,
       });

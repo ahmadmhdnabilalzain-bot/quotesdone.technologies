@@ -15,13 +15,18 @@ export interface QualityLevel {
   contactShadow: boolean;
   /** Render-target scale applied on top of the DPR cap. */
   renderScale: number;
+  /**
+   * Screen-space AO step (runtime/look.ts). Optional so 4-field literals stay valid; when it is
+   * missing, look.ts derives it from `index` (0 full, 1-2 cheap, 3 off). The tier caps it too.
+   */
+  ao?: 'full' | 'cheap' | 'off';
 }
 
 export const LADDER: readonly QualityLevel[] = [
-  { index: 0, label: 'full', contactShadow: true, renderScale: 1 },
-  { index: 1, label: 'no contact shadow', contactShadow: false, renderScale: 1 },
-  { index: 2, label: 'scale 0.85', contactShadow: false, renderScale: 0.85 },
-  { index: 3, label: 'scale 0.7', contactShadow: false, renderScale: 0.7 },
+  { index: 0, label: 'full', contactShadow: true, renderScale: 1, ao: 'full' },
+  { index: 1, label: 'no contact shadow', contactShadow: false, renderScale: 1, ao: 'cheap' },
+  { index: 2, label: 'scale 0.85', contactShadow: false, renderScale: 0.85, ao: 'cheap' },
+  { index: 3, label: 'scale 0.7', contactShadow: false, renderScale: 0.7, ao: 'off' },
 ];
 
 export interface LadderOptions {
