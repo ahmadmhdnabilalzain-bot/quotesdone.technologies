@@ -1,7 +1,7 @@
 ---
 /**
  * Dev harness for scene 5 (Sonobolt "One continuous line"). Mounts ONLY this scene, in a stage with
- * the same shape as the home page's sticky stage at 1440x900 (7 of 12 columns x the viewport height).
+ * the same shape as the home page's sticky stage at 1440x900 (7 of 12 columns x viewport minus header).
  * Not linked from anywhere, not in sitemap.xml (static route list), always noindex.
  *
  *   /debug/sonobolt?tier=high&debug&scene=sonobolt&p=0.5   frozen frame at p, time 0 (screenshots)
@@ -32,8 +32,8 @@ import SceneSlot from '../../components/SceneSlot.astro';
 
 <style>
   .dbg { display: grid; justify-items: center; }
-  /* 739 x 900 is the home stage at 1440 x 900 (see SonoboltSection.astro). */
-  .dbg :global(.dbg__slot .scene-stage) { aspect-ratio: 739 / 900; block-size: calc(100svh - 4.8rem); inline-size: auto; }
+  /* 739 x 823 is the home stage at 1440 x 900 (7 of 12 columns x viewport minus header). */
+  .dbg :global(.dbg__slot .scene-stage) { aspect-ratio: 739 / 823; block-size: calc(100svh - 4.8rem); inline-size: auto; }
   :global(.dbg__slot .scene-fallback) { display: none; }
   .dbg__bar {
     position: fixed;

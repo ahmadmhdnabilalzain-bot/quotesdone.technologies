@@ -57,14 +57,16 @@ const RAIL_HALF_WIDTH = 0.18;
 const RAIL_HEIGHT = 0.2;
 const RAIL_CHAMFER = 0.026;
 
+// vX is x in the station group's space (plane x + the mesh offset), NOT world space: the world is
+// mirrored on x for RTL pages, and uShift / uVisibleTo are given in group space.
 const RULER_VERTEX = /* glsl */ `
+  uniform float uOffsetX;
   varying vec2 vUv;
   varying float vX;
   void main() {
     vUv = uv;
-    vec4 world = modelMatrix * vec4(position, 1.0);
-    vX = world.x;
-    gl_Position = projectionMatrix * viewMatrix * world;
+    vX = position.x + uOffsetX;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
@@ -166,6 +168,7 @@ export function createStation(layout: StationLayout, datumGlow: number): Station
     uOpacity: { value: 0 },
     uVisibleTo: { value: layout.guideX },
     uFadeFrom: { value: layout.railFrom },
+    uOffsetX: { value: layout.railFrom + railLength / 2 },
     uColor: { value: ALLOY.clone() },
   };
   const rulerMat = new ShaderMaterial({

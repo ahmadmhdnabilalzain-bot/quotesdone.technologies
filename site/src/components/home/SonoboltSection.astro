@@ -7,8 +7,9 @@
  * Layout (desktop, the design target): two columns. The copy scrolls in the inline-start column;
  * the 3D stage is sticky in the other column for the whole section, so scroll progress 0..1
  * (slot top at viewport top -> slot bottom at viewport bottom) drives the scene while the words
- * stay readable. Text never sits over the stage. Below 60rem the stage sits above the copy and
- * is not sticky (phone tuning is a later milestone, ledger #36).
+ * stay readable. Text never sits over the stage. Below 60rem the copy comes first and the stage
+ * follows it, not sticky (phone tuning is a later milestone, ledger #36).
+ * Progress starts at "top 60%" so the approach already plays while the stage rises into view.
  */
 import SceneSlot from '../SceneSlot.astro';
 import p from '../../content/en/products/sonobolt.json';
@@ -17,7 +18,7 @@ const available = (state: string): boolean => state === 'available';
 ---
 <section class="home-sonobolt" aria-labelledby="sonobolt-title" data-section="sonobolt">
   <div class="frame">
-    <SceneSlot slot="sonobolt" scene="sonobolt" class="sono-slot" start="top top" end="bottom bottom">
+    <SceneSlot slot="sonobolt" scene="sonobolt" class="sono-slot" start="top 60%" end="bottom bottom">
       <div class="sono-copy">
         <header class="sono-intro">
           <p class="sono-name">{p.name}</p>
