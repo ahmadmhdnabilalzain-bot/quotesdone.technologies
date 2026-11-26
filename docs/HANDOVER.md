@@ -25,7 +25,7 @@ All under github user `ahmadmhdnabilalzain-bot`.
 | Product | Public name / domain | Repo | Brand assets | Status |
 |---|---|---|---|---|
 | Quotation marketplace | QuotesDone, quotesdone.com (+ .ae) | `quotesdone` | `public/brand/`, `/brand` page | pre-launch |
-| AI DJ-mix engine | Sonobolt (owner typed "sunobolt.com"; repo/docs say **sonobolt.com** — CONFIRM spelling) | `djai-engine` | `docs/brand/kit/` (app icons, BRAND-GUIDE.pdf) | built, deploy docs in repo |
+| AI DJ-mix engine | Sonobolt, sonobolt.com (spelling confirmed by owner 2026-11-26) | `djai-engine` | `docs/brand/kit/` (app icons, BRAND-GUIDE.pdf) | built, deploy docs in repo |
 | HR & payroll | MubinFlow (written "MubinFlow"; domain typed "Mubinflow"), no website yet | `HR-Payroll` | `docs/brand/logo/final/` (typographic wordmark + monogram, SVG/PNG) | engine+API built, web UI paused |
 | ERP | "Manar One" — **EXCLUDE from website for now** (name will change) | `ERP` | n/a | in use with a customer |
 Each product keeps its own brand; the parent logo must not imitate any of them. Future products get added here.
