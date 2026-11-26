@@ -510,14 +510,15 @@ def write_all():
     files += ["mark.svg", "mark-onecolour.svg"]
 
     # ---- horizontal lockup: mark + stacked lockup ----
-    # mark height = height of the two-line block; separated by a rule-free gap
+    # mark sits on the wordmark's cap height and baseline only (secondary role:
+    # it never grows taller than the letters it accompanies)
     block_h = ymax - ymin
     mk = moved(mark_shape, dx=-mbx[0], dy=-mbx[1])
-    mk_scale = block_h / (mbx[3] - mbx[1])
+    mk_scale = (mb[3] - mb[1]) / (mbx[3] - mbx[1])
     mk = moved(mk, sx=mk_scale, sy=mk_scale)
-    mk = moved(mk, dx=xmin, dy=ymin)
+    mk = moved(mk, dx=xmin, dy=mb[1])
     mkb = bounds(mk)
-    shift = (mkb[2] - mkb[0]) + 0.62 * H  # gap between mark and type
+    shift = (mkb[2] - mkb[0]) + 0.75 * H  # gap between mark and type
     m1, m2 = moved(main, dx=shift), moved(sub, dx=shift)
     hx0, hx1 = mkb[0], xmax + shift
     hw, hh = (hx1 - hx0) + 2 * pad, block_h + 2 * pad
@@ -545,6 +546,7 @@ def build_mark():
     P = dict(MAIN)
     P["widths"] = dict(MAIN["widths"], Q=1380)
     P["sill_ext"] = 170.0
+    P["S"], P["h"] = 220.0, 196.0  # heavier than the wordmark: it lives small
     shape, *_ = g_Q(P)
     return shape, "Q"
 
