@@ -24,6 +24,8 @@ import home from '../content/en/home.json';
       </article>
     ))}
   </div>
+  <!-- The quiet beat (3D tiers only). An element, not padding: sticky stays inside the content box. -->
+  <div class="statements__beat" aria-hidden="true"></div>
 </section>
 
 <script>
@@ -110,8 +112,10 @@ import home from '../content/en/home.json';
     }
   }
   /* The quiet beat: one viewport with only the line, overlapped by ProductIndex (3D tiers only). */
-  :global(html.js:not([data-tier="still"]):not([data-tier="none"]):not(:has([data-scene-slot="rail"][data-scene-state="failed"]))) .statements {
-    padding-block-end: 100svh;
+  .statements__beat { display: none; }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]):not(:has([data-scene-slot="rail"][data-scene-state="failed"]))) .statements__beat {
+    display: block;
+    block-size: 100svh;
   }
   @media (prefers-reduced-motion: reduce) {
     .statements__line { transform: none; }

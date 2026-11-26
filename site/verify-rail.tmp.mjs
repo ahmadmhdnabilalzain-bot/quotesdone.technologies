@@ -16,7 +16,7 @@ for (const f of [0.1, 0.3, 0.55]) {
 const before = await page.evaluate(() => document.getElementById('products').getBoundingClientRect().height);
 await page.evaluate(() => window.__qdt.loseContext());
 await page.waitForTimeout(1500);
-const after = await page.evaluate(() => ({ h: document.getElementById('products').getBoundingClientRect().height, state: document.querySelector('[data-scene-slot="rail"]').dataset.sceneState, pad: getComputedStyle(document.querySelector('.statements')).paddingBlockEnd }));
+const after = await page.evaluate(() => ({ h: document.getElementById('products').getBoundingClientRect().height, state: document.querySelector('[data-scene-slot="rail"]').dataset.sceneState, beat: document.querySelector('.statements__beat').getBoundingClientRect().height }));
 console.log('products height before', before, 'after context loss', JSON.stringify(after));
 await page.screenshot({ path: `${OUT}/final-context-lost.png` });
 await page.close();

@@ -226,7 +226,7 @@ export function createCompanyScene(): RenderableScene {
       // Camera: focus slides from station 3 to the middle of the line; distance grows
       // geometrically so the pull-back reads at an even pace.
       const fx = lerp(stationX(params.focusStation.value), params.farFocus.value * runLength, t) * dirSign;
-      const fy = lerp(0.1, 0, t);
+      const fy = lerp(params.objectHeight.value * 0.5, 0.05, t); // near: the object's middle; far: the line
       const dist = params.nearDistance.value * (params.farDistance.value / params.nearDistance.value) ** t / Math.min(1, aspect);
       const az = lerp(params.nearAzimuth.value, params.farAzimuth.value, t) * dirSign;
       const el = lerp(params.nearElevation.value, params.farElevation.value, t);
