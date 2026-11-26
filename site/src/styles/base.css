@@ -1,0 +1,127 @@
+/*
+ * Base layout. Logical properties only (no left/right/margin-left: scripts/lint-source.mjs).
+ * Layers: the WebGL canvas is fixed behind the content (z 0); content sits above (z 1).
+ * Text never sits over a 3D stage: stages are their own boxes in the layout.
+ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-text);
+  font-size: 100%;
+  line-height: var(--lh-text);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-block-size: 100svh;
+  background: var(--bg);
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, canvas { display: block; max-inline-size: 100%; }
+
+a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: var(--hairline); }
+a:hover { text-decoration-color: var(--signal); }
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+h1, h2, h3, p { margin: 0; }
+
+.visually-hidden {
+  position: absolute !important;
+  inline-size: 1px; block-size: 1px;
+  overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Skip link ---- */
+.skip-link {
+  position: absolute;
+  inset-block-start: var(--s-1);
+  inset-inline-start: var(--s-1);
+  z-index: 10;
+  padding: var(--s-1) var(--s-2);
+  background: var(--fg);
+  color: var(--bg);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible { transform: none; }
+
+/* ---- Page frame ---- */
+.frame {
+  inline-size: 100%;
+  max-inline-size: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.content { position: relative; z-index: 1; }
+
+/* ---- The single WebGL canvas (mounted by JS only) ---- */
+.gl-canvas {
+  position: fixed;
+  inset: 0;
+  /* 100% of the fixed containing block = the layout viewport (unlike 100vw, no scrollbar overflow).
+     Explicit sizes are required: a <canvas> is a replaced element and keeps its attribute aspect
+     ratio under inset alone. The drawing buffer is sized from this box (renderer.ts). */
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ---- Header ---- */
+.site-header { position: relative; z-index: 2; }
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  min-block-size: var(--s-8);
+  border-block-end: var(--hairline) solid var(--rule);
+}
+.site-header__home { display: inline-flex; color: var(--fg); padding-block: var(--s-1); }
+.site-header__logo { inline-size: clamp(9.6rem, 22vw, 13.2rem); block-size: auto; }
+.site-header__mark { display: none; inline-size: var(--s-4); block-size: auto; }
+.site-header__nav ul { display: flex; gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+.site-header__nav a {
+  display: inline-block;
+  padding-block: var(--s-1);
+  font-size: var(--t-sm);
+  text-decoration: none;
+  color: var(--fg);
+}
+.site-header__nav a:hover { text-decoration: underline; text-decoration-color: var(--signal); }
+
+/* The logo README: under ~360px viewport show the mark alone (structure-v1 §2.1). */
+@media (max-width: 22.5rem) {
+  .site-header__logo { display: none; }
+  .site-header__mark { display: block; }
+}
+
+/* Logo SVGs are inlined masters; recolour by CSS fill only, never by editing the paths. */
+.logo-svg, .logo-svg g, .logo-svg path { fill: currentColor; }
+
+/* ---- Footer ---- */
+.site-footer {
+  position: relative;
+  z-index: 1;
+  margin-block-start: var(--s-16);
+  border-block-start: var(--hairline) solid var(--rule);
+  padding-block: var(--s-6) var(--s-8);
+  color: var(--fg-muted);
+  font-size: var(--t-sm);
+}
+.site-footer p + p { margin-block-start: var(--s-1); }
+.site-footer__identity { color: var(--fg); }

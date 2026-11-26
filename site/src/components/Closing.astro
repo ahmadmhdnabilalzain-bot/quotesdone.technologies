@@ -1,0 +1,27 @@
+---
+import home from '../content/en/home.json';
+---
+<section class="closing" aria-labelledby="closing-title">
+  <div class="frame closing__frame">
+    <h2 id="closing-title" class="closing__title" data-reveal="line">{home.closing.headline}</h2>
+    <a class="closing__cta" href={home.closing.cta.href}>{home.closing.cta.label}</a>
+  </div>
+</section>
+
+<style>
+  .closing__frame { padding-block: var(--s-16) 0; display: grid; gap: var(--s-4); justify-items: start; }
+  .closing__title { font-size: var(--t-xl); line-height: var(--lh-tight); letter-spacing: var(--track-display); font-weight: 600; }
+  .closing__cta {
+    display: inline-block;
+    padding: var(--s-2) var(--s-3);
+    border: var(--hairline) solid var(--fg);
+    text-decoration: none;
+    transition: background-color var(--dur-micro) var(--ease-hover), color var(--dur-micro) var(--ease-hover);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .closing__cta:hover { background: var(--fg); color: var(--bg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .closing__cta { transition: none; }
+  }
+</style>

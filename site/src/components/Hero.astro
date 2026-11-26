@@ -1,0 +1,70 @@
+---
+import wordmarkRaw from '../assets/logo/wordmark-dark.svg?raw';
+import SceneSlot from './SceneSlot.astro';
+import home from '../content/en/home.json';
+import ui from '../content/en/ui.json';
+import { inlineSvg } from '../lib/svg.ts';
+
+// wordmark-dark = Alloy logo for dark grounds (brand/logo/README.md). Rendered >= 480px wide on
+// desktop, so the open master joints are correct; below that the compact cut takes over (M1).
+const wordmark = inlineSvg(wordmarkRaw, { className: 'logo-svg hero__wordmark', label: ui.wordmarkLabel });
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="frame hero__frame">
+    <div class="hero__mark">
+      <Fragment set:html={wordmark} />
+      <span class="hero__datum" aria-hidden="true"></span>
+    </div>
+    <SceneSlot slot="hero" scene="smoke" class="hero__slot">
+      <div class="hero__text">
+        <h1 id="hero-title" class="hero__title">{home.hero.headline}</h1>
+        <p class="hero__subline">{home.hero.subline}</p>
+      </div>
+    </SceneSlot>
+  </div>
+</section>
+
+<style>
+  .hero__frame {
+    display: grid;
+    gap: var(--s-6);
+    padding-block: var(--s-6) var(--s-12);
+  }
+  .hero__mark { position: relative; max-inline-size: 60rem; }
+  .hero__wordmark { inline-size: 100%; block-size: auto; color: var(--fg); }
+  /* The datum: Rhodamine as light, under the wordmark, never through it. */
+  .hero__datum {
+    display: block;
+    margin-block-start: var(--s-2);
+    block-size: var(--hairline);
+    inline-size: 100%;
+    background: var(--signal);
+  }
+  /* SceneSlot renders the .hero__slot element, so these selectors must be global to reach it. */
+  :global(.hero__slot) .hero__text { align-self: end; }
+  :global(.hero__slot .scene-stage) { max-inline-size: min(34rem, 52svh); }
+  :global(.hero__slot) {
+    display: grid;
+    gap: var(--s-4);
+    align-items: center;
+  }
+  .hero__title {
+    font-size: var(--t-xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-display);
+    font-weight: 600;
+    max-inline-size: 14ch;
+    text-wrap: balance;
+  }
+  .hero__subline {
+    margin-block-start: var(--s-3);
+    max-inline-size: var(--measure);
+    font-size: var(--t-md);
+    color: var(--fg-muted);
+  }
+  @media (min-width: 60rem) {
+    :global(.hero__slot) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    :global(.hero__slot .scene-stage) { justify-self: end; }
+    :global(.hero__slot .scene-fallback) { grid-column: 2; justify-self: end; }
+  }
+</style>

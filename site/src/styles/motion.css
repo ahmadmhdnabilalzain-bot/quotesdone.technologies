@@ -1,0 +1,39 @@
+/*
+ * Motion rules. Every animation here has a reduced-motion override in the same file
+ * (vectorlab reduced-motion: instant or opacity-only <= 150ms, no translate/scale).
+ */
+
+/* Lenis (desktop pointer only, see src/motion/clock.ts). From lenis/dist/lenis.css. */
+html.lenis, html.lenis body { block-size: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/*
+ * Wordmark intro: a placeholder for scene 1a (the stroke-by-stroke draw-on from strokes.json,
+ * milestone M1). Pure CSS so it runs at first paint with no JS, and it ends fully visible.
+ * It is a one-shot clip reveal; it never repeats.
+ */
+@keyframes qdt-wordmark-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes qdt-datum-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.hero__wordmark { animation: qdt-wordmark-in var(--dur-intro) var(--ease-seat) both; }
+.hero__datum {
+  transform-origin: 0 50%;
+  animation: qdt-datum-in var(--dur-intro) var(--ease-travel) 400ms both;
+}
+:dir(rtl) .hero__datum { transform-origin: 100% 50%; }
+
+/* Still <-> canvas swap: opacity only, so the words never move. */
+.scene-still { transition: opacity var(--dur-swap) var(--ease-hover); }
+[data-scene-state="live"] .scene-still { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__wordmark, .hero__datum { animation: none; }
+  .scene-still { transition: none; }
+}

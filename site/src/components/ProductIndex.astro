@@ -1,0 +1,49 @@
+---
+import home from '../content/en/home.json';
+// Product index from copy deck §2. Status is shown as it stands: a lit dot only for live products.
+---
+<section class="products" id={home.productIndex.id}>
+  <div class="frame">
+    <ul class="products__list">
+      {home.productIndex.items.map((p) => (
+        <li class="product" data-status={p.status}>
+          <span class="product__status" aria-hidden="true"></span>
+          <h2 class="product__name">{p.name}</h2>
+          <p class="product__line">{p.line}</p>
+          {p.href
+            ? <a class="product__label" href={p.href} rel="noopener">{p.label}</a>
+            : <span class="product__label">{p.label}</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .products__list { margin: 0; padding: 0; list-style: none; }
+  .product {
+    display: grid;
+    grid-template-columns: var(--s-2) minmax(0, 1fr);
+    column-gap: var(--s-2);
+    row-gap: var(--s-1);
+    padding-block: var(--s-4);
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+  .product__status {
+    inline-size: 0.5rem; block-size: 0.5rem;
+    margin-block-start: 0.55em;
+    border-radius: 50%;
+    border: var(--hairline) solid var(--fg-muted);
+  }
+  /* Rhodamine dot = live; outline only = in development (structure-v1 scene 3). */
+  .product[data-status="live"] .product__status { background: var(--signal); border-color: var(--signal); }
+  .product__name { font-size: var(--t-md); font-weight: 600; }
+  .product__line, .product__label { grid-column: 2; }
+  .product__line { color: var(--fg-muted); max-inline-size: var(--measure); }
+  .product__label { font-size: var(--t-sm); }
+  @media (min-width: 60rem) {
+    .product { grid-template-columns: var(--s-2) minmax(0, 3fr) minmax(0, 6fr) minmax(0, 3fr); align-items: baseline; }
+    .product__line, .product__label { grid-column: auto; }
+    .product__label { justify-self: end; }
+  }
+</style>

@@ -1,0 +1,69 @@
+/*
+ * Design tokens. One source for colour, space, type and motion.
+ * Palette: brand/logo/README.md. Contrast ratios: structure-v1 §4.7.
+ * Use CSS logical properties everywhere (RTL ready, structure-v1 §5.3).
+ */
+:root {
+  /* ---- Palette (brand) ---- */
+  --carbon: #0e1013;     /* the void; logo on light */
+  --alloy: #eceae4;      /* reversed logo; primary text on Carbon (15.8:1) */
+  --rhodamine: #e3185b;  /* LIGHT and STATUS only. Never text under 24px, never inside the wordmark */
+  --graphite: #5e636b;   /* secondary text on Alloy only (5.0:1); decorative on Carbon (3.15:1) */
+  --mist: #8a8f97;       /* secondary text on Carbon (5.9:1). Provisional, final value in M1 */
+
+  /* ---- Semantic colour ---- */
+  --bg: var(--carbon);
+  --fg: var(--alloy);
+  --fg-muted: var(--mist);
+  --rule: color-mix(in srgb, var(--alloy) 14%, transparent);
+  --signal: var(--rhodamine);
+  --focus: var(--alloy);
+
+  /*
+   * ---- The 2.4-unit grid ----
+   * The logo's joints are exactly 2.4 design units (strokes.json). We map one joint to
+   * 0.6rem and build every space and gutter as a multiple of it, so the page and the
+   * mark share one unit system.
+   */
+  --joint: 0.6rem;
+  --s-1: calc(var(--joint) * 1);   /* 0.6rem */
+  --s-2: calc(var(--joint) * 2);   /* 1.2rem */
+  --s-3: calc(var(--joint) * 3);   /* 1.8rem */
+  --s-4: calc(var(--joint) * 4);   /* 2.4rem */
+  --s-6: calc(var(--joint) * 6);   /* 3.6rem */
+  --s-8: calc(var(--joint) * 8);   /* 4.8rem */
+  --s-12: calc(var(--joint) * 12); /* 7.2rem */
+  --s-16: calc(var(--joint) * 16); /* 9.6rem */
+  --gutter: clamp(var(--s-2), 4vw, var(--s-6));
+  --measure: 34rem;      /* body line length, under 80 characters */
+  --page-max: 96rem;
+  --hairline: 1px;
+
+  /*
+   * ---- Type ----
+   * Placeholder stack until the owner picks the Latin + Arabic family (structure-v1 §4.6, Q7).
+   * No font is downloaded in M0. Scale: 1.25 ratio (major third), fluid at the top end.
+   */
+  --font-text: ui-sans-serif, "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --lh-tight: 1.04;
+  --lh-text: 1.5;
+  --track-display: -0.022em;
+  --t-sm: 0.875rem;
+  --t-base: 1rem;
+  --t-md: 1.25rem;
+  --t-lg: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  --t-xl: clamp(2.25rem, 1.4rem + 3.6vw, 4.75rem);
+
+  /*
+   * ---- Motion: named curves and durations (structure-v1 §6.5) ----
+   * Never write a raw cubic-bezier or a magic duration in a component.
+   */
+  --ease-enter: cubic-bezier(0.165, 0.84, 0.44, 1);     /* ease-out-quart: things arriving */
+  --ease-seat: cubic-bezier(0.23, 1, 0.32, 1);          /* ease-out-quint: parts settling into a joint */
+  --ease-travel: cubic-bezier(0.645, 0.045, 0.355, 1);  /* ease-in-out-cubic: on-screen movement, camera */
+  --ease-hover: ease;                                   /* colour and hover changes */
+  --dur-micro: 120ms;
+  --dur-swap: 150ms;     /* still <-> canvas swap; also the reduced-motion fade ceiling */
+  --dur-reveal: 640ms;   /* line reveals (marketing pacing, rare) */
+  --dur-intro: 1200ms;   /* wordmark intro (placeholder for scene 1a) */
+}

@@ -1,0 +1,17 @@
+{
+  "$source": "docs/website/copy-v1.md §5 (footer) and §6 (navigation, microcopy).",
+  "skipLink": "Skip to content",
+  "navLabel": "Primary",
+  "homeLinkLabel": "QuotesDone Technologies, home",
+  "wordmarkLabel": "QuotesDone Technologies",
+  "nav": [
+    { "label": "Products", "href": "/#products" }
+  ],
+  "fallback3d": "Nothing here is lost. The words are all on the page.",
+  "loading": "One moment.",
+  "footer": {
+    "identity": "QuotesDone Technologies · Sole Establishment · DET Dubai Trader License No. 1633275 · Dubai, United Arab Emirates",
+    "products": "Products: QuotesDone · Sonobolt · MubinFlow (in development)",
+    "copyright": "© 2026 QuotesDone Technologies. All rights reserved."
+  }
+}

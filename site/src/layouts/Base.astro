@@ -1,0 +1,47 @@
+---
+/**
+ * Base layout: <html lang dir>, head/meta, skip link, header, <main>, footer.
+ * Components never branch on language; `dir` on <html> drives layout (structure-v1 §5).
+ */
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/motion.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ui from '../content/en/ui.json';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: 'en' | 'ar';
+}
+const { title, description, lang = 'en' } = Astro.props;
+const dir = lang === 'ar' ? 'rtl' : 'ltr';
+---
+<!doctype html>
+<html lang={lang} dir={dir} data-tier="none" data-3d="pending">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0E1013" />
+    <!-- Pre-launch: every build is a preview. Remove at M5 for the production build. -->
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{ui.skipLink}</a>
+    <Header />
+    <main id="main" class="content" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      // Every page boots the same way; boot() loads 3D only where a page has scene slots.
+      import { boot } from '../lib/boot.ts';
+      boot();
+    </script>
+  </body>
+</html>

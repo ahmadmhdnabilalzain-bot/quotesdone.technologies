@@ -1,0 +1,32 @@
+{
+  "slug": "quotesdone",
+  "name": "QuotesDone",
+  "status": "live",
+  "headline": "Open one. Leave the rest sealed.",
+  "promise": "Describe a job once. Licence-checked UAE suppliers quote it without seeing who you are.",
+  "proof": [
+    {
+      "title": "Your name stays off the brief.",
+      "body": "Your name, number and company are removed before any supplier sees the job."
+    },
+    {
+      "title": "Licence-checked suppliers only.",
+      "body": "Number, issuing authority and expiry are read from the licence itself. An expired licence cannot quote."
+    },
+    {
+      "title": "3% of the quote you choose.",
+      "body": "Posting and comparing are free. You pay only to reveal the supplier you pick, and the fee is shown before you pay. If that supplier does not respond within 5 working days, everything you paid is refunded."
+    }
+  ],
+  "statusLine": "Live at quotesdone.com, in English and Arabic. Every trade in the UAE except food and beverage, for now.",
+  "cta": [
+    {
+      "label": "Get quotes",
+      "href": "https://quotesdone.com/me"
+    },
+    {
+      "label": "Visit quotesdone.com",
+      "href": "https://quotesdone.com"
+    }
+  ]
+}

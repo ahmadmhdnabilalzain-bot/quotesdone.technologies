@@ -1,0 +1,43 @@
+{
+  "slug": "sonobolt",
+  "name": "Sonobolt",
+  "status": "live",
+  "headline": "Your songs. One mix.",
+  "promise": "Sonobolt turns songs that are yours to use into one continuous DJ mix, in one file.",
+  "proof": [
+    {
+      "title": "Up to 4 hours, one file.",
+      "body": "The mix comes back as one MP3 that plays straight through. It is never split into parts."
+    },
+    {
+      "title": "AED 99 per hour of mix.",
+      "body": "You see a quote before you order, and that quote is the most you can pay. No subscription."
+    },
+    {
+      "title": "Your songs are not kept.",
+      "body": "They are deleted as soon as the mix is ready, and they are not backed up."
+    }
+  ],
+  "statusLine": "Sonobolt Mix: available. Sonobolt Studio, from an idea to a finished track: coming soon. Sonobolt Visuals, lyric videos that move with the music: coming soon.",
+  "family": [
+    {
+      "name": "Sonobolt Mix",
+      "state": "available"
+    },
+    {
+      "name": "Sonobolt Studio",
+      "state": "coming soon"
+    },
+    {
+      "name": "Sonobolt Visuals",
+      "state": "coming soon"
+    }
+  ],
+  "cta": [
+    {
+      "label": "Visit sonobolt.com",
+      "href": "https://sonobolt.com"
+    }
+  ],
+  "ownerToConfirm": "Start-a-mix link target (app.sonobolt.com) is parked by the owner; do not link it."
+}

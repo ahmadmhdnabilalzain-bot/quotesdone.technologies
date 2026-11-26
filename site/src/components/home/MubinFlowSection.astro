@@ -1,0 +1,12 @@
+---
+/** Home scene section for mubinflow. Owned by the mubinflow scene agent. Copy comes from content/en/products/mubinflow.json */
+import SceneSlot from '../SceneSlot.astro';
+import p from '../../content/en/products/mubinflow.json';
+---
+<section class="home-mubinflow" aria-labelledby="mubinflow-title" data-section="mubinflow">
+  <div class="frame">
+    <h2 id="mubinflow-title">{p.headline}</h2>
+    <p>{p.promise}</p>
+    <SceneSlot slot="mubinflow" scene="mubinflow" />
+  </div>
+</section>

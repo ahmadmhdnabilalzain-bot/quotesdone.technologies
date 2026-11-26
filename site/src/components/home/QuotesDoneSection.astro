@@ -1,0 +1,12 @@
+---
+/** Home scene section for quotesdone. Owned by the quotesdone scene agent. Copy comes from content/en/products/quotesdone.json */
+import SceneSlot from '../SceneSlot.astro';
+import p from '../../content/en/products/quotesdone.json';
+---
+<section class="home-quotesdone" aria-labelledby="quotesdone-title" data-section="quotesdone">
+  <div class="frame">
+    <h2 id="quotesdone-title">{p.headline}</h2>
+    <p>{p.promise}</p>
+    <SceneSlot slot="quotesdone" scene="quotesdone" />
+  </div>
+</section>

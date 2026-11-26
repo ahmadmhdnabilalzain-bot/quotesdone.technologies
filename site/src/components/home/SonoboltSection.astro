@@ -1,0 +1,12 @@
+---
+/** Home scene section for sonobolt. Owned by the sonobolt scene agent. Copy comes from content/en/products/sonobolt.json */
+import SceneSlot from '../SceneSlot.astro';
+import p from '../../content/en/products/sonobolt.json';
+---
+<section class="home-sonobolt" aria-labelledby="sonobolt-title" data-section="sonobolt">
+  <div class="frame">
+    <h2 id="sonobolt-title">{p.headline}</h2>
+    <p>{p.promise}</p>
+    <SceneSlot slot="sonobolt" scene="sonobolt" />
+  </div>
+</section>

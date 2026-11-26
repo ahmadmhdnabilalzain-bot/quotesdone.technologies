@@ -1,0 +1,66 @@
+{
+  "$source": "docs/website/copy-v1.md §2 (Home). Edit the deck first, then this file.",
+  "meta": {
+    "title": "QuotesDone Technologies. Software, built and run in Dubai.",
+    "description": "QuotesDone Technologies builds software products and runs them after launch. QuotesDone and Sonobolt are live. MubinFlow is in development."
+  },
+  "hero": {
+    "headline": "Software, built and run in Dubai.",
+    "subline": "QuotesDone Technologies builds software products and runs them after launch."
+  },
+  "statements": [
+    {
+      "id": "status",
+      "title": "Two products live. One in development.",
+      "body": "QuotesDone and Sonobolt are live on their own sites. MubinFlow is in development."
+    },
+    {
+      "id": "price",
+      "title": "The price comes before the payment.",
+      "body": "On QuotesDone, the fee is shown in full before you pay. On Sonobolt, the quote is the most you can pay."
+    },
+    {
+      "id": "details",
+      "title": "Your details are not passed around.",
+      "body": "QuotesDone removes your name before a supplier sees your job. Sonobolt deletes your songs once your mix is ready."
+    },
+    {
+      "id": "estimate",
+      "title": "An estimate is called an estimate.",
+      "body": "Guide prices are labelled guides. Tracklist figures are labelled estimates. What is not worked out is listed as not computed."
+    }
+  ],
+  "productIndex": {
+    "id": "products",
+    "items": [
+      {
+        "slug": "quotesdone",
+        "name": "QuotesDone",
+        "line": "Anonymous quotes from licence-checked UAE suppliers.",
+        "label": "quotesdone.com",
+        "href": "https://quotesdone.com",
+        "status": "live"
+      },
+      {
+        "slug": "sonobolt",
+        "name": "Sonobolt",
+        "line": "Your songs, one continuous DJ mix.",
+        "label": "sonobolt.com",
+        "href": "https://sonobolt.com",
+        "status": "live"
+      },
+      {
+        "slug": "mubinflow",
+        "name": "MubinFlow",
+        "line": "HR and payroll for UAE businesses.",
+        "label": "In development",
+        "href": null,
+        "status": "in-development"
+      }
+    ]
+  },
+  "closing": {
+    "headline": "More is in development.",
+    "cta": { "label": "See the products", "href": "#products" }
+  }
+}

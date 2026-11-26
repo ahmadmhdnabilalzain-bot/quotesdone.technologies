@@ -1,0 +1,24 @@
+{
+  "slug": "mubinflow",
+  "name": "MubinFlow",
+  "status": "in-development",
+  "headline": "Payroll that shows its working.",
+  "promise": "HR and payroll for UAE businesses of about 10 to 250 people. In development.",
+  "proof": [
+    {
+      "title": "Every amount has a reason.",
+      "body": "The payroll engine traces each figure on a payslip to the rule behind it, and each rule cites its source."
+    },
+    {
+      "title": "No guessing.",
+      "body": "Where no sourced rule exists yet, the figure is listed as not computed."
+    },
+    {
+      "title": "The salary file, written and checked.",
+      "body": "It writes the salary information file (SIF) for a pay run, checks any SIF file and explains each problem in plain English."
+    }
+  ],
+  "statusLine": "In development. Not yet available. No website yet.",
+  "cta": [],
+  "ownerToConfirm": "Whether to offer an 'Ask about MubinFlow' call to action, and which email it opens."
+}

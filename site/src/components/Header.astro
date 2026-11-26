@@ -1,0 +1,23 @@
+---
+import compactRaw from '../assets/logo/wordmark-compact.svg?raw';
+import markRaw from '../assets/logo/mark-small.svg?raw';
+import ui from '../content/en/ui.json';
+import { inlineSvg } from '../lib/svg.ts';
+
+// The header always uses the compact cut: it renders under 480px wide (brand/logo/README.md).
+const logo = inlineSvg(compactRaw, { className: 'logo-svg site-header__logo' });
+const mark = inlineSvg(markRaw, { className: 'logo-svg site-header__mark' });
+---
+<header class="site-header">
+  <div class="frame site-header__bar">
+    <a class="site-header__home" href="/" aria-label={ui.homeLinkLabel}>
+      <Fragment set:html={logo} />
+      <Fragment set:html={mark} />
+    </a>
+    <nav class="site-header__nav" aria-label={ui.navLabel}>
+      <ul>
+        {ui.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+  </div>
+</header>

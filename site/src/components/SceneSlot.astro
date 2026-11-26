@@ -1,0 +1,68 @@
+---
+/**
+ * A 3D scene slot. The still is the DEFAULT (no JS, reduced motion, no WebGL, any failure);
+ * JS only swaps to the live canvas after a real frame was drawn (data-scene-state="live").
+ * The stage is a fixed-size box, so swapping never moves the words.
+ */
+import ui from '../content/en/ui.json';
+
+interface Props {
+  /** Unique per page, e.g. "hero". */
+  slot: string;
+  /** Scene id from src/three/scenes/registry.ts. */
+  scene: string;
+  /** ScrollTrigger range for progress 0..1. */
+  start?: string;
+  end?: string;
+  class?: string;
+}
+const { slot, scene, start, end, class: className } = Astro.props;
+---
+<div
+  class:list={['scene-slot', className]}
+  data-scene-slot={slot}
+  data-scene={scene}
+  data-scene-state="still"
+  data-scene-start={start}
+  data-scene-end={end}
+>
+  <slot />
+  <div class="scene-stage" data-scene-stage>
+    <figure class="scene-still" aria-hidden="true">
+      <!-- Placeholder still. scripts/stills.mjs renders the real one from this scene (M1). -->
+      <div class="scene-still__plate"></div>
+    </figure>
+  </div>
+  <p class="scene-fallback">{ui.fallback3d}</p>
+</div>
+
+<style>
+  .scene-slot { position: relative; }
+  .scene-stage {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    inline-size: 100%;
+  }
+  .scene-still {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    display: grid;
+    place-items: center;
+  }
+  .scene-still__plate {
+    inline-size: 38%;
+    aspect-ratio: 1 / 1;
+    border: var(--hairline) solid color-mix(in srgb, var(--alloy) 32%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--alloy) 10%, var(--carbon)), var(--carbon));
+    transform: rotate(-8deg);
+  }
+  .scene-fallback {
+    margin-block-start: var(--s-1);
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+  /* The fallback line is only useful when 3D will not run. */
+  :global(html.js) .scene-slot:not([data-scene-state="failed"]) .scene-fallback { visibility: hidden; }
+  :global(html.js[data-tier="still"]) .scene-slot .scene-fallback { visibility: visible; }
+</style>
