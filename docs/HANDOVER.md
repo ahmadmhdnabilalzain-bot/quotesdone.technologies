@@ -24,6 +24,15 @@ All under github user `ahmadmhdnabilalzain-bot`.
 ## SCOPE (owner, 2026-11-26): this session is for the WEBSITE DESIGN
 Stay on the hub website (design, copy, build). Do NOT audit or chase issues in the other apps (QuotesDone, Sonobolt, MubinFlow, ERP); use their public facts only as website content. Known items the owner has seen and parked: `app.sonobolt.com` not resolving; licence-wording mismatch between product sites.
 
+## Website plan (decided by Claude as technical lead, 2026-11-26; details in `docs/website/structure-v1.md` and `copy-v1.md`)
+- Stack: Astro 7 static, plain three.js (WebGL2), GSAP; Lenis on desktop only. Hosting: Cloudflare Pages (reuses Sonobolt's deploy workflow), Render as fallback. Supersedes the earlier "temporary Render URL" idea.
+- Logo opens the site: drawn from the 43 stroke parts, then a 3D exploded view, then docks into the header (compact cut below 480px).
+- One visual idea: the "datum line"; each product is an object on a rail (QuotesDone = sealed plates, Sonobolt = waveform coil, MubinFlow = CAD linework because in development).
+- Phones first; all words in HTML; no-JS/reduced-motion/no-WebGL fall back to stills; Arabic RTL prepared from day one.
+- First milestone: ONE-PAGE SLICE (logo reveal + QuotesDone scene), judged on named real phones.
+- Hub subdomains for QuotesDone/Sonobolt only redirect; those products keep their own domains (supersedes ledger #12 wording).
+- Owner-gated: reference video, 3D-artist budget, final contact/legal details before launch.
+
 ## Product portfolio for the company website (owner-confirmed 2026-11-26)
 | Product | Public name / domain | Repo | Brand assets | Status |
 |---|---|---|---|---|
