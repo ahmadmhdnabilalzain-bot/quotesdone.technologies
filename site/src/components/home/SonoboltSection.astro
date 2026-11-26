@@ -72,15 +72,16 @@ const available = (state: string): boolean => state === 'available';
     color: var(--fg-muted);
   }
   .sono-headline {
-    font-size: var(--t-xl);
-    line-height: var(--lh-tight);
-    letter-spacing: var(--track-display);
-    font-weight: 600;
-    max-inline-size: 12ch;
+    font-size: var(--t-feature);
+    line-height: var(--lh-display);
+    letter-spacing: var(--track-hero);
+    font-weight: var(--w-display);
+    max-inline-size: 7.5em;
   }
   .sono-promise {
-    font-size: var(--t-md);
-    max-inline-size: 26ch;
+    font-size: var(--t-lead-lg);
+    line-height: var(--leading-md);
+    max-inline-size: 20em;
     color: var(--fg);
   }
 
@@ -98,7 +99,7 @@ const available = (state: string): boolean => state === 'available';
     border-block-start: var(--hairline) solid var(--rule);
     max-inline-size: var(--measure);
   }
-  .sono-proof__title { font-size: var(--t-md); font-weight: 600; line-height: 1.25; }
+  .sono-proof__title { font-size: var(--t-lg); font-weight: var(--w-strong); line-height: var(--lh-snug); letter-spacing: var(--track-display); }
   .sono-proof__body { color: var(--fg-muted); }
 
   .sono-family { display: grid; gap: var(--s-3); max-inline-size: var(--measure); }
@@ -150,7 +151,7 @@ const available = (state: string): boolean => state === 'available';
        * Needs motion/scroll.ts to measure a sticky stage's visibility from its section (it does
        * since 26 Nov 19:03); with the older stage-based measurement keep this under ~190svh.
        */
-      --sono-length: 280svh;
+      --sono-length: 250svh; /* polish pass: 280 -> 250 (scrub about 2.1 viewports) */
       min-block-size: var(--sono-length);
       display: flex;
       flex-direction: column;

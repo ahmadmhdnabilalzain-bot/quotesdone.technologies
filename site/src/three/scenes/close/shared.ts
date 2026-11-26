@@ -55,7 +55,7 @@ export function anodisedMaterial(roughness: number): MeshPhysicalMaterial {
  * everything, so `toneMapped: false` alone would not keep the hex).
  */
 export function datumMaterial(): MeshBasicMaterial {
-  return new MeshBasicMaterial({ color: SIGNAL, transparent: true, depthWrite: false, toneMapped: false });
+  return new MeshBasicMaterial({ color: SIGNAL, transparent: true, depthWrite: false, toneMapped: false, userData: { signal: true } });
 }
 
 /** A rectangle with 45-degree chamfered corners, centred on the origin. */

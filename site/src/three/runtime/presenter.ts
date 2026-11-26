@@ -318,14 +318,30 @@ export class Presenter {
     const camera = item.scene.camera;
     const savedMask = camera.layers.mask;
     const savedWrites = info.mixedPlain.map((m: Material) => m.colorWrite);
+    // The resolved depth is ONE MSAA sample per pixel, the mask pass tests at the pixel centre: on
+    // a tilted surface the two differ with one sign across the whole face. A small slope-scaled
+    // bias toward the camera keeps the signal's own depth test passing (GL state, no recompile).
+    const savedOffsets = info.signalMaterials.map((m) => [m.polygonOffset, m.polygonOffsetFactor, m.polygonOffsetUnits] as const);
     camera.layers.set(SIGNAL_LAYER);
     for (const m of info.mixedPlain) m.colorWrite = false;
+    info.signalMaterials.forEach((m, i) => {
+      const [had, factor, units] = savedOffsets[i]!;
+      m.polygonOffset = true;
+      m.polygonOffsetFactor = (had ? factor : 0) - 1;
+      m.polygonOffsetUnits = (had ? units : 0) - 4;
+    });
     try {
       renderer.render(item.scene.object3d, camera);
     } finally {
       camera.layers.mask = savedMask;
       info.mixedPlain.forEach((m, i) => {
         m.colorWrite = savedWrites[i] ?? true;
+      });
+      info.signalMaterials.forEach((m, i) => {
+        const saved = savedOffsets[i]!;
+        m.polygonOffset = saved[0];
+        m.polygonOffsetFactor = saved[1];
+        m.polygonOffsetUnits = saved[2];
       });
     }
   }

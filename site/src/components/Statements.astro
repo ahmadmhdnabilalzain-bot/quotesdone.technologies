@@ -2,25 +2,33 @@
 /**
  * Home scene 2, "Datum" (structure-v1 §2.2): the four statements from copy deck §2.
  *
- * The datum is one Rhodamine hairline (light only) held at the middle of the viewport while the
- * statements scroll past. Each statement comes to rest ON the line, like words on a ruled sheet.
- * - It extends from the centre to both edges as the section arrives (scrubbed by scroll).
- * - Titles and bodies reveal by LINE (motion/reveal.ts via data-reveal), never by letter.
- * - The section ends with one quiet viewport where only the line remains. ProductIndex overlaps
- *   that beat, so the rail scene's canvas datum (progress 0) sits exactly under this line; the
- *   DOM line then fades out and the canvas line carries on and becomes the rail.
- * No JS / reduced motion: the line is simply there, full width; the words are static.
+ * Composition (polish pass, site/docs/polish-notes.md): one statement per screen, set large in
+ * expanded Archivo, organised by ONE Rhodamine hairline held at the middle of the viewport.
+ * - Each statement is a two-row grid split exactly at its middle: the title stands ON the line
+ *   (row 1, bottom-aligned) and the body hangs FROM it (row 2, top-aligned), like a ruled sheet.
+ *   Both rows are 1fr, so the split stays at the middle even when a title wraps to more lines.
+ * - The line is a slot (JS + motion only): a title is printed out of the line as it rises, a body
+ *   is taken back into it as it leaves. Paint-only (clip-path) plus opacity on titles that have
+ *   risen past the line, so the eye always lands on the statement that sits on the datum.
+ * - The line extends from the centre to both edges as the section arrives (scrubbed).
+ * - The section ends with a short quiet beat where only the line remains. ProductIndex overlaps
+ *   that beat (--home-datum-beat), so the rail scene's canvas datum (progress 0) sits exactly
+ *   under this line. The beat is opaque Carbon: it covers the canvas datum while the rail stage
+ *   is still scrolling in (otherwise two lines show), then line and beat fade out together at the
+ *   moment both lines coincide, and the canvas line carries on and becomes the rail.
+ * No JS / reduced motion: the line is simply there, full width; every word is static and fully
+ * visible (the CSS default is unclipped and opaque; only the script changes that).
  * The statements are not numbered: they are not a sequence.
  */
 import home from '../content/en/home.json';
 ---
 <section class="statements">
   <div class="statements__datum" aria-hidden="true"><span class="statements__line"></span></div>
-  <div class="frame">
+  <div class="frame statements__list">
     {home.statements.map((s) => (
       <article class="statement" id={`statement-${s.id}`}>
-        <h2 class="statement__title" data-reveal="line">{s.title}</h2>
-        <p class="statement__body" data-reveal="line">{s.body}</p>
+        <h2 class="statement__title">{s.title}</h2>
+        <p class="statement__body">{s.body}</p>
       </article>
     ))}
   </div>
@@ -29,34 +37,76 @@ import home from '../content/en/home.json';
 </section>
 
 <script>
-  /* Scroll-scrubbed datum: extend to both edges on arrival; fade at the handover. No three.js. */
+  /* Scroll-scrubbed datum and the line-as-slot. DOM only, no three.js. */
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+  /** Titles that have risen past the line fade toward this opacity (the next one is on the line). */
+  const RISEN_OPACITY = 0.22;
+  /** Distance above the line (viewport heights) over which a risen title fades to RISEN_OPACITY. */
+  const RISEN_FADE_VH = 0.42;
+
   const section = document.querySelector<HTMLElement>('.statements');
+  const datum = section?.querySelector<HTMLElement>('.statements__datum');
   const line = section?.querySelector<HTMLElement>('.statements__line');
+  const beat = section?.querySelector<HTMLElement>('.statements__beat');
   const html = document.documentElement;
   const staged = (): boolean =>
     html.classList.contains('js') &&
     html.dataset.tier !== 'still' &&
     html.dataset.tier !== 'none' &&
     document.querySelector('[data-scene-slot="rail"][data-scene-state="failed"]') === null;
-  if (section && line && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+
+  if (section && datum && line && beat && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     gsap.registerPlugin(ScrollTrigger);
-    // Arrival: the line grows from the centre to both edges while it rises to the middle.
+    const statements = [...section.querySelectorAll<HTMLElement>('.statement')].map((el) => ({
+      title: el.querySelector<HTMLElement>('.statement__title')!,
+      body: el.querySelector<HTMLElement>('.statement__body')!,
+    }));
+
+    // Arrival: the line grows from the centre to both edges while the section rises to the middle.
     gsap.fromTo(
       line,
       { scaleX: 0 },
       { scaleX: 1, ease: 'none', scrollTrigger: { trigger: section, start: 'top bottom', end: 'top 50%', scrub: true } },
     );
-    // Handover: fade only when the rail scene will pick the line up (a 3D tier that has not
-    // failed). Checked on every update, not once: boot may set the tier after this script runs.
+
+    // The slot: read every box first, then write (no layout thrash). The line's real position is
+    // used, so the slot follows the line when the sticky datum is released at the section end.
+    const slot = (): void => {
+      const lineY = datum.getBoundingClientRect().top;
+      const vh = window.innerHeight;
+      const boxes = statements.map(({ title, body }) => ({ t: title.getBoundingClientRect(), b: body.getBoundingClientRect() }));
+      statements.forEach(({ title, body }, i) => {
+        const { t, b } = boxes[i]!;
+        // Title: hidden below the line, printed upward out of it.
+        const tHidden = Math.min(t.height, Math.max(0, t.bottom - lineY));
+        title.style.clipPath = tHidden > 0 ? `inset(0 0 ${tHidden.toFixed(1)}px 0)` : '';
+        // Once fully above the line, fade with distance so only the statement on the line reads.
+        const risen = Math.max(0, lineY - t.bottom) / vh;
+        const k = Math.min(1, risen / RISEN_FADE_VH);
+        title.style.opacity = k > 0 ? String(1 - k * (1 - RISEN_OPACITY)) : '';
+        // Body: hangs below the line; taken back into it as it rises.
+        const bHidden = Math.min(b.height, Math.max(0, lineY - b.top));
+        body.style.clipPath = bHidden > 0 ? `inset(${bHidden.toFixed(1)}px 0 0 0)` : '';
+      });
+    };
+    ScrollTrigger.create({ trigger: section, start: 'top bottom', end: 'bottom top', onUpdate: slot, onRefresh: slot });
+    slot();
+
+    // Handover: when the products section reaches the top (statements bottom = beat height from
+    // the top), the canvas datum is exactly under the DOM line. Fade line and beat together over
+    // a few viewport-percent; both lines coincide, so nothing visibly changes. Only when the rail
+    // scene will pick the line up; checked on every update (boot may set the tier later).
+    const beatPct = (): number => (beat.getBoundingClientRect().height / window.innerHeight) * 100;
     ScrollTrigger.create({
       trigger: section,
-      start: 'bottom bottom',
-      end: 'bottom 60%',
+      start: () => `bottom ${beatPct().toFixed(2)}%`,
+      end: () => `bottom ${(beatPct() - 3).toFixed(2)}%`,
       onUpdate: (self) => {
-        line.style.opacity = staged() ? String(1 - self.progress) : '1';
+        const o = staged() ? String(1 - self.progress) : '1';
+        line.style.opacity = o;
+        beat.style.opacity = o;
       },
     });
   }
@@ -64,13 +114,14 @@ import home from '../content/en/home.json';
 
 <style>
   .statements { position: relative; }
-  /* The datum: sticky at the middle of the viewport, full bleed (both edges, beyond the frame). */
+  /* The datum: sticky at the middle of the viewport, full bleed (both edges, beyond the frame).
+     Above the beat (which covers the canvas) and above the words (which never cross it). */
   .statements__datum {
     position: sticky;
     inset-block-start: 50svh;
     block-size: var(--hairline);
     margin-block-end: calc(-1 * var(--hairline));
-    z-index: 0;
+    z-index: 2;
     pointer-events: none;
   }
   .statements__line {
@@ -79,43 +130,56 @@ import home from '../content/en/home.json';
     background: var(--signal);
     transform-origin: 50% 50%; /* from the centre to both edges: symmetric for LTR and RTL */
   }
-  /* Each statement is one viewport. Its words end just above the block's middle, so when the
-     block is centred they sit on the datum. */
+
+  /* One statement per screen: a block of --statement-step, split at its middle. When the block is
+     centred in the viewport, its middle is the datum. */
   .statement {
     position: relative;
     z-index: 1;
-    min-block-size: 100svh;
     display: grid;
-    align-content: end;
-    gap: var(--s-2);
-    padding-block: var(--s-8) calc(50svh + var(--s-2));
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    min-block-size: var(--statement-step);
   }
   .statement__title {
-    font-size: clamp(2rem, 1.1rem + 3.2vw, 4.25rem);
-    line-height: var(--lh-tight);
-    letter-spacing: var(--track-display);
-    font-weight: 600;
-    max-inline-size: 16ch;
+    grid-row: 1;
+    align-self: end;
+    padding-block-end: var(--s-3);
+    font-family: var(--font-display);
+    font-size: var(--t-statement);
+    font-stretch: var(--wdth-display);
+    font-weight: var(--w-display);
+    line-height: var(--lh-display);
+    letter-spacing: var(--track-hero);
+    max-inline-size: 13em; /* em, not ch: stable across the font swap (docs/typography.md) */
     text-wrap: balance;
   }
   .statement__body {
-    max-inline-size: var(--measure);
-    font-size: var(--t-md);
+    grid-row: 2;
+    align-self: start;
+    padding-block-start: var(--s-3);
+    max-inline-size: var(--measure-wide);
+    font-size: var(--t-lead-lg);
+    line-height: var(--leading-md);
     color: var(--fg-muted);
     text-wrap: pretty;
   }
+  /* Wide: the body hangs from the line in the second half of the frame, so title and body read as
+     one figure across the datum instead of two blocks side by side. */
   @media (min-width: 60rem) {
-    .statement {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      align-items: end;
-      column-gap: var(--s-6);
-    }
+    .statement { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--s-4); }
+    .statement__title { grid-column: 1 / -1; }
+    .statement__body { grid-column: 7 / span 5; max-inline-size: none; }
   }
-  /* The quiet beat: one viewport with only the line, overlapped by ProductIndex (3D tiers only). */
+
+  /* The quiet beat: only the line, overlapped by ProductIndex (3D tiers only). Opaque Carbon, so the
+     rail's canvas datum stays covered until the two lines coincide (see the script). */
   .statements__beat { display: none; }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]):not(:has([data-scene-slot="rail"][data-scene-state="failed"]))) .statements__beat {
     display: block;
-    block-size: 100svh;
+    position: relative;
+    z-index: 1;
+    block-size: var(--home-datum-beat);
+    background: var(--bg);
   }
   @media (prefers-reduced-motion: reduce) {
     .statements__line { transform: none; }

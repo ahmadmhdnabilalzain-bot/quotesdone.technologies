@@ -56,8 +56,21 @@
   --measure-wide: 40.8rem;   /* lead paragraphs at --t-md: about 70 characters */
   --container-text: 45.6rem; /* a text column with its headings */
   --container-wide: 80rem;
-  --page-max: 96rem;
+  /* 96rem (1536px) up to a 2133px viewport, then 72vw, so a 2560px screen is not framed by two
+     500px empty margins. One value for header, content and footer, so every left edge agrees. */
+  --page-max: clamp(96rem, 72vw, 112rem);
   --hairline: 1px;
+
+  /*
+   * ---- Home pacing (scroll lengths, desktop with live 3D) ----
+   * One place for the section lengths that set the home page's pace. Polish pass 2026-11-26:
+   * the page went from about 26 to about 20 viewport heights (site/docs/polish-notes.md).
+   * --home-datum-beat must stay above 50svh: the sticky datum would release before the rail
+   * stage pins (Statements.astro, ProductIndex.astro).
+   */
+  --statement-step: 55svh;     /* one statement per screen */
+  --home-datum-beat: 55svh;    /* the line alone; ProductIndex overlaps it by the same amount */
+  --home-rail-length: 300svh;  /* products section (rail pin = this minus one viewport) */
 
   /*
    * ---- Type: families ----
@@ -99,6 +112,12 @@
   --t-xl: clamp(2.25rem, 1.597rem + 2.903vw, 4.5rem);      /* 36 -> 72px: page titles, h1/h2 */
   --t-2xl: clamp(2.75rem, 1.806rem + 4.194vw, 6rem);       /* 44 -> 96px: section display */
   --t-3xl: clamp(3.25rem, 1.726rem + 6.774vw, 8.5rem);     /* 52 -> 136px: one hero line per page */
+  /* Home choreography sizes (polish pass, site/docs/polish-notes.md). They keep growing past
+     1600px (to about 1900px) so the big moments still hold the screen on wide desktops. */
+  --t-statement: clamp(2.75rem, 1.5rem + 4.6vw, 7rem);     /* 44 -> 112px: one statement per screen, on the datum */
+  --t-feature: clamp(2.25rem, 1.3rem + 3.1vw, 5.25rem);    /* 36 -> 84px: product headlines beside a 3D stage */
+  --t-proof: clamp(1.625rem, 1.1rem + 1.75vw, 3.25rem);    /* 26 -> 52px: one proof point per pinned beat */
+  --t-lead-lg: clamp(1.25rem, 1.05rem + 0.55vw, 1.75rem);  /* 20 -> 28px: statement bodies and product promises */
 
   /*
    * ---- Type: line height ----

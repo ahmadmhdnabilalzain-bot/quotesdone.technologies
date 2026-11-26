@@ -16,12 +16,16 @@ describe('shared rail module', () => {
     expect(datumMaterial().color.equals(railSignalColor())).toBe(true);
   });
 
-  it('the signal colour is close to the best AgX can do for #E3185B', () => {
-    // The best reachable input (numerical inverse) and the shared constant display within a few 8-bit steps.
-    const best = inverseAgx('#E3185B');
+  it('the signal colour is the TRUE linear #E3185B (the runtime signal pass shows it 1:1, no AgX pre-compensation)', () => {
     const c = railSignalColor();
-    const dist = Math.hypot(c.r - best.linear[0], c.g - best.linear[1], c.b - best.linear[2]);
-    expect(dist).toBeLessThan(0.08);
+    // #E3185B in linear sRGB: [0.7681, 0.0091, 0.1046]
+    expect(c.r).toBeCloseTo(0.7681, 3);
+    expect(c.g).toBeCloseTo(0.0091, 3);
+    expect(c.b).toBeCloseTo(0.1046, 3);
+  });
+
+  it('every shared-rail signal material opts into the runtime signal pass', () => {
+    expect(datumMaterial().userData.signal).toBe(true);
   });
 
   it('the datum height ratio and Alloy match the rail scene', () => {

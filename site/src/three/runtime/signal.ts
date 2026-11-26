@@ -48,6 +48,8 @@ export interface SceneLookInfo {
   signalObjects: number;
   /** Materials of signal objects that are NOT signal (multi-material meshes): colorWrite off in the replay. */
   mixedPlain: Material[];
+  /** The signal materials themselves (the mask pass biases their depth slightly toward the camera). */
+  signalMaterials: Material[];
   /** The scene has a wordmark material: no signal bloom anywhere in it. */
   hasWordmark: boolean;
   /** Materials that asked for signal AND wordmark (refused; logged by the presenter). */
@@ -62,7 +64,7 @@ type Renderable = Object3D & { material?: Material | Material[] };
  * presenter needs. Cheap enough to run every frame (a few hundred objects at most).
  */
 export function classifyScene(root: Object3D): SceneLookInfo {
-  const info: SceneLookInfo = { signalObjects: 0, mixedPlain: [], hasWordmark: false, refused: [], ao: readAo(root) };
+  const info: SceneLookInfo = { signalObjects: 0, mixedPlain: [], signalMaterials: [], hasWordmark: false, refused: [], ao: readAo(root) };
   root.traverse((object) => {
     const material = (object as Renderable).material;
     if (!material) return;
@@ -77,6 +79,7 @@ export function classifyScene(root: Object3D): SceneLookInfo {
         plain.push(m);
       } else if (role === 'signal') {
         signal = true;
+        if (!info.signalMaterials.includes(m)) info.signalMaterials.push(m);
       } else {
         plain.push(m);
       }

@@ -138,12 +138,13 @@ export function createDatumMaterial(params: RailParams): ShaderMaterial {
     transparent: true,
     premultipliedAlpha: true,
     depthWrite: false,
+    userData: { signal: true }, // runtime signal opt-in: shown 1:1 (runtime/README.md)
   });
 }
 
 /** Status light: unlit, on the pad face. Live = a dot, in development = an outline ring. */
 export function createStatusMaterial(): MeshBasicMaterial {
-  return new MeshBasicMaterial({ color: SOCKET.clone() });
+  return new MeshBasicMaterial({ color: SOCKET.clone(), userData: { signal: true } });
 }
 
 /** Drafting linework: visible edges (solid) and hidden edges (dashed, drawn only behind the mask). */

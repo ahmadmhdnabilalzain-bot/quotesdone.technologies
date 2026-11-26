@@ -32,7 +32,7 @@ export const RHODAMINE_HEX = '#E3185B';
  * return plain #E3185B here and flag the datum and status materials, in all three scenes at
  * once, so the line stays one colour.
  */
-export const RAIL_SIGNAL_LINEAR: readonly [number, number, number] = [0.5548, 0, 0.0499];
+export const RAIL_SIGNAL_LINEAR: readonly [number, number, number] = [0.7681, 0.0091, 0.1046];
 
 export function railSignalColor(): Color {
   return new Color().setRGB(RAIL_SIGNAL_LINEAR[0], RAIL_SIGNAL_LINEAR[1], RAIL_SIGNAL_LINEAR[2], LinearSRGBColorSpace);

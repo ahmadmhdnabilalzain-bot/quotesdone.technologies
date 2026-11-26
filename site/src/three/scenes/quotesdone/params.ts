@@ -57,7 +57,7 @@ export const SEALED_PARAMS = {
   coverRoughness: { value: 0.4, min: 0, max: 1, step: 0.01, description: 'Cover roughness (dark anodised)' },
   dimFactor: { value: 0.32, min: 0, max: 1, step: 0.01, description: 'Albedo of the plates left sealed, relative to rest' },
   dimFalloff: { value: 0.45, min: 0.2, max: 1, step: 0.01, description: 'Extra dimming per plate of distance from the opened one' },
-  datumGlow: { value: 2.6, min: 0, max: 6, step: 0.05, description: 'Datum filament radiance multiplier (before AgX)' },
+  datumGlow: { value: 1, min: 0, max: 6, step: 0.05, description: 'Datum filament radiance multiplier (before AgX)' },
   datumWashIntensity: { value: 0.5, min: 0, max: 3, step: 0.01, description: 'Strength of the Rhodamine wash the filament throws on the open face' },
   datumWashHeight: { value: 0.16, min: 0.02, max: 0.6, step: 0.01, description: 'Height of the wash band around the datum line' },
   floorDatumOpacity: { value: 0.45, min: 0, max: 1, step: 0.01, description: 'Hairline datum under the row (light only, ends fade out)' },

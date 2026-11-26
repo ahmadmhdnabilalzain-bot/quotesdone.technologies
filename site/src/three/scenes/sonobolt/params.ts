@@ -39,7 +39,7 @@ export const SONOBOLT_PARAMS = {
   // ---- Station: three product slots ----
   socketRadius: { value: 0.98, min: 0.8, max: 1.6, step: 0.01, description: 'Product slot radius, units' },
   socketSpacing: { value: 2.3, min: 2, max: 4, step: 0.05, description: 'Distance between product slot centres, units' },
-  statusGlow: { value: 1.15, min: 0, max: 4, step: 0.05, description: 'Mix status ring brightness when fully lit (linear)' },
+  statusGlow: { value: 1, min: 0, max: 4, step: 0.05, description: 'Mix status ring brightness when fully lit (linear)' },
   statusIdle: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Mix status ring level before the coil seats (fraction of statusGlow)' },
   datumGlow: { value: 0.75, min: 0, max: 3, step: 0.05, description: 'Rail datum line brightness (linear)' },
 

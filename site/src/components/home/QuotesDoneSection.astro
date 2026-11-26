@@ -8,12 +8,15 @@
  * for the whole range, so the words are always real, selectable DOM and never sit on the canvas.
  * Scroll progress 0..1 = slot top at viewport top -> slot bottom at viewport bottom.
  *
- * Text beats line up with the scene's progress map (scenes/quotesdone/README.md):
+ * Text beats line up with the scene's progress map (scenes/quotesdone/README.md). Beat heights
+ * (polish pass): intro 75svh, three proofs 55svh, end 65svh = 315svh, so the scrub is 215svh.
+ * Progress at which each beat's centre crosses the viewport centre:
  *   intro (headline, promise)   p 0.00   one sealed block
- *   proof 1 (name off brief)    p ~0.26  five identical sealed plates in a row
- *   proof 2 (licence-checked)   p ~0.50  the row is compared under one sweep of light
- *   proof 3 (3% of the one)     p ~0.74  one plate advances, its cover slides off
- *   status + CTAs               p ~1.00  the open face holds
+ *   proof 1 (name off brief)    p 0.24   five identical sealed plates in a row
+ *   proof 2 (licence-checked)   p 0.50   the row is compared under one sweep of light
+ *   proof 3 (3% of the one)     p 0.76   one plate advances, its cover slides off
+ *   status + CTAs               p 1.00   the open face holds; the end beat's content then sits
+ *                                        at about 58% of the viewport, with no empty viewport after
  *
  * The tall range is applied only when 3D can run (html.js, tier not 'still'). Without JS, with
  * reduced motion, on the still tier, or once the scene has failed (data-scene-state="failed", e.g.
@@ -79,17 +82,18 @@ const [primary, secondary] = p.cta;
     margin-block-end: var(--s-2);
   }
   .qd__headline {
-    font-size: var(--t-xl);
-    line-height: var(--lh-tight);
-    letter-spacing: var(--track-display);
-    font-weight: 600;
-    max-inline-size: 12ch;
+    font-size: var(--t-feature);
+    line-height: var(--lh-display);
+    letter-spacing: var(--track-hero);
+    font-weight: var(--w-display);
+    max-inline-size: 7.5em;
     text-wrap: balance;
   }
   .qd__promise {
-    margin-block-start: var(--s-3);
-    max-inline-size: var(--measure);
-    font-size: var(--t-md);
+    margin-block-start: var(--s-4);
+    max-inline-size: 22em;
+    font-size: var(--t-lead-lg);
+    line-height: var(--leading-md);
     color: var(--fg-muted);
     text-wrap: pretty;
   }
@@ -101,8 +105,17 @@ const [primary, secondary] = p.cta;
     border-block-start: var(--hairline) solid var(--rule);
     max-inline-size: var(--measure);
   }
-  .qd__proof-title { font-size: var(--t-lg); line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
-  .qd__proof-body { margin-block-start: var(--s-2); color: var(--fg-muted); text-wrap: pretty; }
+  .qd__proof-title {
+    font-family: var(--font-display);
+    font-stretch: var(--wdth-display);
+    font-size: var(--t-proof);
+    line-height: var(--lh-display);
+    font-weight: var(--w-display);
+    letter-spacing: var(--track-display);
+    max-inline-size: 11em;
+    text-wrap: balance;
+  }
+  .qd__proof-body { margin-block-start: var(--s-3); max-inline-size: 26em; font-size: var(--t-md); line-height: var(--leading-md); color: var(--fg-muted); text-wrap: pretty; }
 
   .qd__status {
     display: flex;
@@ -158,16 +171,17 @@ const [primary, secondary] = p.cta;
     }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__text { grid-column: 1; grid-row: 1; gap: 0; }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proofs { gap: 0; }
-    /* Beat heights set the pacing: intro 100svh, three proofs 80svh each, end 100svh = 440svh,
-       so the pinned range is 340svh (see the beat map at the top of this file). */
+    /* Beat heights set the pacing: intro 75svh, three proofs 55svh each, end 65svh = 315svh,
+       so the pinned range is 215svh (see the beat map at the top of this file). */
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-block-size: 80svh;
+      min-block-size: 55svh;
     }
-    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--intro { min-block-size: 100svh; justify-content: center; }
-    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--end { min-block-size: 100svh; }
+    /* The intro starts below the sticky header, so its centre is the optical centre of the screen. */
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--intro { min-block-size: 75svh; padding-block-start: var(--header-h, 0px); justify-content: center; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--end { min-block-size: 65svh; }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proof { border-block-start: 0; padding-block-start: 0; }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proof-title { padding-block-start: var(--s-3); border-block-start: var(--hairline) solid var(--rule); }
   }

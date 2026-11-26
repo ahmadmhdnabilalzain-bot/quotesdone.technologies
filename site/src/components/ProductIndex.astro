@@ -12,9 +12,10 @@
  *   label reveals when its product touches its pad (layout.ts contactAt, the same moment its
  *   status light comes on).
  *
- * Handover from scene 2: Statements.astro ends with a quiet beat holding the DOM datum line at
- * the stage centre; this section overlaps it by one viewport, so the canvas datum (progress 0)
- * lies exactly under the DOM line before the DOM line leaves.
+ * Handover from scene 2: Statements.astro ends with a quiet beat (--home-datum-beat) holding the
+ * DOM datum line at the viewport centre; this section overlaps it by the same amount, so when this
+ * section reaches the top the canvas datum (progress 0) lies exactly under the DOM line. The beat
+ * is opaque and covers the canvas datum until then (no second line riding in with the stage).
  */
 import home from '../content/en/home.json';
 import SceneSlot from './SceneSlot.astro';
@@ -30,7 +31,9 @@ const items = home.productIndex.items.map((p, i) => {
 });
 ---
 <section class="products" id={home.productIndex.id}>
-  <SceneSlot slot="rail" scene="rail" start="top -45%" end="bottom bottom" class="products__slot">
+  <!-- start "top -5%": the canvas datum is under the DOM line from "top top"; the DOM line and the
+       Statements beat fade out over the next 3% (Statements.astro), then the rail starts. -->
+  <SceneSlot slot="rail" scene="rail" start="top -5%" end="bottom bottom" class="products__slot">
     <ul class="products__list">
       {items.map((p) => (
         <li class="product" data-status={p.status} data-product={p.slug} style={p.style}>
@@ -117,12 +120,11 @@ const items = home.productIndex.items.map((p, i) => {
   }
 
   /* ---------- Staged layout: JS + a 3D tier, while the scene has not failed ---------- */
-  /* Tall pinned section, overlapping the quiet end beat of Statements by one viewport (the datum
-     handover). A failed scene (error, context loss) drops back to the static list, with no
+  /* Tall pinned section, overlapping the quiet end beat of Statements (the datum handover). A failed scene (error, context loss) drops back to the static list, with no
      empty viewports left behind. */
   :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .products:not(:has(.products__slot[data-scene-state="failed"])) {
-    block-size: 420svh;
-    margin-block-start: -100svh;
+    block-size: var(--home-rail-length);
+    margin-block-start: calc(-1 * var(--home-datum-beat));
   }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) {
     block-size: 100%;
@@ -181,6 +183,14 @@ const items = home.productIndex.items.map((p, i) => {
   }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__line {
     font-size: var(--t-sm);
+  }
+  /* Staged: the name is the label's headline, set in the display width beside its station. */
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__name {
+    font-family: var(--font-display);
+    font-stretch: var(--wdth-display);
+    font-size: var(--t-lg);
+    font-weight: var(--w-display);
+    line-height: var(--lh-display);
   }
   /* Reveal each label once its product has docked. Only while the scene is live: in every other
      state the words stay visible. Opacity and a short rise only (transform + opacity). */

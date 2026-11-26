@@ -293,7 +293,7 @@ export function createQuotesDoneScene(): RenderableScene {
 
       // The datum filament: light inside the opened plate's engraved line. One mesh, re-parented
       // to whichever plate is chosen in update() (it never changes for a given direction).
-      filamentMaterial = new MeshBasicMaterial({ color: RHODAMINE.clone().multiplyScalar(v('datumGlow')) });
+      filamentMaterial = new MeshBasicMaterial({ color: RHODAMINE.clone().multiplyScalar(v('datumGlow')), userData: { signal: true } }); // signal opt-in: exact #E3185B
       filament = new Mesh(new BoxGeometry(v('plateWidth') * v('engraveLength'), v('engraveWidth') * 0.45, 0.001), filamentMaterial);
       filament.name = NAMES.filament;
       filament.position.z = T / 2 + 0.0018;
