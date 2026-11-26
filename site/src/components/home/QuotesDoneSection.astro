@@ -16,7 +16,8 @@
  *   status + CTAs               p ~1.00  the open face holds
  *
  * The tall range is applied only when 3D can run (html.js, tier not 'still'). Without JS, with
- * reduced motion or on the still tier the section is a compact, ordinary block beside its still.
+ * reduced motion, on the still tier, or once the scene has failed (data-scene-state="failed", e.g.
+ * after a context loss) the section is a compact, ordinary block beside its still.
  */
 import SceneSlot from '../SceneSlot.astro';
 import p from '../../content/en/products/quotesdone.json';
@@ -144,9 +145,9 @@ const [primary, secondary] = p.cta;
     :global(.qd__slot .scene-stage) { max-inline-size: none; }
     :global(.qd__slot .scene-fallback) { grid-column: 2; }
 
-    :global(html.js:not([data-tier="still"])) .qd { padding-block: 0; }
-    :global(html.js:not([data-tier="still"]) .qd__slot) { align-items: stretch; }
-    :global(html.js:not([data-tier="still"]) .qd__slot .scene-stage) {
+    :global(html.js:not([data-tier="still"])) .qd:not(:has([data-scene-state="failed"])) { padding-block: 0; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) { align-items: stretch; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"]) .scene-stage) {
       grid-column: 2;
       grid-row: 1;
       align-self: start;
@@ -155,20 +156,20 @@ const [primary, secondary] = p.cta;
       block-size: 100svh;
       aspect-ratio: auto;
     }
-    :global(html.js:not([data-tier="still"])) .qd__text { grid-column: 1; grid-row: 1; gap: 0; }
-    :global(html.js:not([data-tier="still"])) .qd__proofs { gap: 0; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__text { grid-column: 1; grid-row: 1; gap: 0; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proofs { gap: 0; }
     /* Beat heights set the pacing: intro 100svh, three proofs 80svh each, end 100svh = 440svh,
        so the pinned range is 340svh (see the beat map at the top of this file). */
-    :global(html.js:not([data-tier="still"])) .qd__beat {
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat {
       display: flex;
       flex-direction: column;
       justify-content: center;
       min-block-size: 80svh;
     }
-    :global(html.js:not([data-tier="still"])) .qd__beat--intro { min-block-size: 100svh; justify-content: center; }
-    :global(html.js:not([data-tier="still"])) .qd__beat--end { min-block-size: 100svh; }
-    :global(html.js:not([data-tier="still"])) .qd__proof { border-block-start: 0; padding-block-start: 0; }
-    :global(html.js:not([data-tier="still"])) .qd__proof-title { padding-block-start: var(--s-3); border-block-start: var(--hairline) solid var(--rule); }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--intro { min-block-size: 100svh; justify-content: center; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--end { min-block-size: 100svh; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proof { border-block-start: 0; padding-block-start: 0; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proof-title { padding-block-start: var(--s-3); border-block-start: var(--hairline) solid var(--rule); }
   }
 
   @media (prefers-reduced-motion: reduce) {

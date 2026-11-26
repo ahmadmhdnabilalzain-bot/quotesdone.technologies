@@ -1,9 +1,9 @@
 /**
  * Every tunable number of the QuotesDone "Sealed" scene, named and bounded (structure-v1 §6.5).
  * Units: scene metres-ish; one plate is 1.0 wide. Angles in degrees unless stated.
- * Progress beats (0..1) are listed in README.md and must stay ordered:
- *   splitStart < splitEnd <= alignStart < alignEnd <= sweepStart < sweepEnd
- *   <= advanceStart < advanceEnd, coverStart < coverEnd, datumStart < datumEnd.
+ * Progress beats (0..1) are listed in README.md. Each start < its end; split and align overlap on
+ * purpose (plates start dealing out while the joints are still opening), as do advance/cover and
+ * cover/datum. Required order (unit-tested): alignEnd <= sweepStart, sweepEnd <= advanceStart.
  */
 import type { SceneParams } from '../../runtime/scene.ts';
 
@@ -63,6 +63,7 @@ export const SEALED_PARAMS = {
   floorDatumOpacity: { value: 0.45, min: 0, max: 1, step: 0.01, description: 'Hairline datum under the row (light only, ends fade out)' },
   poolIntensity: { value: 0.09, min: 0, max: 1, step: 0.005, description: 'Light pool radiance on the floor (keep it a whisper)' },
   poolThrow: { value: 3.2, min: 1, max: 15, step: 0.1, description: 'Key throw distance used to size the pool from the cone angle' },
+  poolMaxRadius: { value: 1.05, min: 0.3, max: 4, step: 0.05, description: 'Upper bound on the light pool radius (keeps it inside the stage)' },
   shadowOpacity: { value: 0.6, min: 0, max: 1, step: 0.01, description: 'Contact shadow strength (high tier only)' },
 
   // ---- Studio reflections (studio.ts) ----

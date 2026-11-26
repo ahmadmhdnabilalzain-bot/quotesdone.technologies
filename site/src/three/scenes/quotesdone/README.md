@@ -21,8 +21,9 @@ Rhodamine filament. No text, no data, no textures, no teal or gold.
   width (`frameMargin`), so narrow stages pull back instead of cropping. Time adds only a slow drift.
 - Light: one soft spot key + a procedural studio (one softbox, one faint bounce card). The light
   pool on the floor is the key's visible falloff. Contact shadows: 'high' tier and ladder level 0.
-- RTL: the whole layout mirrors in x (plates, camera, light); the opened plate lands on the
-  mirrored side.
+- RTL: plates, camera, key spot, light pool and sweep mirror in x; the opened plate lands on the
+  mirrored side (unit-tested). The studio reflection cube is built once and is NOT mirrored, so
+  the softbox reflection stays on the same side. RTL has not been rendered yet.
 - Stills: `stillAt = [0, 0.3, 0.9]`.
 - Debug: `/debug/quotesdone?tier=high&scene=quotesdone&p=0.5` (frozen, for screenshots),
   `/debug/quotesdone?tier=high&hud` (scrubber), `&w=&h=` sets the stage size in px.

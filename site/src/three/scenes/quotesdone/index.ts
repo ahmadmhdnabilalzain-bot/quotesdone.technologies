@@ -385,8 +385,10 @@ export function createQuotesDoneScene(): RenderableScene {
 
       if (pool && poolMaterial) {
         // Pool radius follows the cone: wide over the row, tight under the chosen plate.
-        const radius = Math.tan(pose.key.angleDeg * DEG) * v('poolThrow');
-        pool.scale.set(radius * 2.6, radius * 1.6, 1);
+        // Capped so that even the close block shot keeps the whole pool inside the stage
+        // (the stage edge would otherwise cut it into a lit rectangle).
+        const radius = Math.min(v('poolMaxRadius'), Math.tan(pose.key.angleDeg * DEG) * v('poolThrow'));
+        pool.scale.set(radius * 2.2, radius * 1.4, 1);
         pool.position.set(pose.key.target[0], 0.0005, pose.key.target[2] + 0.35);
         poolMaterial.uniforms.uIntensity!.value = v('poolIntensity');
       }

@@ -21,7 +21,7 @@ import p from '../../content/en/products/mubinflow.json';
   </div>
 
   <div class="frame">
-    <SceneSlot slot="mubinflow" scene="mubinflow" start="top 85%" end="center 45%" class="mubinflow-slot" />
+    <SceneSlot slot="mubinflow" scene="mubinflow" start="top 65%" end="top 5%" class="mubinflow-slot" />
   </div>
 
   <div class="frame mf-body">
@@ -78,7 +78,7 @@ import p from '../../content/en/products/mubinflow.json';
   /*
    * No sticky stage on purpose: the runtime measures distance and coverage on the stage's
    * layout position (motion/scroll.ts), so a sticky stage is released while it is still on
-   * screen. The scene scrubs as the stage enters and completes once the stage is centred
+   * screen. The scene scrubs from when the stage is two thirds in view until it reaches the top
    * (start/end on the slot); a pinned version needs sticky-aware measuring in scroll.ts.
    */
 
