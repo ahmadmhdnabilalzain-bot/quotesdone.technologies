@@ -34,7 +34,11 @@ import home from '../content/en/home.json';
   const section = document.querySelector<HTMLElement>('.statements');
   const line = section?.querySelector<HTMLElement>('.statements__line');
   const html = document.documentElement;
-  const staged = (): boolean => html.classList.contains('js') && html.dataset.tier !== 'still' && html.dataset.tier !== 'none';
+  const staged = (): boolean =>
+    html.classList.contains('js') &&
+    html.dataset.tier !== 'still' &&
+    html.dataset.tier !== 'none' &&
+    document.querySelector('[data-scene-slot="rail"][data-scene-state="failed"]') === null;
   if (section && line && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     gsap.registerPlugin(ScrollTrigger);
     // Arrival: the line grows from the centre to both edges while it rises to the middle.
@@ -43,15 +47,16 @@ import home from '../content/en/home.json';
       { scaleX: 0 },
       { scaleX: 1, ease: 'none', scrollTrigger: { trigger: section, start: 'top bottom', end: 'top 50%', scrub: true } },
     );
-    // Handover: only when the rail scene will pick the line up (a 3D tier). In the still tier the
-    // line simply scrolls away with the section.
-    if (staged()) {
-      gsap.fromTo(
-        line,
-        { opacity: 1 },
-        { opacity: 0, ease: 'none', scrollTrigger: { trigger: section, start: 'bottom bottom', end: 'bottom 60%', scrub: true } },
-      );
-    }
+    // Handover: fade only when the rail scene will pick the line up (a 3D tier that has not
+    // failed). Checked on every update, not once: boot may set the tier after this script runs.
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'bottom bottom',
+      end: 'bottom 60%',
+      onUpdate: (self) => {
+        line.style.opacity = staged() ? String(1 - self.progress) : '1';
+      },
+    });
   }
 </script>
 
@@ -105,7 +110,9 @@ import home from '../content/en/home.json';
     }
   }
   /* The quiet beat: one viewport with only the line, overlapped by ProductIndex (3D tiers only). */
-  :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .statements { padding-block-end: 100svh; }
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"]):not(:has([data-scene-slot="rail"][data-scene-state="failed"]))) .statements {
+    padding-block-end: 100svh;
+  }
   @media (prefers-reduced-motion: reduce) {
     .statements__line { transform: none; }
   }

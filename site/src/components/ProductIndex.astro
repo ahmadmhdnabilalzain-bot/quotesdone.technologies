@@ -117,9 +117,13 @@ const items = home.productIndex.items.map((p, i) => {
   }
 
   /* ---------- Staged layout: JS + a 3D tier, while the scene has not failed ---------- */
-  :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .products { block-size: 420svh; }
-  /* Overlap the quiet end beat of Statements by one viewport (the datum handover). */
-  :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .products { margin-block-start: -100svh; }
+  /* Tall pinned section, overlapping the quiet end beat of Statements by one viewport (the datum
+     handover). A failed scene (error, context loss) drops back to the static list, with no
+     empty viewports left behind. */
+  :global(html.js:not([data-tier="still"]):not([data-tier="none"])) .products:not(:has(.products__slot[data-scene-state="failed"])) {
+    block-size: 420svh;
+    margin-block-start: -100svh;
+  }
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) {
     block-size: 100%;
     max-inline-size: none;

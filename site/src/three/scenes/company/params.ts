@@ -19,13 +19,14 @@ export const COMPANY_PARAMS = {
   stationCount: { value: 9, min: 3, max: 16, step: 1, description: 'Docks on the rail: 3 products, the rest empty (room for more, no claim)' },
   stationPitch: { value: 1.5, min: 0.6, max: 4, step: 0.05, description: 'Distance between docks, world units' },
   dockWidth: { value: 0.62, min: 0.2, max: 1.5, step: 0.01, description: 'Dock (saddle) length along the rail' },
-  dockHeight: { value: 0.04, min: 0.02, max: 0.3, step: 0.005, description: 'Dock height above the rail top' },
+  dockHeight: { value: 0.045, min: 0.02, max: 0.3, step: 0.005, description: 'Docking pad height above the rail top' },
   dockDepth: { value: 0.4, min: 0.2, max: 1.5, step: 0.01, description: 'Dock depth across the rail' },
   capInset: { value: 0.035, min: 0, max: 0.2, step: 0.005, description: 'Inset of the chamfered cap on an empty dock' },
   statusSize: { value: 0.028, min: 0.005, max: 0.1, step: 0.001, description: 'Status light size on a dock front face' },
 
   // ---- Product objects (low detail; the full scenes 4 to 6 carry the detail) ----
-  plateCount: { value: 5, min: 1, max: 9, step: 1, description: 'QuotesDone: sealed plates in a row' },
+  plateCount: { value: 3, min: 1, max: 9, step: 1, description: 'QuotesDone: sealed plates side by side (matches the rail scene)' },
+  objectHeight: { value: 0.34, min: 0.1, max: 1, step: 0.01, description: 'Height of each docked object (rail scene ratio: 2.5 x rail height)' },
   coilTurns: { value: 4.5, min: 1, max: 10, step: 0.25, description: 'Sonobolt: turns of the flat coil' },
   ringSegments: { value: 12, min: 6, max: 24, step: 1, description: 'MubinFlow: month segments of the drafted ring' },
   linework: { value: 0.62, min: 0.1, max: 1, step: 0.01, description: 'Opacity of drafting linework (in development)' },

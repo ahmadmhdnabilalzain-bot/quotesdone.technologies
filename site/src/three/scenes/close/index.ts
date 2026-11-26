@@ -77,6 +77,9 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
   let ladderAllowsShadow = true;
   let markCentreY = 0.45;
   let markCentreX = -0.4;
+  let markWidth = 0.8;
+  /** Length of the end-cap block (tail run + endCapExtra). */
+  let capLength = 0.6;
   let dirSign = 1;
   let aspect = 1;
   let viewHeight = 1;
@@ -84,6 +87,19 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
 
   /** Where the camera looks, in world space (the seated Q's centre). */
   const target = { x: 0, y: 0, z: 0 };
+
+  /**
+   * Seat the mark for the page direction. LTR: the tail tip is flush with the end of the line
+   * (x = 0) and the bowl stands over the joint. RTL mirrors the line but never the mark, so the
+   * unmirrored tail now points back along the line: it is laid on the end cap with its tip short
+   * of the joint, and the bowl stands at the end. `target` is in the (mirrored) world space.
+   */
+  function placeMark(): void {
+    const displayedCentre = dirSign > 0 ? markCentreX : capLength - params.endCapExtra.value / 2 - markWidth / 2;
+    markPivot.position.x = dirSign * displayedCentre; // world space (world.scale.x = dirSign)
+    if (shadow) shadow.mesh.position.x = dirSign * displayedCentre;
+    target.x = dirSign * displayedCentre;
+  }
 
   const scene: RenderableScene = {
     id: 'close',
@@ -113,6 +129,7 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
       await ctx.yieldToMain();
       const mark = new Mesh(geometry, alloyMaterial(params.markRoughness.value));
       mark.name = CLOSE_NAMES.mark;
+      markWidth = width;
       markCentreX = -width / 2;
       markCentreY = height / 2;
       // Pivot at the mark's centre of mass (roughly), so the yaw unwinds about its own axis.
@@ -123,6 +140,7 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
 
       // End-cap block under the tail, then the open joint, then the rail running out of frame.
       const capX0 = tailStartX(H) - params.endCapExtra.value;
+      capLength = -capX0;
       const endCap = new Mesh(railBar(capX0, 0, H, D, C), anodisedMaterial(params.railRoughness.value - 0.04));
       endCap.name = CLOSE_NAMES.endCap;
       const railX1 = capX0 - params.jointGap.value;
@@ -153,7 +171,7 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
 
       world.add(key, rim);
       object3d.add(new AmbientLight(0xffffff, 0.03), fade.mesh);
-      target.x = markCentreX;
+      placeMark();
       target.y = markCentreY * 0.78;
       await ctx.yieldToMain();
     },
@@ -207,7 +225,7 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
       const camAz = (params.cameraAzimuth.value + params.cameraDrift.value * seat) * dirSign;
       const dist = params.cameraDistance.value / Math.min(1, aspect);
       const elev = params.cameraElevation.value;
-      const tx = target.x * dirSign;
+      const tx = target.x * dirSign; // world -> displayed (camera is outside the mirrored group)
       camera.position.set(tx + Math.sin(camAz) * Math.cos(elev) * dist, target.y + Math.sin(elev) * dist, Math.cos(camAz) * Math.cos(elev) * dist);
       camera.lookAt(tx, target.y, 0);
 
@@ -223,6 +241,7 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
       // Mirror the line for RTL, but never the mark itself (logos do not mirror).
       world.scale.x = dirSign;
       markPivot.scale.x = dirSign;
+      placeMark();
       camera.aspect = view.aspect;
       camera.fov = params.fov.value;
       // Film offset: the Q sits inline-end, the contact call inline-start. Portrait centres it.

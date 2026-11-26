@@ -208,6 +208,15 @@ describe('close: the Q end cap', () => {
     const mark = s.object3d.getObjectByName(CLOSE_NAMES.mark)!;
     mark.updateWorldMatrix(true, false);
     expect(mark.matrixWorld.determinant()).toBeGreaterThan(0);
+    // The mark still sits on the end cap, and the datum still stops well short of it.
+    s.object3d.updateMatrixWorld(true);
+    const m = new Box3().setFromObject(mark);
+    const cap = new Box3().setFromObject(s.object3d.getObjectByName(CLOSE_NAMES.endCap)!);
+    const datum = new Box3().setFromObject(s.object3d.getObjectByName(CLOSE_NAMES.datum)!);
+    expect(m.min.y).toBeCloseTo(cap.max.y, 4);
+    expect(Math.min(m.max.x, cap.max.x) - Math.max(m.min.x, cap.min.x)).toBeGreaterThan(0.4); // tail on the cap
+    const gap = Math.max(datum.min.x - m.max.x, m.min.x - datum.max.x);
+    expect(gap).toBeGreaterThanOrEqual(CLOSE_PARAMS.datumClearance.value - 1e-6);
     s.dispose();
   });
 

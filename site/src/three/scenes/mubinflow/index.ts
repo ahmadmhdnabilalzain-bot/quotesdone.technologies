@@ -64,13 +64,14 @@ import {
   cellX,
   type Layout,
 } from './geometry.ts';
+import { buildRamp, sampleRamp, type Rgb } from './color-ramp.ts';
 import { plateLines, plateStatusRing, sheetFrame, type SheetSpec } from './sheet.ts';
 import { TIMELINE, easeEnter, easeTravel, indexTurn, phase, stripPhases } from './timeline.ts';
 
-/** Palette (brand/logo/README.md), as linear colours. */
-const ALLOY = new Color('#ECEAE4');
-const CARBON = new Color('#0E1013');
-const RHODAMINE = new Color('#E3185B');
+/** Palette (brand/logo/README.md). Lines get AgX-corrected colours from color-ramp.ts. */
+const HEX = { alloy: '#ECEAE4', carbon: '#0E1013', rhodamine: '#E3185B' } as const;
+const ALLOY = new Color(HEX.alloy);
+type Hue = 'alloy' | 'rhodamine';
 
 /** How a line's brightness responds to `maturity`. */
 type LineKind = 'edge' | 'hidden' | 'detail' | 'sheet' | 'trace';
@@ -79,6 +80,7 @@ interface LineEntry {
   mesh: Mesh<InstancedBufferGeometry, ShaderMaterial>;
   kind: LineKind;
   base: number;
+  hue: Hue;
   /** World lines get CSS px per world unit; sheet lines are already in CSS px. */
   space: 'world' | 'sheet';
 }
@@ -104,7 +106,9 @@ export function createMubinFlowScene(): RenderableScene {
   sheetGroup.name = 'sheet';
   camera.add(sheetGroup);
 
-  const shared: SharedLineUniforms = createSharedLineUniforms(CARBON);
+  const shared: SharedLineUniforms = createSharedLineUniforms();
+  const ramps: Record<Hue, Rgb[]> = { alloy: [], rhodamine: [] };
+  const rgb: Rgb = [0, 0, 0];
   const lines: LineEntry[] = [];
   const draws = new Map<string, Mesh<InstancedBufferGeometry, ShaderMaterial>[]>();
   const solids: Mesh[] = [];
@@ -137,16 +141,18 @@ export function createMubinFlowScene(): RenderableScene {
     parent: Object3D,
     name: string,
     polylines: Polyline[],
-    opts: { kind: LineKind; width: number; intensity: number; depth: DepthMode; color?: Color; dash?: [number, number, number, number]; space?: 'world' | 'sheet'; draw?: string; geometry?: InstancedBufferGeometry },
+    opts: { kind: LineKind; width: number; intensity: number; depth: DepthMode; hue?: Hue; dash?: [number, number, number, number]; space?: 'world' | 'sheet'; draw?: string; geometry?: InstancedBufferGeometry },
   ): Mesh<InstancedBufferGeometry, ShaderMaterial> {
     const mesh = createLineMesh(
       polylines,
       shared,
-      { name, color: opts.color ?? ALLOY, width: opts.width, intensity: opts.intensity, depth: opts.depth, dash: opts.dash, gain: value('lineGain') },
+      { name, color: ALLOY, width: opts.width, depth: opts.depth, dash: opts.dash },
       opts.geometry,
     );
     parent.add(mesh);
-    lines.push({ mesh, kind: opts.kind, base: opts.intensity, space: opts.space ?? 'world' });
+    const hue = opts.hue ?? 'alloy';
+    mesh.userData.hue = hue;
+    lines.push({ mesh, kind: opts.kind, base: opts.intensity, hue, space: opts.space ?? 'world' });
     const drawKey = opts.draw ?? name;
     const list = draws.get(drawKey) ?? [];
     list.push(mesh);
@@ -190,7 +196,7 @@ export function createMubinFlowScene(): RenderableScene {
     const fine = value('widthFine');
     addLines(sheetGroup, 'sheet-frame', sheetFrame(spec), { kind: 'sheet', width: fine, intensity: value('intensitySheet'), depth: 'overlay', space: 'sheet', draw: 'sheet' });
     addLines(sheetGroup, 'plate', plateLines(spec), { kind: 'sheet', width: fine, intensity: value('intensityFine') + 0.1, depth: 'overlay', space: 'sheet', draw: 'plate' });
-    addLines(sheetGroup, 'plate-ring', plateStatusRing(spec), { kind: 'sheet', width: value('widthTrace'), intensity: 1, depth: 'overlay', space: 'sheet', color: RHODAMINE, draw: 'plate' });
+    addLines(sheetGroup, 'plate-ring', plateStatusRing(spec), { kind: 'sheet', width: value('widthTrace'), intensity: 1, depth: 'overlay', space: 'sheet', hue: 'rhodamine', draw: 'plate' });
   }
 
   /** Camera-space bounds (centre and half sizes) of world points, for the fixed view direction. */
@@ -223,6 +229,8 @@ export function createMubinFlowScene(): RenderableScene {
 
     async create(ctx: SceneContext) {
       log = ctx.log;
+      ramps.alloy = buildRamp(HEX.carbon, HEX.alloy);
+      ramps.rhodamine = buildRamp(HEX.carbon, HEX.rhodamine);
       object3d.environment = ctx.envMap;
       object3d.environmentIntensity = value('envIntensity');
       const l: Layout = {
@@ -328,9 +336,9 @@ export function createMubinFlowScene(): RenderableScene {
         draw: 'figure-dim',
       });
       const leaders = traceLeaders(anchors);
-      addLines(root, 'trace-rule', [leaderDot(anchors.figureEnd, 0.012), ...leaders.toRule], { kind: 'trace', width: value('widthTrace'), intensity: 1, depth: 'overlay', color: RHODAMINE, draw: 'trace-rule' });
+      addLines(root, 'trace-rule', [leaderDot(anchors.figureEnd, 0.012), ...leaders.toRule], { kind: 'trace', width: value('widthTrace'), intensity: 1, depth: 'overlay', hue: 'rhodamine', draw: 'trace-rule' });
       addLines(root, 'rule', ruleCard(anchors), { kind: 'edge', width: value('widthEdge'), intensity: value('intensityEdge'), depth: 'visible', draw: 'rule' });
-      addLines(root, 'trace-source', leaders.toSource, { kind: 'trace', width: value('widthTrace'), intensity: 1, depth: 'overlay', color: RHODAMINE, draw: 'trace-source' });
+      addLines(root, 'trace-source', leaders.toSource, { kind: 'trace', width: value('widthTrace'), intensity: 1, depth: 'overlay', hue: 'rhodamine', draw: 'trace-source' });
       addLines(root, 'source', sourceDoc(anchors), { kind: 'edge', width: value('widthEdge'), intensity: value('intensityEdge'), depth: 'visible', draw: 'source' });
 
       // ---- Dimensions: how far the month came out; the height of the stack ----
@@ -424,7 +432,9 @@ export function createMubinFlowScene(): RenderableScene {
         else if (entry.kind === 'hidden') intensity = entry.base * (1 - m) * (entry.mesh.name.startsWith('ring') || entry.mesh.name.startsWith('month') ? hiddenFade : 1);
         else if (entry.kind === 'sheet') intensity = entry.base * (1 - m);
         else if (entry.kind === 'detail') intensity = entry.base * (1 - 0.4 * m);
-        u.uIntensity!.value = intensity;
+        sampleRamp(ramps[entry.hue], intensity, rgb);
+        (u.uColor!.value as Color).setRGB(rgb[0], rgb[1], rgb[2]);
+        entry.mesh.userData.intensity = intensity;
         u.uDistScale!.value = entry.space === 'world' ? pxPerWorld : 1;
         entry.mesh.visible = intensity > 0.001 && (u.uDraw!.value as number) > 0;
       }

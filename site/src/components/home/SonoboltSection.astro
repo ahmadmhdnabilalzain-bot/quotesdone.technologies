@@ -125,12 +125,16 @@ const available = (state: string): boolean => state === 'available';
   .sono-status { font-size: var(--t-sm); color: var(--fg-muted); }
   .sono-cta a { font-size: var(--t-base); }
 
-  /* ---- Stage: override SceneSlot's square default ---- */
-  .sono-slot :global(.scene-stage) { aspect-ratio: 4 / 5; }
+  /*
+   * ---- Stage and slot ----
+   * .sono-slot, .scene-stage and .scene-fallback are rendered by SceneSlot.astro, so they do not
+   * carry this component's scope attribute: reach them through .home-sonobolt (which does).
+   */
+  .home-sonobolt :global(.sono-slot .scene-stage) { aspect-ratio: 4 / 5; }
 
   /* ---- Desktop (design target): sticky stage beside the scrolling copy ---- */
   @media (min-width: 60rem) {
-    .sono-slot {
+    .home-sonobolt :global(.sono-slot) {
       display: grid;
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       column-gap: var(--s-6);
@@ -139,18 +143,31 @@ const available = (state: string): boolean => state === 'available';
     .sono-copy {
       grid-column: 1;
       grid-row: 1;
-      /* Long enough that the scene has room to play: about 3 viewports of scroll. */
-      padding-block: 18svh 30svh;
-      gap: 34svh;
+      /*
+       * The section's length sets how much scroll the scene gets (progress runs from the slot's
+       * top at the viewport top to its bottom at the viewport bottom: length - 100svh).
+       * Kept under 2 viewports ON PURPOSE: motion/scroll.ts measures a sticky stage at its
+       * natural position, so beyond ~1 viewport of pin the runtime stops drawing (and then
+       * frees) the scene while it is still on screen. Raise --sono-length (e.g. 300svh) once
+       * scroll.ts measures pinned stages from their slot.
+       */
+      --sono-length: 180svh;
+      min-block-size: var(--sono-length);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--s-8);
+      padding-block: 14svh 8svh;
     }
-    .sono-slot :global(.scene-stage) {
+    .home-sonobolt :global(.sono-slot .scene-stage) {
       grid-column: 2;
       grid-row: 1 / span 2;
       position: sticky;
-      inset-block-start: 0;
+      /* Below the sticky site header (Header.astro owns --header-h). */
+      inset-block-start: var(--header-h, 0px);
       aspect-ratio: auto;
-      block-size: 100svh;
+      block-size: calc(100svh - var(--header-h, 0px));
     }
-    .sono-slot :global(.scene-fallback) { grid-column: 1; grid-row: 2; padding-block-end: var(--s-4); }
+    .home-sonobolt :global(.sono-slot .scene-fallback) { grid-column: 1; grid-row: 2; padding-block-end: var(--s-4); }
   }
 </style>

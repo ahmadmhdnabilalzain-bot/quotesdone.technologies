@@ -65,3 +65,40 @@ test.describe('close scene harness', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('company and close, real scroll', () => {
+  test('both slots go live by scrolling, and the close reaches p=1 at the page bottom', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop', 'desktop design target only');
+    type Slot = { slotId: string; status: string; progress: number; coverage: number };
+    const slots = () =>
+      page.evaluate(() => (window as unknown as { __qdt: { dumpInfo(): { slots: Slot[] } } }).__qdt.dumpInfo().slots);
+    const scrollToStage = async (slot: string, offsetVh: number) => {
+      await page.evaluate(
+        ([s, o]) => {
+          const el = document.querySelector(`[data-scene-slot="${s}"] [data-scene-stage]`)!;
+          window.scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight * Number(o));
+        },
+        [slot, offsetVh] as const,
+      );
+    };
+    await page.goto('/?tier=high&hud');
+    await page.waitForSelector('html[data-3d="live"]', { timeout: 30_000 });
+
+    // Company: stage centred in the viewport is the wide shot (pull-back done by p=0.5).
+    await scrollToStage('company', 0.04);
+    await expect(page.locator('[data-scene-slot="company"]')).toHaveAttribute('data-scene-state', 'live', { timeout: 30_000 });
+    const c = (await slots()).find((s) => s.slotId === 'company')!;
+    expect(c.progress).toBeGreaterThan(0.4);
+    expect(c.progress).toBeLessThan(0.62);
+
+    // Close: stage fully in view = the Q is seated (seatEnd 0.6) and not yet fading (0.84).
+    await scrollToStage('close', 0.02);
+    await expect(page.locator('[data-scene-slot="close"]')).toHaveAttribute('data-scene-state', 'live', { timeout: 30_000 });
+    const z = (await slots()).find((s) => s.slotId === 'close')!;
+    expect(z.progress).toBeGreaterThan(0.5);
+    expect(z.progress).toBeLessThan(0.84);
+
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(async () => (await slots()).find((s) => s.slotId === 'close')!.progress, { timeout: 10_000 }).toBeGreaterThan(0.99);
+  });
+});

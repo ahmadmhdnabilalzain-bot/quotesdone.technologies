@@ -163,9 +163,14 @@ describe('sonobolt ribbon geometry', () => {
       const cx = ay * bz - az * by, cy = az * bx - ax * bz, cz = ax * by - ay * bx;
       const area = Math.hypot(cx, cy, cz);
       if (area < 1e-9) continue; // pinched ends are degenerate
-      const dot = (cx * nrm.getX(i) + cy * nrm.getY(i) + cz * nrm.getZ(i)) / area;
-      // > 0: winding faces the normal. Not ~1: rim normals follow the (central-difference) envelope slope.
-      expect(dot).toBeGreaterThan(0);
+      if (i % VERTS_PER_ROW >= 4) {
+        // Rim: its shading normal leans with the envelope slope (can be steep), so check the
+        // winding against the rim's nominal direction (+up for the top rim, -up for the bottom).
+        expect((cy / area) * Math.sign(nrm.getY(i))).toBeGreaterThan(0); // steep attacks tilt the rim a lot
+      } else {
+        const dot = (cx * nrm.getX(i) + cy * nrm.getY(i) + cz * nrm.getZ(i)) / area;
+        expect(dot).toBeGreaterThan(0.5); // face: crowned normal is within ~20 degrees of the face
+      }
       checked++;
     }
     expect(checked).toBeGreaterThan(100);

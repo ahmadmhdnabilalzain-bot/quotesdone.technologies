@@ -63,3 +63,21 @@ export const LIGHT_POOL_FRAGMENT = /* glsl */ `
     gl_FragColor = vec4(uColor * uIntensity, fall * 0.9);
   }
 `;
+
+export const DATUM_WASH_VERTEX = CONTACT_SHADOW_VERTEX;
+
+/**
+ * The datum filament's light on the face: falls off exponentially away from the line and fades
+ * at both ends. Additive, so it only ever adds Rhodamine light; it never tints anything darker.
+ */
+export const DATUM_WASH_FRAGMENT = /* glsl */ `
+  varying vec2 vUv;
+  uniform vec3 uColor;
+  uniform float uIntensity;
+  void main() {
+    float y = abs(vUv.y - 0.5) * 2.0;
+    float across = exp(-y * 6.0) * (1.0 - y);
+    float along = smoothstep(0.0, 0.18, vUv.x) * (1.0 - smoothstep(0.82, 1.0, vUv.x));
+    gl_FragColor = vec4(uColor * uIntensity * across * along, 1.0);
+  }
+`;

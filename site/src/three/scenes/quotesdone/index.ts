@@ -13,6 +13,7 @@
  * Every tunable number lives in `params.ts`. Progress map: README.md.
  */
 import {
+  AdditiveBlending,
   AmbientLight,
   BoxGeometry,
   CircleGeometry,
@@ -23,7 +24,6 @@ import {
   MeshPhysicalMaterial,
   Object3D,
   PerspectiveCamera,
-  PointLight,
   PlaneGeometry,
   Scene as ThreeScene,
   ShaderMaterial,
@@ -47,6 +47,8 @@ import {
   FLOOR_DATUM_VERTEX,
   LIGHT_POOL_FRAGMENT,
   LIGHT_POOL_VERTEX,
+  DATUM_WASH_FRAGMENT,
+  DATUM_WASH_VERTEX,
 } from './shaders.ts';
 
 /** Brand palette (brand/logo/README.md). Rhodamine is used only as emitted light. */
@@ -68,7 +70,7 @@ export const NAMES = {
   engraving: (i: number) => `plate-${i}-engraving`,
   shadow: (i: number) => `plate-${i}-shadow`,
   filament: 'datum-filament',
-  datumLight: 'datum-light',
+  datumWash: 'datum-wash',
   floorDatum: 'floor-datum',
   pool: 'light-pool',
   notch: (i: number) => `plate-${i}-notch`,
@@ -176,7 +178,7 @@ export function createQuotesDoneScene(): RenderableScene {
   const camera = new PerspectiveCamera(params.fov.value, 1, 0.1, 80);
   const plates: PlateParts[] = [];
   let filament: Mesh | null = null;
-  let datumLight: PointLight | null = null;
+  let washMaterial: ShaderMaterial | null = null;
   let pool: Mesh | null = null;
   let floorDatumMaterial: ShaderMaterial | null = null;
   let poolMaterial: ShaderMaterial | null = null;
@@ -296,12 +298,20 @@ export function createQuotesDoneScene(): RenderableScene {
       filament.name = NAMES.filament;
       filament.position.z = T / 2 + 0.0018;
       filament.visible = false;
-      // The filament is real light: a small point light just off the face washes the Alloy
-      // around the line in Rhodamine. Parented to the filament, so it follows it.
-      datumLight = new PointLight(RHODAMINE, 0, v('datumLightRange'), 2);
-      datumLight.name = NAMES.datumLight;
-      datumLight.position.set(0, 0, v('datumLightOffset'));
-      filament.add(datumLight);
+      // The filament's light on the face: a thin additive wash that falls off away from the line
+      // (a line light's footprint). A point light was tried and made a glowing orb (a cliché).
+      washMaterial = new ShaderMaterial({
+        vertexShader: DATUM_WASH_VERTEX,
+        fragmentShader: DATUM_WASH_FRAGMENT,
+        uniforms: { uColor: { value: RHODAMINE.clone() }, uIntensity: { value: 0 } },
+        transparent: true,
+        depthWrite: false,
+        blending: AdditiveBlending,
+      });
+      const wash = new Mesh(new PlaneGeometry(v('plateWidth') * v('engraveLength') * 1.1, v('datumWashHeight')), washMaterial);
+      wash.name = NAMES.datumWash;
+      wash.position.z = 0.0004;
+      filament.add(wash);
       object3d.add(filament);
 
       // The hairline datum on the floor: the rail the products sit on. Ends fade so it never
@@ -368,7 +378,7 @@ export function createQuotesDoneScene(): RenderableScene {
         if (host && filament.parent !== host) host.add(filament);
         filament.visible = pose.datum > 0.001;
         filament.scale.set(Math.max(0.001, pose.datum), 1, 1);
-        if (datumLight) datumLight.intensity = v('datumLightIntensity') * pose.datum;
+        if (washMaterial) washMaterial.uniforms.uIntensity!.value = v('datumWashIntensity') * pose.datum;
       }
 
       if (floorDatumMaterial) floorDatumMaterial.uniforms.uOpacity!.value = v('floorDatumOpacity') * pose.floorDatum;
@@ -415,7 +425,7 @@ export function createQuotesDoneScene(): RenderableScene {
       plates.length = 0;
       studio = null; // freed by disposeObject3D through the materials' envMap
       filament = null;
-      datumLight = null;
+      washMaterial = null;
       pool = null;
       poolMaterial = null;
       floorDatumMaterial = null;

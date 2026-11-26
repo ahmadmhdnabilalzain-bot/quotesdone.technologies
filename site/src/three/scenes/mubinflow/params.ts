@@ -46,18 +46,11 @@ export const MUBINFLOW_PARAMS = {
   widthTrace: { value: 1.5, min: 0.5, max: 4, step: 0.05, description: 'Traced figure and leader width, CSS px' },
   hiddenDash: { value: 5, min: 1, max: 20, step: 0.5, description: 'Hidden-line dash, CSS px' },
   hiddenGap: { value: 3.5, min: 1, max: 20, step: 0.5, description: 'Hidden-line gap, CSS px' },
-  intensityEdge: { value: 0.92, min: 0, max: 1, step: 0.01, description: 'Visible edge brightness (0 = Carbon, 1 = Alloy)' },
-  intensityHidden: { value: 0.36, min: 0, max: 1, step: 0.01, description: 'Hidden edge brightness' },
-  intensityFine: { value: 0.46, min: 0, max: 1, step: 0.01, description: 'Detail lines brightness' },
-  intensitySheet: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Sheet frame and construction lines brightness' },
-  edgesAtMaturity: { value: 0.22, min: 0, max: 1, step: 0.01, description: 'Edge brightness kept over the solid at maturity 1' },
-  lineGain: {
-    value: 1.32,
-    min: 0.5,
-    max: 3,
-    step: 0.01,
-    description: 'Linear gain on line colour so Alloy reads as Alloy after the AgX tone map (measured on screen)',
-  },
+  intensityEdge: { value: 0.95, min: 0, max: 1, step: 0.01, description: 'Visible edge brightness as displayed (0 = Carbon, 1 = Alloy)' },
+  intensityHidden: { value: 0.5, min: 0, max: 1, step: 0.01, description: 'Hidden edge brightness' },
+  intensityFine: { value: 0.58, min: 0, max: 1, step: 0.01, description: 'Detail lines brightness' },
+  intensitySheet: { value: 0.4, min: 0, max: 1, step: 0.01, description: 'Sheet frame and construction lines brightness' },
+  edgesAtMaturity: { value: 0.35, min: 0, max: 1, step: 0.01, description: 'Edge brightness kept over the solid at maturity 1' },
   depthOffset: { value: 2.5, min: 0, max: 8, step: 0.1, description: 'Polygon offset on the depth-only solids, so edges on a face test visible' },
 
   // ---- Solid (maturity) ----

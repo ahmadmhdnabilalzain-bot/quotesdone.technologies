@@ -6,6 +6,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { Color, type Material, type Mesh, type Object3D, type ShaderMaterial } from 'three';
 import { createMubinFlowScene } from '../../src/three/scenes/mubinflow/index.ts';
 import { buildSegmentAttributes } from '../../src/three/scenes/mubinflow/draft-line.ts';
+import { buildRamp, sampleRamp } from '../../src/three/scenes/mubinflow/color-ramp.ts';
+import { displayed } from '../../src/three/scenes/logo/agx.ts';
 import { hatch, plateBox } from '../../src/three/scenes/mubinflow/sheet.ts';
 import { payslipContent, seeded, type Layout } from '../../src/three/scenes/mubinflow/geometry.ts';
 import { TIMELINE, indexTurn, stripPhases } from '../../src/three/scenes/mubinflow/timeline.ts';
@@ -42,7 +44,11 @@ function snapshot(scene: RenderableScene): unknown[] {
     if (!isMesh(o)) return;
     const m = o.material as Material & Partial<ShaderMaterial>;
     values.push(m.colorWrite, m.transparent, m.opacity);
-    if (m.uniforms) for (const k of ['uDraw', 'uIntensity', 'uDistScale']) values.push(m.uniforms[k]?.value);
+    if (m.uniforms) {
+      for (const k of ['uDraw', 'uDistScale']) values.push(m.uniforms[k]?.value);
+      const c = m.uniforms.uColor?.value as Color | undefined;
+      if (c) values.push(c.r, c.g, c.b); // copy: the Color object itself is mutated each update
+    }
   });
   values.push(...scene.camera.projectionMatrix.elements);
   return values;
@@ -160,11 +166,7 @@ describe('mubinflow scene contract', () => {
 
   it('Rhodamine is used only as light and status: the trace leaders and the open status ring', async () => {
     const scene = await make();
-    const rhodamine = new Color('#E3185B');
-    const red = meshes(scene, (m) => {
-      const u = (m.material as ShaderMaterial).uniforms;
-      return Boolean(u?.uColor && (u.uColor.value as Color).equals(rhodamine));
-    }).map((m) => m.name);
+    const red = meshes(scene, (m) => m.userData.hue === 'rhodamine').map((m) => m.name);
     expect(red.sort()).toEqual(['plate-ring', 'trace-rule', 'trace-source']);
     scene.dispose();
   });
@@ -212,6 +214,22 @@ describe('mubinflow pure helpers', () => {
     expect(a.reveal[0]).toBeCloseTo(0.2);
     expect(a.reveal[1]).toBeCloseTo(0.4);
     expect(a.reveal[3]).toBeCloseTo(0.8);
+  });
+
+  it('line colours are corrected for the AgX post pass and ramp from Carbon to the brand colour', () => {
+    const ramp = buildRamp('#0E1013', '#ECEAE4');
+    expect(ramp.length).toBe(33);
+    const full = displayed(sampleRamp(ramp, 1));
+    expect(full.map((v) => Math.round(v * 255))).toEqual([236, 234, 228]);
+    const dark = displayed(sampleRamp(ramp, 0));
+    expect(Math.round(dark[0]! * 255)).toBe(14);
+    // Monotonic brightness along the ramp.
+    let last = -1;
+    for (let k = 0; k <= 1; k += 0.05) {
+      const g = displayed(sampleRamp(ramp, k))[1]!;
+      expect(g).toBeGreaterThanOrEqual(last - 1e-6);
+      last = g;
+    }
   });
 
   it('the plate hatch stays inside its field', () => {

@@ -55,7 +55,7 @@ export const COMPANY_NAMES = {
   dock: (i: number) => `company-dock-${i}`,
 } as const;
 
-/** Flat Archimedean spiral in the XZ plane: one continuous line wound into a coil. */
+/** Archimedean spiral in the XZ plane (stood on edge by the caller): one continuous line wound into a coil. */
 class FlatSpiral extends Curve<Vector3> {
   constructor(
     private readonly r0: number,
@@ -148,9 +148,9 @@ export function createCompanyScene(): RenderableScene {
       const dw = params.dockWidth.value;
       const dh = params.dockHeight.value;
       const dd = params.dockDepth.value;
-      const below = 0.012; // the saddle wraps a little below the rail
-      const dockGeo = chamferedBox(dw, H + dh + below, dd, 0.012);
-      dockGeo.translate(0, (dh - H - below) / 2, 0);
+      // Docking pad seated on the rail top (as in the rail scene, scenes/rail).
+      const dockGeo = chamferedBox(dw, dh, dd, Math.min(0.012, dh * 0.3));
+      dockGeo.translate(0, dh / 2, 0);
       const capGeo = chamferedBox(dw - 2 * params.capInset.value, 0.02, dd - 2 * params.capInset.value, 0.006);
       capGeo.translate(0, dh + 0.01, 0);
       const statusR = params.statusSize.value / 2;
@@ -162,29 +162,34 @@ export function createCompanyScene(): RenderableScene {
         dock.position.x = stationX(i);
         dock.userData.kind = kind;
         dock.add(new Mesh(dockGeo, dockMat));
-        const statusPos = new Vector3(-dw / 2 + 0.07, dh - 0.035, dd / 2 + 0.001);
+        const statusPos = new Vector3(0, dh / 2, dd / 2 + 0.001);
 
         if (kind === 'empty') {
           dock.add(new Mesh(capGeo, capMat));
         } else if (kind === 'quotesdone') {
-          // Sealed plates, identical and nameless, standing in a row.
+          // Sealed plates, identical and nameless, standing side by side, faces to the viewer.
           const count = Math.round(params.plateCount.value);
-          const plate = chamferedBox(0.05, 0.24, 0.28, 0.008);
-          const pitch = 0.085;
+          const ph = params.objectHeight.value;
+          const pw = 0.1;
+          const plate = chamferedBox(pw, ph, 0.03, 0.006);
+          const pitch = pw * 1.25;
           for (let k = 0; k < count; k++) {
             const m = new Mesh(plate, alloy);
-            m.position.set((k - (count - 1) / 2) * pitch, dh + 0.12, 0);
+            m.position.set((k - (count - 1) / 2) * pitch, dh + ph / 2, 0);
             dock.add(m);
           }
         } else if (kind === 'sonobolt') {
-          // One continuous line, wound flat.
+          // One continuous line, wound into a coil standing on edge.
           const segs = Math.max(60, Math.round(360 * detail));
-          const coil = new Mesh(new TubeGeometry(new FlatSpiral(0.035, 0.21, params.coilTurns.value), segs, 0.0105, 6, false), alloy);
-          coil.position.y = dh + 0.0105;
+          const r1 = params.objectHeight.value / 2 - 0.012;
+          const coil = new Mesh(new TubeGeometry(new FlatSpiral(0.03, r1, params.coilTurns.value), segs, 0.011, 6, false), alloy);
+          coil.rotation.x = Math.PI / 2; // spiral plane XZ -> XY, facing the viewer
+          coil.position.y = dh + r1 + 0.012;
           dock.add(coil);
         } else {
           // MubinFlow: drafting linework only, no surfaces (in development).
-          const sectors = new ExtrudeGeometry(ringSectors(Math.round(params.ringSegments.value), 0.12, 0.215, 0.05), {
+          const rOut = params.objectHeight.value / 2;
+          const sectors = new ExtrudeGeometry(ringSectors(Math.round(params.ringSegments.value), rOut * 0.62, rOut, 0.05), {
             depth: 0.05,
             bevelEnabled: false,
             curveSegments: 3,
@@ -192,8 +197,7 @@ export function createCompanyScene(): RenderableScene {
           const edges = new EdgesGeometry(sectors, 20);
           sectors.dispose(); // only the edges are kept
           const ring = new LineSegments(edges, line);
-          ring.rotation.x = -Math.PI / 2;
-          ring.position.y = dh + 0.002;
+          ring.position.set(0, dh + rOut, -0.025); // standing on edge, facing the viewer
           dock.add(ring);
         }
 

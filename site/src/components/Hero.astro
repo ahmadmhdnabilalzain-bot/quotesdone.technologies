@@ -168,6 +168,8 @@ const masked = parts.filter((p) => !p.butt_reproducible);
       const live = hero.dataset.sceneState === 'live';
       const phase = !live ? 'dom' : progress < p.pSwap.value ? 'rest' : progress >= p.pDockEnd.value ? 'docked' : 'flight';
       if (hero.dataset.logoPhase !== phase) hero.dataset.logoPhase = phase;
+      // Scrolled into the 3D before the draw-on finished: the canvas owns the logo now, uncover it.
+      if (phase === 'flight' || phase === 'docked') introDone();
       // While parts are out of their joints the datum steps back, so it never runs through them.
       const exploded = live && progress >= p.pExplodeStart.value && progress < p.pReseatEnd.value;
       hero.toggleAttribute('data-logo-exploded', exploded);

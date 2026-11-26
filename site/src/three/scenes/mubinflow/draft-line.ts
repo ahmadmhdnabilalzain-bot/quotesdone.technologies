@@ -10,8 +10,9 @@
  *   round and seamless) and turns it into coverage. That is the antialiasing; it does not need
  *   MSAA and it does not shimmer when the line moves, because coverage is exact per pixel.
  * - Lines below 1 device px are drawn 1 px wide and dimmed instead (thin lines shimmer).
- * - Brightness is a MIX toward Carbon, not an alpha. Overlapping round caps of a translucent
- *   line would double up into dots at every vertex; an opaque dim colour cannot.
+ * - Brightness is an opaque dim COLOUR (chosen on the CPU, color-ramp.ts), not an alpha.
+ *   Overlapping round caps of a translucent line would double up into dots at every vertex.
+ *   Only lines thinner than 1 device px trade width for coverage (low tiers).
  * - Dashes: a pattern of (dash, gap, dash, gap) in device px, measured along the polyline's
  *   cumulative length, so dashes are anchored to the geometry and never crawl. The second
  *   pair gives CAD centre lines (long dash, short dash).
@@ -52,15 +53,12 @@ export interface SharedLineUniforms {
   uResolution: IUniform<Vector2>;
   /** Device pixels per CSS pixel. */
   uPixelRatio: IUniform<number>;
-  /** Linear Carbon, the colour a line fades into. */
-  uCarbon: IUniform<Color>;
 }
 
-export function createSharedLineUniforms(carbon: Color): SharedLineUniforms {
+export function createSharedLineUniforms(): SharedLineUniforms {
   return {
     uResolution: { value: new Vector2(1, 1) },
     uPixelRatio: { value: 1 },
-    uCarbon: { value: carbon.clone() },
   };
 }
 
@@ -109,10 +107,7 @@ const VERTEX = /* glsl */ `
 const FRAGMENT = /* glsl */ `
   uniform float uPixelRatio;
   uniform float uWidth;      // CSS px
-  uniform vec3 uColor;       // linear
-  uniform vec3 uCarbon;      // linear
-  uniform float uIntensity;  // 0 = Carbon, 1 = uColor
-  uniform float uGain;
+  uniform vec3 uColor;       // linear AgX input for the displayed line colour (color-ramp.ts)
   uniform float uDraw;       // draw-on 0..1
   uniform vec4 uDash;        // dash, gap, dash, gap in CSS px; x <= 0 = solid
   uniform float uDistScale;  // CSS px per geometry unit along the line
@@ -150,29 +145,26 @@ const FRAGMENT = /* glsl */ `
       on = max(on, cover1(m - period, 0.0, pat.x));
       coverage *= on;
     }
+    coverage *= min(1.0, widthDev);   // sub-pixel lines: 1 px drawn, dimmed by coverage
     if (coverage <= 0.003) discard;
-
-    float k = clamp(uIntensity * min(1.0, widthDev), 0.0, 1.0);
-    vec3 color = mix(uCarbon, uColor * uGain, k);
-    gl_FragColor = vec4(color, coverage);
+    gl_FragColor = vec4(uColor, coverage);
   }
 `;
 
 export interface DraftLineOptions {
   name: string;
+  /** Initial linear colour; the scene sets it every update from its ramp. */
   color: Color;
   /** CSS px. */
   width: number;
-  intensity: number;
   depth: DepthMode;
   /** Dash pattern in CSS px; omit for a solid line. */
   dash?: [number, number, number, number];
-  gain: number;
   renderOrder?: number;
 }
 
 /** Uniform names every DraftLine material owns (useful for tests and snapshots). */
-export const LINE_UNIFORMS = ['uColor', 'uIntensity', 'uDraw', 'uWidth', 'uDash', 'uGain', 'uDistScale'] as const;
+export const LINE_UNIFORMS = ['uColor', 'uDraw', 'uWidth', 'uDash', 'uDistScale'] as const;
 
 /**
  * Build instanced segment geometry from polylines. Pure and exported for tests.
@@ -249,10 +241,7 @@ export function createLineMaterial(shared: SharedLineUniforms, options: DraftLin
     uniforms: {
       uResolution: shared.uResolution,
       uPixelRatio: shared.uPixelRatio,
-      uCarbon: shared.uCarbon,
       uColor: { value: options.color.clone() },
-      uIntensity: { value: options.intensity },
-      uGain: { value: options.gain },
       uDraw: { value: 1 },
       uWidth: { value: options.width },
       uDash: { value: new Vector4(...dash) },

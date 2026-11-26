@@ -2,7 +2,7 @@
  * Scroll -> per-slot state for the SceneHost (structure-v1 §3.4).
  * Progress uses the section's own ScrollTrigger range (data-scene-start / data-scene-end,
  * ScrollTrigger syntax, default "top top" -> "bottom top"). Distance and coverage use a second
- * trigger on the stage ("top bottom" -> "bottom top") and cached positions, so no layout is
+ * trigger on the section (see below: never on a sticky stage) ("top bottom" -> "bottom top") and cached positions, so no layout is
  * read per frame for slots that are not drawn.
  */
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -33,7 +33,10 @@ export function trackSlots(slots: TrackedSlot[]): SlotTracker {
         start: slot.section.dataset.sceneStart ?? 'top top',
         end: slot.section.dataset.sceneEnd ?? 'bottom top',
       }),
-      visibility: ScrollTrigger.create({ trigger: slot.stage, start: 'top bottom', end: 'bottom top' }),
+      // The SECTION (not the stage) drives visibility: a sticky stage keeps its natural top while it is pinned,
+      // so a trigger on it would report the scene off-screen after about one viewport and free it mid-scroll.
+      // A section spans the whole pinned range, so its bounds are the true on-screen window of its stage.
+      visibility: ScrollTrigger.create({ trigger: slot.section, start: 'top bottom', end: 'bottom top' }),
     });
   }
 

@@ -4,6 +4,7 @@
  * Mounts ONE of the two real sections (words included) and freezes its scene:
  *   /debug/close?scene=close&p=0.5&tier=high&debug
  *   /debug/close?scene=company&p=0.3&tier=high&debug
+ *   add &rtl to preview the mirrored (right-to-left) staging
  * The scrubber calls window.__qdt.setProgress (needs ?debug or ?hud) and keeps ?p in the URL,
  * so any frame can be shared as a link. Owned by the company/close agent.
  */
@@ -29,6 +30,8 @@ import Closing from '../../components/Closing.astro';
         if (el.getAttribute('data-harness') !== scene) el.remove();
       });
       document.documentElement.setAttribute('data-harness-scene', scene);
+      // ?rtl previews the mirrored staging (the scene reads dir when the 3D chunk mounts).
+      if (params.has('rtl')) document.documentElement.dir = 'rtl';
       var input = document.getElementById('harness-p');
       var out = document.getElementById('harness-out');
       var p = Number(params.get('p') || 0);
