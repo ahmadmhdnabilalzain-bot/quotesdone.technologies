@@ -1,0 +1,25 @@
+---
+import Inner from '../layouts/Inner.astro';
+import Section from '../components/inner/Section.astro';
+import IdentityList from '../components/inner/IdentityList.astro';
+import ProductLegalLinks from '../components/inner/ProductLegalLinks.astro';
+import DevNote from '../components/inner/DevNote.astro';
+import pages from '../content/en/pages.json';
+const p = pages.legal;
+---
+<!-- LAWYER-WRITTEN TEXT REQUIRED before launch. This page only states who operates the site (README, "Before launch"). -->
+<Inner
+  title={p.meta.title}
+  description={p.meta.description}
+  headline={p.headline}
+  lede={p.intro}
+  crumbs={[{ name: pages.common.legal, path: '/legal' }]}
+>
+  <Section heading={p.operatorHeading} id="operator">
+    <IdentityList />
+    <DevNote>{p.devNote}</DevNote>
+  </Section>
+  <Section heading={p.productsHeading} id="product-legal">
+    <ProductLegalLinks kind="legal" />
+  </Section>
+</Inner>

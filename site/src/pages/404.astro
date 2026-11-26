@@ -1,0 +1,14 @@
+---
+import Inner from '../layouts/Inner.astro';
+import pages from '../content/en/pages.json';
+const p = pages.notFound;
+---
+<Inner title={p.meta.title} description={p.meta.description} headline={p.headline} lede={p.body} noindex>
+  <section class="page-section" aria-label={p.cta}>
+    <div class="page-actions">
+      <a class="page-button" href="/products">{p.cta}</a>
+      <a class="page-link" href="/">{pages.common.home}</a>
+      <a class="page-link" href="/contact">{pages.common.contact}</a>
+    </div>
+  </section>
+</Inner>

@@ -1,12 +1,178 @@
 ---
-/** Home scene section for quotesdone. Owned by the quotesdone scene agent. Copy comes from content/en/products/quotesdone.json */
+/**
+ * Home scene 4, QuotesDone "Sealed" (structure-v1 §2.2 row 4). Owned by the quotesdone scene agent.
+ * Every word comes from content/en/products/quotesdone.json.
+ *
+ * Layout (desktop, the design target): the SceneSlot div is the tall pinned range. It is a
+ * two-column grid. The text column scrolls normally; the stage is `position: sticky` and holds
+ * for the whole range, so the words are always real, selectable DOM and never sit on the canvas.
+ * Scroll progress 0..1 = slot top at viewport top -> slot bottom at viewport bottom.
+ *
+ * Text beats line up with the scene's progress map (scenes/quotesdone/README.md):
+ *   intro (headline, promise)   p 0.00   one sealed block
+ *   proof 1 (name off brief)    p ~0.26  five identical sealed plates in a row
+ *   proof 2 (licence-checked)   p ~0.50  the row is compared under one sweep of light
+ *   proof 3 (3% of the one)     p ~0.74  one plate advances, its cover slides off
+ *   status + CTAs               p ~1.00  the open face holds
+ *
+ * The tall range is applied only when 3D can run (html.js, tier not 'still'). Without JS, with
+ * reduced motion or on the still tier the section is a compact, ordinary block beside its still.
+ */
 import SceneSlot from '../SceneSlot.astro';
 import p from '../../content/en/products/quotesdone.json';
+
+const [primary, secondary] = p.cta;
 ---
-<section class="home-quotesdone" aria-labelledby="quotesdone-title" data-section="quotesdone">
+<section class="qd" aria-labelledby="quotesdone-title" data-section="quotesdone">
   <div class="frame">
-    <h2 id="quotesdone-title">{p.headline}</h2>
-    <p>{p.promise}</p>
-    <SceneSlot slot="quotesdone" scene="quotesdone" />
+    <SceneSlot slot="quotesdone" scene="quotesdone" start="top top" end="bottom bottom" class="qd__slot">
+      <div class="qd__text">
+        <header class="qd__beat qd__beat--intro">
+          <p class="qd__name">{p.name}</p>
+          <h2 id="quotesdone-title" class="qd__headline" data-reveal="line">{p.headline}</h2>
+          <p class="qd__promise" data-reveal="line">{p.promise}</p>
+        </header>
+
+        <ol class="qd__proofs">
+          {p.proof.map((item) => (
+            <li class="qd__beat qd__proof">
+              <h3 class="qd__proof-title" data-reveal="line">{item.title}</h3>
+              <p class="qd__proof-body">{item.body}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div class="qd__beat qd__beat--end">
+          <p class="qd__status" data-status={p.status}>
+            <span class="qd__status-dot" aria-hidden="true"></span>
+            <span>{p.statusLine}</span>
+          </p>
+          <p class="qd__ctas">
+            {primary && <a class="qd__cta qd__cta--primary" href={primary.href} rel="noopener">{primary.label}</a>}
+            {secondary && <a class="qd__cta" href={secondary.href} rel="noopener">{secondary.label}</a>}
+          </p>
+        </div>
+      </div>
+    </SceneSlot>
   </div>
 </section>
+
+<style>
+  .qd {
+    padding-block: var(--s-12);
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+
+  /* ---- Default (no JS, reduced motion, still tier, narrow screens): a compact block ---- */
+  :global(.qd__slot) {
+    display: grid;
+    gap: var(--s-6);
+    align-items: start;
+  }
+  :global(.qd__slot .scene-stage) { max-inline-size: 40rem; }
+
+  .qd__text { display: grid; gap: var(--s-6); }
+  .qd__name {
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+    margin-block-end: var(--s-2);
+  }
+  .qd__headline {
+    font-size: var(--t-xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-display);
+    font-weight: 600;
+    max-inline-size: 12ch;
+    text-wrap: balance;
+  }
+  .qd__promise {
+    margin-block-start: var(--s-3);
+    max-inline-size: var(--measure);
+    font-size: var(--t-md);
+    color: var(--fg-muted);
+    text-wrap: pretty;
+  }
+
+  /* The proofs are not a sequence a visitor follows, so no numerals are shown (list-style none). */
+  .qd__proofs { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s-4); }
+  .qd__proof {
+    padding-block-start: var(--s-3);
+    border-block-start: var(--hairline) solid var(--rule);
+    max-inline-size: var(--measure);
+  }
+  .qd__proof-title { font-size: var(--t-lg); line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+  .qd__proof-body { margin-block-start: var(--s-2); color: var(--fg-muted); text-wrap: pretty; }
+
+  .qd__status {
+    display: flex;
+    gap: var(--s-2);
+    align-items: baseline;
+    max-inline-size: var(--measure);
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+  /* Rhodamine as a status light: the product is live (structure-v1 scene 3 rule). */
+  .qd__status-dot {
+    flex: none;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    border: var(--hairline) solid var(--fg-muted);
+    transform: translateY(-0.05em);
+  }
+  .qd__status[data-status="live"] .qd__status-dot { background: var(--signal); border-color: var(--signal); }
+
+  .qd__ctas { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-block-start: var(--s-4); }
+  .qd__cta {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem; /* 44px target */
+    padding-inline: var(--s-3);
+    border: var(--hairline) solid var(--rule);
+    text-decoration: none;
+    font-size: var(--t-base);
+    transition: border-color var(--dur-micro) var(--ease-hover), background-color var(--dur-micro) var(--ease-hover);
+  }
+  .qd__cta:hover { border-color: var(--fg); }
+  .qd__cta--primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .qd__cta--primary:hover { background: color-mix(in srgb, var(--fg) 86%, var(--bg)); }
+  .qd__cta:active { transform: scale(0.98); }
+
+  /* ---- Pinned choreography: desktop with live 3D only ---- */
+  @media (min-width: 60rem) {
+    :global(.qd__slot) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--s-6); }
+    :global(.qd__slot .scene-stage) { max-inline-size: none; }
+    :global(.qd__slot .scene-fallback) { grid-column: 2; }
+
+    :global(html.js:not([data-tier="still"])) .qd { padding-block: 0; }
+    :global(html.js:not([data-tier="still"]) .qd__slot) { align-items: stretch; }
+    :global(html.js:not([data-tier="still"]) .qd__slot .scene-stage) {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      inset-block-start: 0;
+      block-size: 100svh;
+      aspect-ratio: auto;
+    }
+    :global(html.js:not([data-tier="still"])) .qd__text { grid-column: 1; grid-row: 1; gap: 0; }
+    :global(html.js:not([data-tier="still"])) .qd__proofs { gap: 0; }
+    /* Beat heights set the pacing: intro 100svh, three proofs 80svh each, end 100svh = 440svh,
+       so the pinned range is 340svh (see the beat map at the top of this file). */
+    :global(html.js:not([data-tier="still"])) .qd__beat {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-block-size: 80svh;
+    }
+    :global(html.js:not([data-tier="still"])) .qd__beat--intro { min-block-size: 100svh; justify-content: center; }
+    :global(html.js:not([data-tier="still"])) .qd__beat--end { min-block-size: 100svh; }
+    :global(html.js:not([data-tier="still"])) .qd__proof { border-block-start: 0; padding-block-start: 0; }
+    :global(html.js:not([data-tier="still"])) .qd__proof-title { padding-block-start: var(--s-3); border-block-start: var(--hairline) solid var(--rule); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qd__cta { transition: none; }
+    .qd__cta:active { transform: none; }
+  }
+</style>

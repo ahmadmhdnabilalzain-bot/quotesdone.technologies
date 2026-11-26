@@ -1,0 +1,22 @@
+---
+import Inner from '../layouts/Inner.astro';
+import Section from '../components/inner/Section.astro';
+import ProductLegalLinks from '../components/inner/ProductLegalLinks.astro';
+import DevNote from '../components/inner/DevNote.astro';
+import pages from '../content/en/pages.json';
+const p = pages.privacy;
+---
+<!-- LAWYER-WRITTEN TEXT REQUIRED before launch. Short factual statement only; no legal text was invented (README, "Before launch"). -->
+<Inner
+  title={p.meta.title}
+  description={p.meta.description}
+  headline={p.headline}
+  lede={p.intro}
+  crumbs={[{ name: pages.common.privacy, path: '/privacy' }]}
+>
+  <Section heading={p.productsHeading} id="product-privacy">
+    <p class="page-prose">{p.productsIntro}</p>
+    <ProductLegalLinks kind="privacy" />
+    <DevNote>{p.devNote}</DevNote>
+  </Section>
+</Inner>

@@ -1,0 +1,30 @@
+---
+import Inner from '../layouts/Inner.astro';
+import Section from '../components/inner/Section.astro';
+import IdentityList from '../components/inner/IdentityList.astro';
+import DevNote from '../components/inner/DevNote.astro';
+import pages from '../content/en/pages.json';
+const c = pages.contact;
+---
+<Inner
+  title={c.meta.title}
+  description={c.meta.description}
+  headline={c.headline}
+  crumbs={[{ name: pages.common.contact, path: '/contact' }]}
+>
+  <Section heading={c.identityHeading} id="company">
+    <IdentityList />
+    <DevNote>{c.devNote}</DevNote>
+  </Section>
+  <Section heading={c.productsHeading} id="products">
+    <ul class="page-list">
+      {c.supportRows.map((row) => (
+        <li>
+          <h3 class="page-list__title">{row.product}</h3>
+          <p class="page-list__body"><a href={row.href} rel={row.href.startsWith('http') ? 'noopener' : undefined}>{row.label}</a></p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+  {/* Company email and phone: [OWNER TO CONFIRM] in copy deck section 5. Omitted on purpose. */}
+</Inner>

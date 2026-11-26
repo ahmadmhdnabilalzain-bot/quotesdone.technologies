@@ -1,0 +1,42 @@
+---
+/**
+ * Inner page layout: Base + breadcrumb + H1 + lede, then the page's sections in the slot.
+ * Breadcrumbs also feed BreadcrumbList JSON-LD. One H1 per page lives here.
+ */
+import '../styles/inner.css';
+import Base from './Base.astro';
+import pages from '../content/en/pages.json';
+import { breadcrumbJsonLd } from '../lib/seo.ts';
+
+interface Crumb { name: string; path: string }
+interface Props {
+  title: string;
+  description: string;
+  headline: string;
+  lede?: string;
+  crumbs?: Crumb[];
+  noindex?: boolean;
+  jsonLd?: Array<Record<string, unknown>>;
+}
+const { title, description, headline, lede, crumbs = [], noindex = false, jsonLd = [] } = Astro.props;
+const trail: Crumb[] = [{ name: pages.common.home, path: '/' }, ...crumbs];
+const ld = crumbs.length > 0 ? [breadcrumbJsonLd([...trail]), ...jsonLd] : jsonLd;
+---
+<Base title={title} description={description} noindex={noindex} jsonLd={ld}>
+  <div class="frame">
+    <div class="page-head">
+      {crumbs.length > 0 && (
+        <nav class="page-head__crumbs" aria-label={pages.common.breadcrumbLabel}>
+          <ol>
+            {trail.map((c, i) => (
+              <li>{i < trail.length - 1 ? <a href={c.path}>{c.name}</a> : <span aria-current="page">{c.name}</span>}</li>
+            ))}
+          </ol>
+        </nav>
+      )}
+      <h1 class="page-title" data-reveal="line">{headline}</h1>
+      {lede && <p class="page-lede">{lede}</p>}
+    </div>
+    <slot />
+  </div>
+</Base>

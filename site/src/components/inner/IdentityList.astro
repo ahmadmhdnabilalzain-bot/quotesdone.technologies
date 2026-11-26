@@ -1,0 +1,15 @@
+---
+import pages from '../../content/en/pages.json';
+// The identity block from copy deck §5. Same wording on /company, /contact and /legal.
+const id = pages.identity;
+const rows = [
+  [id.labels.name, id.name],
+  [id.labels.form, id.form],
+  [id.labels.licence, id.licence],
+  [id.labels.authority, id.authority],
+  [id.labels.address, id.address],
+] as const;
+---
+<dl class="page-facts">
+  {rows.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
+</dl>

@@ -9,13 +9,24 @@ import '../styles/motion.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ui from '../content/en/ui.json';
+import { INDEXING_ENABLED, COMPANY } from '../lib/site.ts';
+import { alternates, canonicalUrl, jsonLdString, organizationJsonLd } from '../lib/seo.ts';
 
 interface Props {
   title: string;
   description: string;
   lang?: 'en' | 'ar';
+  /** Extra JSON-LD objects (breadcrumbs, product). Organization is always emitted. */
+  jsonLd?: Array<Record<string, unknown>>;
+  /** Force noindex on a page (the 404) even after launch. */
+  noindex?: boolean;
 }
-const { title, description, lang = 'en' } = Astro.props;
+const { title, description, lang = 'en', jsonLd = [], noindex = false } = Astro.props;
+const path = Astro.url.pathname;
+const canonical = canonicalUrl(path);
+const hreflangs = alternates(path);
+const robots = INDEXING_ENABLED && !noindex ? 'index, follow' : 'noindex';
+const ldBlocks = [organizationJsonLd(), ...jsonLd].map(jsonLdString);
 const dir = lang === 'ar' ? 'rtl' : 'ltr';
 ---
 <!doctype html>
@@ -27,9 +38,21 @@ const dir = lang === 'ar' ? 'rtl' : 'ltr';
     <meta name="description" content={description} />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0E1013" />
-    <!-- Pre-launch: every build is a preview. Remove at M5 for the production build. -->
-    <meta name="robots" content="noindex" />
+    <!-- Indexing is switched in ONE place: INDEXING_ENABLED in src/lib/site.ts (false until launch). -->
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonical} />
+    {hreflangs.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={COMPANY.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_AE' : 'en_AE'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {ldBlocks.map((block) => <script type="application/ld+json" set:html={block} />)}
   </head>
   <body>
     <a class="skip-link" href="#main">{ui.skipLink}</a>

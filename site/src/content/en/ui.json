@@ -5,7 +5,9 @@
   "homeLinkLabel": "QuotesDone Technologies, home",
   "wordmarkLabel": "QuotesDone Technologies",
   "nav": [
-    { "label": "Products", "href": "/#products" }
+    { "label": "Products", "href": "/products" },
+    { "label": "Company", "href": "/company" },
+    { "label": "Contact", "href": "/contact" }
   ],
   "fallback3d": "Nothing here is lost. The words are all on the page.",
   "loading": "One moment.",

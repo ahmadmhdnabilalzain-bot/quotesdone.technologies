@@ -1,0 +1,49 @@
+---
+import Inner from '../../layouts/Inner.astro';
+import StatusBadge from '../../components/inner/StatusBadge.astro';
+import pages from '../../content/en/pages.json';
+import { products } from '../../lib/products.ts';
+const p = pages.products;
+---
+<Inner
+  title={p.meta.title}
+  description={p.meta.description}
+  headline={p.headline}
+  lede={p.intro}
+  crumbs={[{ name: pages.common.products, path: '/products' }]}
+>
+  <section class="page-section" aria-label={p.listLabel}>
+    <ul class="products-rows">
+      {products.map((product) => (
+        <li class="products-row">
+          <h2 class="products-row__name"><a href={`/products/${product.slug}`}>{product.name}</a></h2>
+          <p class="products-row__line">{product.promise}</p>
+          <StatusBadge state={product.status} />
+        </li>
+      ))}
+    </ul>
+  </section>
+  <section class="page-section" aria-label={p.closingLabel}>
+    <p class="products-more">{p.closing}</p>
+  </section>
+</Inner>
+
+<style>
+  .products-rows { margin: 0; padding: 0; list-style: none; grid-column: 1 / -1; }
+  .products-row {
+    display: grid;
+    gap: var(--s-1);
+    padding-block: var(--s-4);
+    border-block-end: var(--hairline) solid var(--rule);
+  }
+  .products-row:first-child { padding-block-start: 0; }
+  .products-row__name { font-size: var(--t-lg); font-weight: 600; line-height: 1.1; letter-spacing: var(--track-display); }
+  .products-row__name a { text-decoration: none; }
+  .products-row__name a:hover { text-decoration: underline; text-decoration-color: var(--signal); }
+  .products-row__line { max-inline-size: var(--measure); color: var(--fg-muted); }
+  .products-more { grid-column: 1 / -1; font-size: var(--t-lg); line-height: 1.15; letter-spacing: var(--track-display); }
+  @media (min-width: 60rem) {
+    .products-row { grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) minmax(0, 2fr); align-items: baseline; column-gap: var(--s-3); }
+    .products-row :global(.page-status) { justify-self: end; }
+  }
+</style>

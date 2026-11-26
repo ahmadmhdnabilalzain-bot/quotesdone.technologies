@@ -1,0 +1,48 @@
+---
+import Inner from '../layouts/Inner.astro';
+import Section from '../components/inner/Section.astro';
+import IdentityList from '../components/inner/IdentityList.astro';
+import DevNote from '../components/inner/DevNote.astro';
+import company from '../content/en/company.json';
+import home from '../content/en/home.json';
+import pages from '../content/en/pages.json';
+---
+<Inner
+  title={company.meta.title}
+  description={company.meta.description}
+  headline={company.headline}
+  crumbs={[{ name: pages.common.company, path: '/company' }]}
+>
+  <Section heading={company.aboutHeading} id="about">
+    <div class="page-prose">
+      {company.about.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+    <DevNote>{company.ownerToConfirm}</DevNote>
+  </Section>
+
+  <Section heading={company.principlesHeading} id="principles">
+    <ul class="page-list">
+      {company.principles.map((p) => (
+        <li>
+          <h3 class="page-list__title">{p.title}</h3>
+          <p class="page-list__body">{p.body}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section heading={pages.companyPage.productsHeading} id="products-we-run">
+    <ul class="page-list">
+      {home.productIndex.items.map((p) => (
+        <li>
+          <h3 class="page-list__title"><a href={`/products/${p.slug}`}>{p.name}</a></h3>
+          <p class="page-list__body">{p.line}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section heading={pages.companyPage.identityHeading} id="identity">
+    <IdentityList />
+  </Section>
+</Inner>

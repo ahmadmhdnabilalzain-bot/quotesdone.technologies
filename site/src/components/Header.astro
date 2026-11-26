@@ -16,7 +16,7 @@ const mark = inlineSvg(markRaw, { className: 'logo-svg site-header__mark' });
     </a>
     <nav class="site-header__nav" aria-label={ui.navLabel}>
       <ul>
-        {ui.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        {ui.nav.map((item) => <li><a href={item.href} aria-current={Astro.url.pathname.replace(/\/$/, '').startsWith(item.href) ? 'page' : undefined}>{item.label}</a></li>)}
       </ul>
     </nav>
   </div>

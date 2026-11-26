@@ -1,0 +1,9 @@
+---
+/** One hairline-ruled section: heading in the first column on wide screens, content beside it. */
+interface Props { heading: string; id: string }
+const { heading, id } = Astro.props;
+---
+<section class="page-section" aria-labelledby={id}>
+  <h2 class="page-section__title" id={id}>{heading}</h2>
+  <div class="page-section__body"><slot /></div>
+</section>

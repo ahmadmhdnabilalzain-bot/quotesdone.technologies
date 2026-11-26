@@ -1,0 +1,81 @@
+/*
+ * Inner pages (company, products, contact, legal, 404). Namespaced `.page-*`.
+ * Tokens come from tokens.css; logical properties only. Typography does the work: one hairline
+ * rule per section, no cards, no numbering (nothing here is a sequence).
+ */
+.page-head { padding-block: var(--s-12) var(--s-8); }
+.page-head__crumbs { margin-block-end: var(--s-4); font-size: var(--t-sm); color: var(--fg-muted); }
+.page-head__crumbs ol { display: flex; flex-wrap: wrap; gap: var(--s-1); margin: 0; padding: 0; list-style: none; }
+.page-head__crumbs li + li::before { content: "/"; margin-inline-end: var(--s-1); color: var(--rule); }
+.page-head__crumbs a { text-decoration: none; }
+.page-head__crumbs a:hover { text-decoration: underline; text-decoration-color: var(--signal); }
+.page-title {
+  max-inline-size: 16ch;
+  font-size: var(--t-xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-display);
+  font-weight: 600;
+  text-wrap: balance;
+}
+.page-lede { margin-block-start: var(--s-4); max-inline-size: var(--measure); font-size: var(--t-md); color: var(--fg-muted); }
+
+.page-section { padding-block: var(--s-6) var(--s-8); border-block-start: var(--hairline) solid var(--rule); display: grid; gap: var(--s-3); }
+.page-section__title { font-size: var(--t-md); font-weight: 600; line-height: 1.2; }
+.page-section__body { display: grid; gap: var(--s-3); align-content: start; }
+.page-prose { max-inline-size: var(--measure); }
+.page-prose p + p { margin-block-start: var(--s-2); }
+
+@media (min-width: 60rem) {
+  .page-section { grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); column-gap: var(--s-3); }
+}
+
+/* Definition rows: label, value. Used for identity blocks and status rows. */
+.page-facts { margin: 0; display: grid; max-inline-size: 44rem; }
+.page-facts > div { display: grid; gap: 0.15rem; padding-block: var(--s-1); border-block-end: var(--hairline) solid var(--rule); }
+.page-facts dt { font-size: var(--t-sm); color: var(--fg-muted); }
+.page-facts dd { margin: 0; }
+@media (min-width: 40rem) {
+  .page-facts > div { grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); column-gap: var(--s-3); align-items: baseline; }
+}
+
+/* A plain list with hairline rows. */
+.page-list { margin: 0; padding: 0; list-style: none; max-inline-size: 52rem; }
+.page-list > li { padding-block: var(--s-3); border-block-end: var(--hairline) solid var(--rule); }
+.page-list > li:first-child { padding-block-start: 0; }
+.page-list__title { font-size: var(--t-md); font-weight: 600; line-height: 1.25; }
+.page-list__body { margin-block-start: var(--s-1); max-inline-size: var(--measure); color: var(--fg-muted); }
+
+/* Status: a lit dot only for live (Rhodamine is status light), an outline for everything else. */
+.page-status { display: inline-flex; align-items: center; gap: var(--s-1); font-size: var(--t-sm); }
+.page-status::before {
+  content: "";
+  inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%;
+  border: var(--hairline) solid var(--fg-muted);
+}
+.page-status[data-state="live"]::before, .page-status[data-state="available"]::before { background: var(--signal); border-color: var(--signal); }
+
+/* Buttons and text links. */
+.page-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.page-button {
+  display: inline-block;
+  padding: var(--s-2) var(--s-3);
+  border: var(--hairline) solid var(--fg);
+  text-decoration: none;
+  transition: background-color var(--dur-micro) var(--ease-hover), color var(--dur-micro) var(--ease-hover);
+}
+.page-link { display: inline-block; padding-block: 0.35rem; }
+@media (hover: hover) and (pointer: fine) {
+  .page-button:hover { background: var(--fg); color: var(--bg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-button { transition: none; }
+}
+
+/* Dev-only notes (never in a production build). */
+.page-devnote {
+  margin-block: var(--s-3);
+  padding: var(--s-2);
+  border: var(--hairline) dashed var(--signal);
+  font-size: var(--t-sm);
+  color: var(--fg-muted);
+}

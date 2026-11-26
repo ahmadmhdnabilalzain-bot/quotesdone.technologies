@@ -1,0 +1,89 @@
+---
+/** One template, three instances: driven by src/content/en/products/<slug>.json. */
+import Inner from '../../layouts/Inner.astro';
+import Section from '../../components/inner/Section.astro';
+import StatusBadge from '../../components/inner/StatusBadge.astro';
+import DevNote from '../../components/inner/DevNote.astro';
+import pages from '../../content/en/pages.json';
+import { COMPANY } from '../../lib/site.ts';
+import { products, nextProduct, productOrigin, type Product } from '../../lib/products.ts';
+
+export function getStaticPaths() {
+  return products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
+}
+interface Props { product: Product }
+const { product } = Astro.props;
+const t = pages.product;
+const next = nextProduct(product.slug);
+const origin = productOrigin(product);
+const title = `${product.name}. ${COMPANY.name}`;
+const description = `${product.promise} ${t.descriptionSuffix}`;
+
+// SoftwareApplication only for live products, with facts that are in the product JSON.
+const jsonLd = product.status === 'live' && origin
+  ? [{
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: product.name,
+      url: origin,
+      description: product.promise,
+      publisher: { '@type': 'Organization', name: COMPANY.name },
+    }]
+  : [];
+---
+<Inner
+  title={title}
+  description={description}
+  headline={product.headline}
+  lede={product.promise}
+  crumbs={[
+    { name: pages.common.products, path: '/products' },
+    { name: product.name, path: `/products/${product.slug}` },
+  ]}
+  jsonLd={jsonLd}
+>
+  <Section heading={t.provesHeading} id="what-it-does">
+    <ul class="page-list">
+      {product.proof.map((point) => (
+        <li>
+          <h3 class="page-list__title">{point.title}</h3>
+          <p class="page-list__body">{point.body}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section heading={t.statusHeading} id="status">
+    <p class="page-prose"><StatusBadge state={product.status} /></p>
+    <p class="page-prose">{product.statusLine}</p>
+    {product.family && (
+      <ul class="family" aria-label={t.familyLabel}>
+        {product.family.map((member) => (
+          <li class="family__row"><span>{member.name}</span><StatusBadge state={member.state} /></li>
+        ))}
+      </ul>
+    )}
+    {product.cta.length === 0 && <p class="page-prose">{t.noSiteYet}</p>}
+    {product.cta.length > 0 && (
+      <div class="page-actions">
+        {product.cta.map((action, i) => (
+          <a class={i === 0 ? 'page-button' : 'page-link'} href={action.href} rel="noopener">{action.label}</a>
+        ))}
+      </div>
+    )}
+    <DevNote>{product.ownerToConfirm}</DevNote>
+  </Section>
+
+  <section class="page-section product-foot" aria-label={t.nextLabel}>
+    <p class="product-foot__of">{t.productOf}</p>
+    <p class="product-foot__next"><a href={`/products/${next.slug}`}>{t.nextLabel}: {next.name}</a></p>
+  </section>
+</Inner>
+
+<style>
+  .product-foot__of { color: var(--fg-muted); }
+  .product-foot__next a { font-size: var(--t-md); }
+  .product-foot { gap: var(--s-2); }
+  .family { margin: 0; padding: 0; list-style: none; max-inline-size: 36rem; }
+  .family__row { display: flex; justify-content: space-between; gap: var(--s-2); padding-block: var(--s-1); border-block-end: var(--hairline) solid var(--rule); }
+</style>

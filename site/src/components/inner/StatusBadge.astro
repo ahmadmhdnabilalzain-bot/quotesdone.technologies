@@ -1,0 +1,6 @@
+---
+import { statusLabel } from '../../lib/products.ts';
+interface Props { state: string }
+const { state } = Astro.props;
+---
+<span class="page-status" data-state={state}>{statusLabel(state)}</span>

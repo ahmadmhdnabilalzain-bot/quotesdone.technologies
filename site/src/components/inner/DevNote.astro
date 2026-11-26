@@ -1,0 +1,4 @@
+---
+/** Visible only in `astro dev`. Production builds drop it, so owner-confirm items never ship as fact. */
+---
+{import.meta.env.DEV && <p class="page-devnote" role="note"><slot /></p>}

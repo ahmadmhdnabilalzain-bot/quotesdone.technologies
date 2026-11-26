@@ -1,0 +1,131 @@
+{
+  "$source": "docs/website/copy-v1.md sections 2 (closing), 4 (status), 5 (contact, footer) and 6 (microcopy). Edit the deck first, then this file. Items marked [OWNER TO CONFIRM] in the deck are NOT here.",
+  "common": {
+    "home": "Home",
+    "products": "Products",
+    "company": "Company",
+    "contact": "Contact",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "breadcrumbLabel": "Breadcrumb",
+    "externalNote": "Opens the product's own site"
+  },
+  "status": {
+    "live": "Live",
+    "in-development": "In development",
+    "available": "Available",
+    "coming soon": "Coming soon"
+  },
+  "products": {
+    "meta": {
+      "title": "Products. QuotesDone Technologies",
+      "description": "QuotesDone and Sonobolt are live on their own sites. MubinFlow is in development. Each product has its own name, site and rules."
+    },
+    "headline": "Two products live. One in development.",
+    "intro": "QuotesDone and Sonobolt are live on their own sites. MubinFlow is in development.",
+    "listLabel": "Products",
+    "viewProduct": "About",
+    "closing": "More is in development.",
+    "closingLabel": "More products"
+  },
+  "product": {
+    "descriptionSuffix": "A product of QuotesDone Technologies.",
+    "statusHeading": "Status",
+    "provesHeading": "What it does",
+    "productOf": "A product of QuotesDone Technologies.",
+    "nextLabel": "Next product",
+    "familyLabel": "Sonobolt products",
+    "noSiteYet": "No website yet."
+  },
+  "contact": {
+    "meta": {
+      "title": "Contact. QuotesDone Technologies",
+      "description": "Contact QuotesDone Technologies, a Sole Establishment in Dubai. For a product, write to the product: QuotesDone or Sonobolt."
+    },
+    "headline": "Write to us.",
+    "identityHeading": "The company",
+    "productsHeading": "For a product, write to the product",
+    "supportRows": [
+      { "product": "Sonobolt", "label": "support@sonobolt.com", "href": "mailto:support@sonobolt.com" },
+      { "product": "QuotesDone", "label": "quotesdone.com/contact", "href": "https://quotesdone.com/contact" }
+    ],
+    "devNote": "Company email and phone are [OWNER TO CONFIRM] in the copy deck (section 5), so they are not shown. Add them to this file when confirmed."
+  },
+  "identity": {
+    "name": "QuotesDone Technologies",
+    "form": "Sole Establishment",
+    "licence": "DET Dubai Trader License No. 1633275",
+    "authority": "Dubai Department of Economy and Tourism",
+    "address": "Dubai, United Arab Emirates",
+    "labels": {
+      "name": "Name",
+      "form": "Legal form",
+      "licence": "Licence",
+      "authority": "Licensed by",
+      "address": "Address"
+    }
+  },
+  "companyPage": {
+    "productsHeading": "Products we run",
+    "identityHeading": "Legal identity"
+  },
+  "legal": {
+    "meta": {
+      "title": "Legal. QuotesDone Technologies",
+      "description": "Who operates this site: QuotesDone Technologies, a Sole Establishment in Dubai, licensed by the Dubai Department of Economy and Tourism."
+    },
+    "headline": "Legal",
+    "operatorHeading": "Operator",
+    "intro": "This site is operated by QuotesDone Technologies, a Sole Establishment in Dubai.",
+    "productsHeading": "Each product has its own legal pages",
+    "devNote": "LAWYER-WRITTEN TEXT REQUIRED before launch. This page only states who operates the site. Licence wording differs between quotesdone.com and sonobolt.com: check it against the licence (copy deck section 5 notes)."
+  },
+  "privacy": {
+    "meta": {
+      "title": "Privacy. QuotesDone Technologies",
+      "description": "This site has no accounts, forms, cookies or analytics. Each QuotesDone Technologies product has its own privacy policy, linked here."
+    },
+    "headline": "Privacy",
+    "intro": "This site has no accounts, forms, cookies or analytics.",
+    "productsHeading": "Product privacy policies",
+    "productsIntro": "Each product has its own privacy policy. Read the one for the product you use.",
+    "devNote": "LAWYER-WRITTEN TEXT REQUIRED before launch. The statement above describes what this build does; confirm it against the final hosting setup and any analytics decision."
+  },
+  "terms": {
+    "meta": {
+      "title": "Terms. QuotesDone Technologies",
+      "description": "This site describes QuotesDone Technologies and its products. Each product is offered under its own terms, linked from this page."
+    },
+    "headline": "Terms",
+    "intro": "This site describes QuotesDone Technologies and its products. Each product is offered under its own terms.",
+    "productsHeading": "Product terms",
+    "productsIntro": "Read the terms for the product you use.",
+    "devNote": "LAWYER-WRITTEN TEXT REQUIRED before launch (website terms of use, liability for the hub only)."
+  },
+  "productLegal": [
+    { "slug": "quotesdone", "name": "QuotesDone", "privacy": "https://quotesdone.com/privacy", "terms": "https://quotesdone.com/terms", "extra": { "label": "Cookie policy", "href": "https://quotesdone.com/cookie-policy" } },
+    { "slug": "sonobolt", "name": "Sonobolt", "privacy": "https://sonobolt.com/privacy/", "terms": "https://sonobolt.com/terms/" },
+    { "slug": "mubinflow", "name": "MubinFlow", "none": "In development. No website yet, so no legal pages yet." }
+  ],
+  "legalLinkLabels": {
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "notFound": {
+    "meta": {
+      "title": "Nothing here. QuotesDone Technologies",
+      "description": "The page you asked for doesn't exist. The products do. QuotesDone Technologies builds software products and runs them in Dubai."
+    },
+    "headline": "Nothing here.",
+    "body": "The page you asked for doesn't exist. The products do.",
+    "cta": "See the products"
+  },
+  "footer": {
+    "navLabel": "Footer",
+    "productsLabel": "Products",
+    "companyLabel": "Company",
+    "legalLabel": "Legal",
+    "inDevelopment": "in development"
+  }
+}

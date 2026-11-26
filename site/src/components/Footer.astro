@@ -1,11 +1,56 @@
 ---
 import ui from '../content/en/ui.json';
-// Wording is copied verbatim from copy deck §5. Sole Establishment, never "L.L.C.".
+import pages from '../content/en/pages.json';
+import { products } from '../lib/products.ts';
+// Identity wording is copied verbatim from copy deck §5. Sole Establishment, never "L.L.C.".
+const f = pages.footer;
+const c = pages.common;
 ---
 <footer class="site-footer">
-  <div class="frame">
-    <p class="site-footer__identity">{ui.footer.identity}</p>
-    <p>{ui.footer.products}</p>
-    <p>{ui.footer.copyright}</p>
+  <div class="frame site-footer__grid">
+    <nav class="site-footer__col" aria-labelledby="footer-products">
+      <h2 id="footer-products" class="site-footer__heading">{f.productsLabel}</h2>
+      <ul>
+        {products.map((p) => (
+          <li>
+            <a href={`/products/${p.slug}`}>{p.name}</a>
+            {p.status === 'in-development' && <span class="site-footer__note"> ({f.inDevelopment})</span>}
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <nav class="site-footer__col" aria-labelledby="footer-company">
+      <h2 id="footer-company" class="site-footer__heading">{f.companyLabel}</h2>
+      <ul>
+        <li><a href="/company">{c.company}</a></li>
+        <li><a href="/contact">{c.contact}</a></li>
+      </ul>
+    </nav>
+    <nav class="site-footer__col" aria-labelledby="footer-legal">
+      <h2 id="footer-legal" class="site-footer__heading">{f.legalLabel}</h2>
+      <ul>
+        <li><a href="/legal">{c.legal}</a></li>
+        <li><a href="/privacy">{c.privacy}</a></li>
+        <li><a href="/terms">{c.terms}</a></li>
+      </ul>
+    </nav>
+    <div class="site-footer__fine">
+      <p class="site-footer__identity">{ui.footer.identity}</p>
+      <p>{ui.footer.copyright}</p>
+    </div>
   </div>
 </footer>
+
+<style>
+  .site-footer__grid { display: grid; gap: var(--s-4) var(--s-3); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-footer__col ul { margin: 0; padding: 0; list-style: none; }
+  .site-footer__col li { padding-block: 0.2rem; }
+  .site-footer__col a { color: var(--fg); text-decoration: none; display: inline-block; padding-block: 0.15rem; }
+  .site-footer__col a:hover { text-decoration: underline; text-decoration-color: var(--signal); }
+  .site-footer__heading { margin: 0 0 var(--s-1); font-size: var(--t-sm); font-weight: 400; color: var(--fg-muted); }
+  .site-footer__note { color: var(--fg-muted); }
+  .site-footer__fine { grid-column: 1 / -1; padding-block-start: var(--s-3); border-block-start: var(--hairline) solid var(--rule); }
+  @media (min-width: 48rem) {
+    .site-footer__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

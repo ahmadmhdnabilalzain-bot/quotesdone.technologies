@@ -1,0 +1,26 @@
+---
+/** Links to each product's own legal pages. URLs checked live on 2026-11-26 (HTTP 200). */
+import pages from '../../content/en/pages.json';
+interface Props { kind: 'legal' | 'privacy' | 'terms' }
+const { kind } = Astro.props;
+const labels = pages.legalLinkLabels;
+---
+<ul class="page-list">
+  {pages.productLegal.map((p) => (
+    <li>
+      <h3 class="page-list__title"><a href={`/products/${p.slug}`}>{p.name}</a></h3>
+      <p class="page-list__body">
+        {'none' in p
+          ? p.none
+          : (
+            <>
+              {(kind === 'legal' || kind === 'privacy') && <a href={p.privacy} rel="noopener">{labels.privacy}</a>}
+              {kind === 'legal' && ' · '}
+              {(kind === 'legal' || kind === 'terms') && <a href={p.terms} rel="noopener">{labels.terms}</a>}
+              {kind === 'legal' && 'extra' in p && p.extra && <> · <a href={p.extra.href} rel="noopener">{p.extra.label}</a></>}
+            </>
+          )}
+      </p>
+    </li>
+  ))}
+</ul>

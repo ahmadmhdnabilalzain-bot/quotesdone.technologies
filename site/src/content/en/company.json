@@ -1,0 +1,33 @@
+{
+  "$source": "docs/website/copy-v1.md section 3. Edit the deck first, then this file.",
+  "meta": {
+    "title": "Company. QuotesDone Technologies",
+    "description": "QuotesDone Technologies is a technology company in Dubai, licensed by the Dubai Department of Economy and Tourism. We design software and run it."
+  },
+  "headline": "A Dubai company that ships.",
+  "aboutHeading": "About",
+  "about": [
+    "QuotesDone Technologies is a technology company in Dubai, licensed by the Dubai Department of Economy and Tourism.",
+    "We design software, build products from it and run them after launch. Each product has its own name, its own site and its own rules for what it says.",
+    "Today that is QuotesDone and Sonobolt. MubinFlow is in development."
+  ],
+  "principlesHeading": "Principles",
+  "principles": [
+    {
+      "id": "price-first",
+      "title": "The price comes first.",
+      "body": "You see what you will pay before you pay it. QuotesDone shows its 3% in full and adds nothing for paying by card. Sonobolt's quote is the most you can pay, and there is no subscription."
+    },
+    {
+      "id": "keep-less",
+      "title": "Keep less.",
+      "body": "QuotesDone strips your name, number and company from the brief, and sets essential cookies only. Sonobolt deletes your songs once the mix is ready and keeps no backup of them."
+    },
+    {
+      "id": "say-unknown",
+      "title": "Say what we do not know.",
+      "body": "QuotesDone's guide prices are orientation, never a quotation. Sonobolt marks each song's BPM, key and energy as estimates. MubinFlow lists every figure it cannot yet compute, instead of guessing."
+    }
+  ],
+  "ownerToConfirm": "Optional founder line (name spelling 'Al Zain' vs 'Alzain', and whether the hub names the founder at all). Omitted."
+}
