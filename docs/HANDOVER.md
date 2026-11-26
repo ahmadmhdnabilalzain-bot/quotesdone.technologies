@@ -28,8 +28,8 @@ Stay on the hub website (design, copy, build). Do NOT audit or chase issues in t
 - Stack: Astro 7 static, plain three.js (WebGL2), GSAP; Lenis on desktop only. Hosting: Cloudflare Pages (reuses Sonobolt's deploy workflow), Render as fallback. Supersedes the earlier "temporary Render URL" idea.
 - Logo opens the site: drawn from the 43 stroke parts, then a 3D exploded view, then docks into the header (compact cut below 480px).
 - One visual idea: the "datum line"; each product is an object on a rail (QuotesDone = sealed plates, Sonobolt = waveform coil, MubinFlow = CAD linework because in development).
-- Phones first; all words in HTML; no-JS/reduced-motion/no-WebGL fall back to stills; Arabic RTL prepared from day one.
-- First milestone: ONE-PAGE SLICE (logo reveal + QuotesDone scene), judged on named real phones.
+- **Owner override (ledger #36): build the COMPLETE site desktop-first with full-quality 3D; phone adaptation (iPhone 13+) comes after.** Still: all words in HTML; no-JS/reduced-motion/no-WebGL fall back to stills; Arabic RTL prepared from day one.
+- First milestone is now the FULL HOME PAGE (all 8 scenes) plus inner pages, desktop-first; phone tuning after.
 - Hub subdomains for QuotesDone/Sonobolt only redirect; those products keep their own domains (supersedes ledger #12 wording).
 - Owner-gated: reference video, 3D-artist budget, final contact/legal details before launch.
 
