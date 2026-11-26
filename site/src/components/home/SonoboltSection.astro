@@ -145,14 +145,12 @@ const available = (state: string): boolean => state === 'available';
       grid-column: 1;
       grid-row: 1;
       /*
-       * The section's length sets how much scroll the scene gets (progress runs from the slot's
-       * top at the viewport top to its bottom at the viewport bottom: length - 100svh).
-       * Kept under 2 viewports ON PURPOSE: motion/scroll.ts measures a sticky stage at its
-       * natural position, so beyond ~1 viewport of pin the runtime stops drawing (and then
-       * frees) the scene while it is still on screen. Raise --sono-length (e.g. 300svh) once
-       * scroll.ts measures pinned stages from their slot.
+       * The section's length sets how much scroll the scene gets: progress runs from the slot's
+       * top at 60% of the viewport to its bottom at the viewport bottom (about length - 60svh).
+       * Needs motion/scroll.ts to measure a sticky stage's visibility from its section (it does
+       * since 26 Nov 19:03); with the older stage-based measurement keep this under ~190svh.
        */
-      --sono-length: 180svh;
+      --sono-length: 280svh;
       min-block-size: var(--sono-length);
       display: flex;
       flex-direction: column;
