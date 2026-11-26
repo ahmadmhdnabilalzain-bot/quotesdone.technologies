@@ -149,6 +149,15 @@ def half_plane(x0, y0, deg, keep="left", big=6000.0):
     return poly([bot, (big, -big), (big, big), top])
 
 
+def cut_band(x0, y0, deg, side, ymin, ymax, big=4000.0):
+    """Polygon of the half plane on `side` of the forward-cut line through
+    (x0, y0), clipped to the horizontal band ymin..ymax."""
+    t = math.tan(math.radians(deg))
+    xa, xb = x0 + (ymin - y0) * t, x0 + (ymax - y0) * t
+    edge = big if side == "right" else -big
+    return poly([(xa, ymin), (edge, ymin), (edge, ymax), (xb, ymax)])
+
+
 def flared_stem(p: Params, xc, y0, y1, w, flare=None):
     """Vertical stem centred on xc whose sides curve in at mid-height."""
     f = p.FLARE if flare is None else flare
@@ -378,13 +387,10 @@ def g_S(p, w=540):
         (w * 0.060, H * 0.215, 112, H * 0.110, 0),
     ]
     stroke = pen_stroke(p, hermite_chain(nodes))
-    # forward cuts: top terminal keeps what is left of a line, bottom terminal
-    # keeps what is right of a parallel line
-    top_cut = union(half_plane(w * 0.995, H * 0.80, p.CUT_DEG, keep="left"),
-                    rect(-2 * w, -2 * H, 3 * w, H * 0.62))
-    bot_cut = union(half_plane(w * 0.005, H * 0.20, p.CUT_DEG, keep="right"),
-                    rect(-2 * w, H * 0.38, 3 * w, 3 * H))
-    s = inter(inter(stroke, top_cut), bot_cut)
+    # forward cuts: slice away what lies beyond a forward-leaning line, only
+    # inside the band of each terminal
+    s = diff(stroke, cut_band(w * 0.995, H * 0.80, p.CUT_DEG, "right", H * 0.60, H * 2))
+    s = diff(s, cut_band(w * 0.005, H * 0.20, p.CUT_DEG, "left", -H, H * 0.40))
     return s, w
 
 
