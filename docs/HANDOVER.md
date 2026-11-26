@@ -10,6 +10,8 @@ Resume point for any account/session. Update at every milestone; newest checkpoi
 **Done**
 - Repo was empty. Added standing rules skill, `CLAUDE.md` (imports rules/handover/ledger so they reload after compaction), `docs/LEDGER.md`, this handover.
 
+**Global install:** copy of the skill is in `global/session-rules/`; container's `~/.claude` is ephemeral, so re-install on the owner's machine/account per `global/README.md`.
+
 **In progress:** nothing.
 
 **Next:** await owner's business direction for the product (no product scope defined yet).
