@@ -24,10 +24,11 @@ All under github user `ahmadmhdnabilalzain-bot`.
 ## Product portfolio for the company website (owner-confirmed 2026-11-26)
 | Product | Public name / domain | Repo | Brand assets | Status |
 |---|---|---|---|---|
-| Quotation marketplace | QuotesDone, quotesdone.com (+ .ae) | `quotesdone` | `public/brand/`, `/brand` page | pre-launch |
-| AI DJ-mix engine | Sonobolt, sonobolt.com (spelling confirmed by owner 2026-11-26) | `djai-engine` | `docs/brand/kit/` (app icons, BRAND-GUIDE.pdf) | built, deploy docs in repo |
+| Quotation marketplace | QuotesDone, quotesdone.com (+ .ae) | `quotesdone` | `public/brand/`, `/brand` page | **LIVE** at quotesdone.com (English + Arabic); pre-launch commercially, sample data shown |
+| AI DJ-mix engine | Sonobolt, sonobolt.com (spelling confirmed by owner 2026-11-26) | `djai-engine` | `docs/brand/kit/` (app icons, BRAND-GUIDE.pdf) | **LIVE** at sonobolt.com (app at app.sonobolt.com). Sonobolt Mix available (AED 99/hour); Sonobolt Studio and Sonobolt Visuals announced "coming soon" |
 | HR & payroll | MubinFlow (written "MubinFlow"; domain typed "Mubinflow"), no website yet | `HR-Payroll` | `docs/brand/logo/final/` (typographic wordmark + monogram, SVG/PNG) | engine+API built, web UI paused |
 | ERP | "Manar One" — **EXCLUDE from website for now** (name will change) | `ERP` | n/a | in use with a customer |
+Verified live 2026-11-26 by fetching both sites. Both already name the company as "QuotesDone Technologies" (QuotesDone states it is licensed by the Dubai Department of Economy and Tourism; Sonobolt's contact block lists the company's Dubai address) — reuse that exact wording on the hub site after checking it against the trade licence. Sonobolt's live site is dark, photographic and editorial: study it as a reference for the hub's tone.
 Each product keeps its own brand; the parent logo must not imitate any of them. Future products get added here.
 
 ## Workstream: logo then website (2026-11-26)
