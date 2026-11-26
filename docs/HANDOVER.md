@@ -14,6 +14,13 @@ All under github user `ahmadmhdnabilalzain-bot`.
 - `HR-Payroll` (public): HR & payroll product for UAE SMEs; pnpm TypeScript monorepo (engine, WPS SIF, API, contract); web UI paused pending owner's design pick. No README; HANDOVER.md/LEDGER.md instead.
 - `quotesdone.technologies` (this repo): currently only the session-rules scaffolding; purpose not yet defined.
 
+## Decision: company hub domain (2026-11-26)
+- Goal: all current/future apps live under `quotesdone.technologies` (trade-licence name).
+- Domain **not purchased yet** (owner: later). No DNS/hosting changes until it is.
+- Owner chose: public company site + app directory at the apex; each app on its own subdomain (separate stacks: Vercel / Render / Docker, so subdomains, not paths).
+- Existing apps keep current hosts: quotesdone (Vercel, quotesdone.com/.ae), ERP (Render), HR-Payroll (Render), djai-engine (Docker).
+- Next when approved: build hub site in this repo (hosting-agnostic static site), deploy to a temporary Render URL, attach domain + subdomains after purchase. Needs from owner: licence number/emirate/activity, contact details, logo/brand, which apps to list publicly.
+
 ## Checkpoint 1 — 2026-11-26
 **Done**
 - Repo was empty. Added standing rules skill, `CLAUDE.md` (imports rules/handover/ledger so they reload after compaction), `docs/LEDGER.md`, this handover.
