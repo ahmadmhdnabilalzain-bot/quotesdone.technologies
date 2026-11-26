@@ -21,6 +21,9 @@ All under github user `ahmadmhdnabilalzain-bot`.
 - Existing apps keep current hosts: quotesdone (Vercel, quotesdone.com/.ae), ERP (Render), HR-Payroll (Render), djai-engine (Docker).
 - Next when approved: build hub site in this repo (hosting-agnostic static site), deploy to a temporary Render URL, attach domain + subdomains after purchase. Needs from owner: licence number/emirate/activity, contact details, logo/brand, which apps to list publicly.
 
+## SCOPE (owner, 2026-11-26): this session is for the WEBSITE DESIGN
+Stay on the hub website (design, copy, build). Do NOT audit or chase issues in the other apps (QuotesDone, Sonobolt, MubinFlow, ERP); use their public facts only as website content. Known items the owner has seen and parked: `app.sonobolt.com` not resolving; licence-wording mismatch between product sites.
+
 ## Product portfolio for the company website (owner-confirmed 2026-11-26)
 | Product | Public name / domain | Repo | Brand assets | Status |
 |---|---|---|---|---|
