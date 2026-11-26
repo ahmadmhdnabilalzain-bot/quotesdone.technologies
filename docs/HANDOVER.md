@@ -33,6 +33,13 @@ Stay on the hub website (design, copy, build). Do NOT audit or chase issues in t
 - Hub subdomains for QuotesDone/Sonobolt only redirect; those products keep their own domains (supersedes ledger #12 wording).
 - Owner-gated: reference video, 3D-artist budget, final contact/legal details before launch.
 
+## WEBSITE STATUS (2026-11-26, end of build day 1)
+- Full home page + 8 inner/utility pages built, desktop-first, in `site/` (Astro 7, three.js r187, GSAP). Gate: lint 0, 187 unit tests, build 18 pages, content+budget checks ok, e2e 101 pass (desktop + iPhone-13 emulation). Run: `cd site && npm ci && npm run dev` (see `site/README.md`).
+- PREVIEW (owner approved): https://qdt-hub-preview.onrender.com (Render static site `qdt-hub-preview`, autoDeploy OFF: redeploy via Render MCP `trigger_deploy` or dashboard). Hidden from search (noindex).
+- Docs: `site/docs/{integration-notes,polish-notes,typography}.md`, `site/src/three/runtime/README.md`, each scene's README.
+- Not awe-level yet (honest): materials/lighting art direction per scene, owner's reference video not received, stills are placeholders, phone phase not done, real-GPU and real-iPhone check not done (all timings were SwiftShader/emulation).
+- Open owner items: reference video; font/Arabic timing; 3D-artist budget; copy-deck [OWNER TO CONFIRM] items (email, phone, address, founder line, licence wording); domain purchase; logo-similarity check/lawyer; Sonobolt app link (parked).
+
 ## Product portfolio for the company website (owner-confirmed 2026-11-26)
 | Product | Public name / domain | Repo | Brand assets | Status |
 |---|---|---|---|---|
