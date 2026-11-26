@@ -1,49 +1,65 @@
-# R2-1 "Monolith": QUOTESDONE TECHNOLOGIES
+# R2-1 "Monolith": QUOTESDONE TECHNOLOGIES (refined, round 2)
 
 ## The idea
-Extended architectural capitals built from one radius: every round is a stadium end of radius H/2, so the O reads like the plan of a tower. Two letter changes make it ours. **The Sill:** the Q has no diagonal tail. Its bottom-right corner is squared, so the bowl turns into a speech-bubble shape (a nod to "quotes"), and its floor runs on as a flat foundation bar that tucks under the U's round foot. **The Lintel:** the T's crossbar carries straight on into the E's top arm, so the two letters share one beam.
+Extended architectural capitals built from one radius. Every round is a stadium end of radius H/2, so the O reads like the plan of a tower. Two letter changes make it ours:
+- **The Sill.** The Q has no diagonal tail. Instead, a flat bar starts under the counter, cuts through the bottom-right of the bowl, hangs slightly below the baseline and runs on under the round foot of the U, like a foundation sill.
+- **The Lintel.** The T's crossbar carries straight on into the E's top arm, so the two letters share one beam.
 
-## Palette
+## What changed after owner feedback
+1. **Mark.** The earlier mark (a squared, speech-bubble corner with a flush sill) read as a lowercase "a". The bowl is now a full stadium, the same as the O, and the tail visibly crosses the stroke and drops below the bowl. It reads as a Q at 512, 32 and 16 px. `preview.png` shows before and after at 256/32/16 px, plus pixel enlargements.
+2. **Wordmark Q uses the same construction**, so the mark and the wordmark Q are the same letter. The QU tuck is now real: the tail runs about 100 units under the U's round foot without touching it.
+3. **Weight.** QUOTESDONE is heavier (S 168→190, h 142→160), which is properly heavy-medium. TECHNOLOGIES is heavier too: its stem went from 60 to 84 units in line-1 terms, about 0.44 of the main stem. Its letters are wider and larger (cap 0.40→0.45 of line 1), so tracking dropped from about 2.3 to about 1.6 caps. It still justifies to the wordmark's optical width.
+4. **Spacing re-checked at 6000 px.** Changes: N-E −30. E-S +70 stays, because the open E needs it. T-E is bridged by the lintel. S-D, D-O and O-N are unchanged and even. QU is now −270, and the bowl-to-stem gap is about 225 units, the same as other round-to-straight pairs.
+5. **Palette.** Changed from plum to Oxblood (see below).
+6. **New file:** `app-icon.svg` (1024×1024, glyph centred exactly on both axes).
+7. **Preview fixes.** The signage glow is now on the letters. The letterhead uses the stacked lockup above its minimum size. A one-colour mark tile replaces the duplicate icon.
+
+## Palette (3 colours; the tint is a lighter value of the accent, not a fourth colour)
 | Role | Name | Hex |
 |---|---|---|
 | Primary ink | Basalt | `#1D1C1A` |
 | Paper / ink on dark | Limestone | `#ECE8E0` |
-| Accent (mark tile, rules, app icon only) | Aubergine | `#5A2F4E` |
-| Accent tint for use on Basalt | Aubergine light | `#B98AA8` |
-| Neutral for captions | Stone grey | `#7A746C` |
+| Accent | Oxblood | `#6E2230` |
+| Accent tint, only for the mark on Basalt | Oxblood tint | `#D6A0A6` |
+| Caption neutral | Stone grey | `#7A746C` |
 
-Why these colours: Basalt and Limestone are the materials of a Gulf tower (dark stone and pale cladding). They are warm, quiet and expensive-looking, not SaaS blue. Aubergine is a deep red-violet. I chose it because it is clearly different from the QuotesDone app (teal, gold, navy), from both round-1 concepts (ember coral, and ink green with coral), and from the common UAE developer colours (black and gold, blue). Copper, sand and ochre were rejected because they read as gold. The wordmark itself is always a single colour, and the accent never touches the letters, so the logo works in one colour by design. One-colour files use pure `#000000`; recolour freely.
+Why: Basalt and Limestone are the materials of a Gulf tower (dark stone and pale cladding), and they carry almost all the weight. Oxblood is the red of the UAE flag deepened to a stone-dark wine. It reads as institutional and permanent (the colour of a bank or a law firm, not a start-up). It sits a long way from the QuotesDone app (teal, gold, navy) and from round 1's bright ember and coral. Plum was rejected because it reads as lifestyle and beauty; copper, sand and ochre were rejected because they read as gold. The letters are only ever one colour, and the accent appears on the mark, rules and icon only, so every logo works in one colour. One-colour files use `#000000`; recolour freely.
 
-## Construction (all in `build.py`, cap height H = 1000 units)
-- Stem S = 168, bar h = 142 (horizontals are thinner, for optical balance). Counters are concentric ellipses (rx = R−S, ry = R−h), so each curve thins smoothly from S at the sides to h at top and bottom.
-- Stadium rounds overshoot the cap line and baseline by 8 units. E, H and the middle bar of the S sit at 0.515–0.522 H, a little above centre. E arms run bottom > top > middle.
-- The S is two stacked half-stadiums with stretched arcs (`s_rx = 1.30`) joined by one spine. The upper bowl is narrower and smaller.
-- N stems are 0.94 S and the diagonal is about 0.98 S measured across its width. Apexes are cut flat to the cap line and baseline.
-- Spacing: a straight side adds 150 units, a round side 0.52 × that, an open side 0.10 × that. Kerning pairs are in `KERN`: QU −110 (the sill tuck), TE −30 (lintel), ES +70.
-- TECHNOLOGIES has its own lighter drawing (S = 150 at its own scale). Its cap height is 0.40 × line 1. It is justified in code to the optical width of QUOTESDONE, with less air next to round and open sides (`JUSTIFY_SIDE`).
-- Every parameter is at the top of `build.py`. Run `python3 build.py` to rebuild all the SVGs, run the XML and hygiene checks, and render `preview.png`. Run `python3 build.py --crops DIR` to also write large zoom crops for checking spacing.
+## Construction (all in `build.py`, cap height H = 1000 units, every value a named parameter)
+- **Line 1:** stem S = 190, bar h = 160.
+- **Counters** are concentric ellipses (rx = R−S, ry = R−h), so each curve thins from S at the sides to h at the top and bottom.
+- **Overshoot:** stadium rounds go 8 units past the cap line and baseline.
+- **Middle bars** of E, H and S sit at 0.515–0.522 H, a little above centre.
+- **Q tail:** thickness 160, drop 96 (0.6 h), starts 0.75 R in from the right, runs 330 past the bowl. A code assertion stops the tail from ever cutting into the counter.
+- **S:** two stacked half-stadiums with stretched arcs (`s_rx`) and one shared spine. Each half is trimmed so the spine is continuous.
+- **N:** stems are 0.94 S. Apexes are cut flat.
+- **Spacing:** a straight side adds 150 units, a round side 0.52 of that, an open side 0.10 of that. Kerning pairs are in `KERN`.
+- **Line 2** has its own drawing (S = 186 at its own scale). Its cap height is 0.45 of line 1, and the gap below line 1 is 0.32 H, measured from the baseline. One tracking value is solved in code, and each gap is weighted by the facing sides (`JUSTIFY_SIDE`: straight 1.0, round 0.8, open 0.62).
+- **Mark:** the same Q, bowl 1380 wide, drawn heavier (S 230, h 200) because it lives small. In the horizontal lockup it is used at scale 1, so its bowl sits exactly on the wordmark's cap height and baseline.
+- **Commands:** `python3 build.py` rebuilds everything, runs the XML and hygiene checks, and renders the preview. `python3 build.py --crops DIR` also writes large crops for spacing review.
 
 ## Custom vs borrowed
-All letterforms (Q U O T E S D N, plus C H L G I for line 2) are drawn in code from rectangles and quarter-ellipses, then merged with skia-pathops booleans. **No font is used, not even as a skeleton.** The only things borrowed are the genre (extended, flat-sided capitals in the Eurostile / Microgramma tradition) and standard type-design corrections.
+Every letterform is drawn in code from rectangles and quarter-ellipses and merged with skia-pathops booleans: Q U O T E S D N, plus C H L G I for line 2. **No font is used anywhere, not even as a skeleton.** The only things borrowed are the genre (extended, flat-sided capitals in the Eurostile / Microgramma tradition) and standard optical corrections.
 
 ## Files
-- `wordmark-light.svg`, `wordmark-dark.svg`, `wordmark-onecolour.svg`: QUOTESDONE on its own (the primary logo).
+- `wordmark-{light,dark,onecolour}.svg`: the primary logo.
 - `lockup-stacked-{light,dark,onecolour}.svg`: QUOTESDONE over TECHNOLOGIES.
-- `lockup-horizontal-{light,dark,onecolour}.svg`: the mark at the wordmark's cap height, followed by the stacked lockup.
-- `mark.svg` (800×800, Limestone on Aubergine) and `mark-onecolour.svg`: the Sill-Q, drawn heavier (S = 220) because it is mostly used small.
-- `preview.png`: light, dark and one-colour versions, the mark at 512/32/16 px, a tower signage line, a letterhead corner and app-icon tiles.
-- SVG hygiene: only `<path>` elements, with `<title>`, prefixed unique ids, and backgrounds drawn as paths. There is no text, no font and no external reference. `build.py` checks this with an XML parse.
+- `lockup-horizontal-{light,dark,onecolour}.svg`: mark, then the stacked lockup.
+- `mark.svg` (800×800, Limestone on Oxblood) and `mark-onecolour.svg`.
+- `app-icon.svg`: 1024×1024 square artwork, glyph centred. The platform applies its own corner mask.
+- `preview.png`
+- SVG hygiene: only `<path>` elements, a `<title>` in each file, prefixed unique ids, and backgrounds drawn as paths. There is no text, no font and no external reference. `build.py` checks this.
 
 ## Clear space and minimum size
-- Clear space: half the cap height of QUOTESDONE on every side (the artboard padding already shows this).
-- Wordmark: 120 px / 25 mm wide minimum.
-- Stacked lockup: 280 px / 60 mm wide minimum. Below that, the TECHNOLOGIES stem drops under 1 px, so use the wordmark alone.
-- Mark: 16 px minimum. Use a single colour at 32 px and below.
+- **Clear space:** half the cap height of QUOTESDONE on every side (the artboard padding).
+- **Wordmark:** 120 px / 25 mm wide minimum.
+- **Stacked lockup:** 200 px / 45 mm. **Horizontal lockup:** 260 px / 55 mm. Below these sizes the TECHNOLOGIES stem falls under 1 px, so use the wordmark alone.
+- **Mark:** 16 px minimum. Use one colour at 32 px and below.
 
 ## Honest weaknesses
-- **Genre risk.** Extended, flat-sided capitals are an established style (Eurostile, many automotive and real-estate marks). The Sill and the Lintel are what make it ownable. I have not run a trademark or visual search, and I cannot claim nothing similar exists. That check is still needed.
-- **The mark** is a heavy Q bowl with a square corner. At 16–32 px it can read as a lowercase "a" or a speech bubble rather than a Q. It is a stadium-and-bar, not a ring-and-check, but it is still a closed round shape, so it is close in kind to the app's ring. Keep it secondary.
-- **Aspect ratio.** The wordmark is about 14:1. That is excellent on a tower crown but awkward for square placements, and the letterhead version gets small.
-- **Line 2 tracking** is very wide (about 2.3 caps between letters) because ten extended capitals set a long measure. It looks deliberate, but it is airy. A shorter descriptor would not need this.
-- **The Q's squared corner** puts extra weight at the bottom right where the counter curves away. This is accepted as part of the speech-bubble idea, but a type designer might lighten it.
-- The square right side of the Q and the long sill make QUOTESDONE start heavier on the left than it ends (N, E).
+- **Genre risk.** Extended, flat-sided capitals are an established style. The Sill and the Lintel carry the ownability. No trademark or visual search has been run, and I have not compared against the real Emaar or Damac files. That check is still needed.
+- **The Q tail goes below the baseline** (about 10% of H). It is fine in lockups, but on a tower fascia, signage fabricators need to allow for the descent.
+- **Aspect ratio** is about 14:1. That is excellent for a crown or fascia but small in square placements.
+- **TECHNOLOGIES is still generously tracked** (about 1.6 caps). This is unavoidable when 12 letters must span 10 extended capitals without growing into a second headline.
+- **The mark is still a closed round with a bar.** It is not a ring with a check, but it is the same kind of shape as the app's ring. Keep it secondary and in Oxblood or Basalt, never in teal or gold.
+- **C and G terminals** are horizontal cuts through the arc. They are clean at TECHNOLOGIES sizes, but they would want hand finishing if C or G were ever used large.

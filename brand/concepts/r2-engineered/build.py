@@ -41,13 +41,13 @@ class Params:
     over: float = 1.6     # overshoot of rounds beyond baseline / cap line
     mid: float = 52.0     # centre height of E arm, S spine, H bar
     track: float = 0.0    # extra tracking added to every pair (units)
-    q_tail: float = 13.0  # Q tail run beyond the bowl's right edge
+    q_tail: float = 10.0  # Q tail run beyond the bowl's right edge
     q_slot_open: float = 0.0  # extra opening of the Q joint (mark uses it)
 
 
 MASTER = Params()
 COMPACT = replace(MASTER, gap=-0.6)                    # small sizes: joints closed
-LINE2 = replace(MASTER, wv=13.0, wh=12.2, wd=12.4, gap=-0.6, over=1.4)
+LINE2 = replace(MASTER, wv=14.0, wh=13.0, wd=13.2, gap=-0.6, over=1.4)
 MARK = replace(MASTER, wv=17.0, wh=15.6, gap=4.2, over=1.6, q_tail=16.0)
 MARK_SMALL = replace(MARK, gap=-0.6)
 
@@ -419,7 +419,7 @@ def glyph_S(p: Params, W=82.0) -> Glyph:
 
 
 # --- TES ligature: T and E share the top beam, E and S share the base beam -
-def glyph_TES(p: Params, Wt=88.0, We=74.0, Ws=82.0, te=14.0, es=15.0) -> Glyph:
+def glyph_TES(p: Params, Wt=88.0, We=74.0, Ws=78.0, te=7.0, es=14.0) -> Glyph:
     """te: clear space from T beam's natural end to E stem; es: E arms to S."""
     xE = Wt + te
     xS = xE + We + es
@@ -694,7 +694,7 @@ def svg_doc(w: float, h: float, title: str, desc: str, body: str, bg: str | None
 
 SCALE = 4.0          # SVG px per design unit for wordmark files
 LINE_GAP = 30.0      # space between line 1 baseline area and line 2 cap line (units)
-L2_CAP = 25.0        # line-2 cap height in line-1 units
+L2_CAP = 29.0        # line-2 cap height in line-1 units
 OPTICAL_IN = 1.4     # line 2 starts this far inside the Q's round edge (units)
 
 
@@ -790,21 +790,26 @@ def build_all():
                                    "Alloy Q on Carbon tile.",
                                    mark_body(MARK, ALLOY, "md", 800), CARBON, "md"))
 
-    # horizontal lockup: mark | wordmark ; mark height = line1 cap + line2 block
+    # horizontal lockup: Carbon tile with the Q (reversed) | two-line wordmark.
+    # The tile is the full height of the wordmark block; the gap is half a tile.
     s = SCALE
-    _, _, Hwm = wm_w, wm_h, wm_h
-    mark_size = Hwm * 1.0 / (1 - 2 * 0.0)
-    m_s = mark_size
-    gap = s * 34.0
-    rule_x = pad + m_s + gap / 2
-    mk = mark_body(MARK, CARBON, "hl-m", m_s, pad_frac=0.0)
-    mk = f'<g id="hl-mark" transform="translate({fmt(pad)} {fmt(pad)})">{mk}</g>'
-    rule = (f'<rect id="hl-rule" x="{fmt(rule_x - s * 0.6)}" y="{fmt(pad)}" width="{fmt(s * 1.2)}" '
-            f'height="{fmt(Hwm)}" fill="{CARBON}"/>')
+    m_s = wm_h
+    gap = m_s * 0.42
+    tile = (f'<rect id="hl-tile" x="{fmt(pad)}" y="{fmt(pad)}" width="{fmt(m_s)}" '
+            f'height="{fmt(m_s)}" fill="{CARBON}"/>')
+    mk = mark_body(MARK, ALLOY, "hl-m", m_s, pad_frac=0.2)
+    mk = f'<g id="hl-mark" transform="translate({fmt(pad)} {fmt(pad)})">{tile.replace(fmt(pad), "0", 2)}{mk}</g>'
     body, w, h = wordmark_body(MASTER, CARBON, "hl", pad + m_s + gap, pad, s)
     write("lockup-horizontal.svg", svg_doc(pad + m_s + gap + w + pad, h + 2 * pad,
                                            "QUOTESDONE TECHNOLOGIES horizontal lockup", DESC,
-                                           mk + rule + body, None, "hl"))
+                                           mk + body, None, "hl"))
+    body, w, h = wordmark_body(MASTER, ALLOY, "hd", pad + m_s + gap, pad, s)
+    tile_d = tile.replace(CARBON, ALLOY).replace('hl-tile', 'hd-tile').replace(fmt(pad), "0", 2)
+    mkd = mark_body(MARK, CARBON, "hd-m", m_s, pad_frac=0.2)
+    mkd = f'<g id="hd-mark" transform="translate({fmt(pad)} {fmt(pad)})">{tile_d}{mkd}</g>'
+    write("lockup-horizontal-dark.svg", svg_doc(pad + m_s + gap + w + pad, h + 2 * pad,
+                                                "QUOTESDONE TECHNOLOGIES horizontal lockup (reversed)", DESC,
+                                                mkd + body, None, "hd"))
 
     # stacked lockup: mark centred above wordmark
     m_s2 = s * 150.0
@@ -905,7 +910,7 @@ body{width:1800px;background:#D9D7D1;font-family:'Inter',sans-serif;color:%(carb
 .tiny{display:flex;gap:40px;align-items:center}
 </style></head><body>
 <div class="sec light big"><span class="lab">Wordmark, light (Carbon on Alloy)</span><img src="wordmark-light.svg"></div>
-<div class="sec dark big"><span class="lab">Wordmark, dark (Alloy on Carbon)</span><img src="wordmark-dark.svg"></div>
+<div class="sec dark big"><span class="lab">Wordmark, dark (Alloy on Carbon)</span><img src="wordmark-dark.svg"><img src="lockup-horizontal-dark.svg" style="width:760px;margin-top:50px"></div>
 <div class="sec white"><span class="lab">One colour, black &amp; lockups</span>
  <div class="row" style="align-items:center;gap:90px">
   <img src="wordmark-onecolour.svg" style="width:760px">

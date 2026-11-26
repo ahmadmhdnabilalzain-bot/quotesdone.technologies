@@ -12,9 +12,10 @@ Construction system (font units, cap height H = 1000, y up, baseline 0):
   * one radius: every round is a stadium end or corner of outer radius H/2
   * counters are concentric ellipses, so the curve thins from the stem weight S
     on the sides to the bar weight h at top and bottom (true stress modulation)
-  * ownable move 1, the SILL: the Q has no diagonal tail. Its bottom-right
-    corner is squared off and runs out to the right as a flat foundation bar
-    on the baseline, tucking under the round foot of the U.
+  * ownable move 1, the SILL: the Q has no diagonal tail. A flat bar starts
+    under the counter, cuts through the bowl's bottom-right curve, hangs a
+    little below the baseline and runs on to the right, under the round
+    foot of the U (a foundation sill).
   * ownable move 2, the LINTEL: the T's crossbar continues as one beam into
     the top arm of the E (T and E share a lintel).
 
@@ -40,44 +41,48 @@ H = 1000.0  # cap height in font units (both lines are drawn at this, then scale
 
 # Line 1: QUOTESDONE
 MAIN = dict(
-    S=168.0,  # vertical stem weight
-    h=142.0,  # horizontal bar weight (thinner than S for optical balance)
+    S=190.0,  # vertical stem weight (heavy-medium)
+    h=160.0,  # horizontal bar weight (thinner than S for optical balance)
     os=8.0,  # overshoot of stadium rounds above cap height / below baseline
     sp=150.0,  # base spacing unit: gap contributed by a straight side
     round_side=0.52,  # fraction of sp applied next to a round side
     open_side=0.10,  # fraction of sp applied next to an open side (T arms)
     widths=dict(Q=1500, U=1250, O=1500, T=1180, E=1040, S=1190, D=1320, N=1250),
     s_rx=1.30,  # S bowls: horizontal stretch of their arcs (1 = circular)
-    sill_ext=150.0,  # how far the Q's sill runs past the bowl
+    q_style="sill",
+    q_tail_h=160.0,  # Q tail thickness (= bar weight)
+    q_drop=96.0,  # Q tail drops this far below the bowl (0.6 h)
+    q_tail_in=0.75,  # tail starts this many bowl-radii in from the right edge
+    sill_ext=330.0,  # how far the Q's tail runs past the bowl (under the U)
     lintel=True,  # join T crossbar to E top arm
 )
 
 # Line 2: TECHNOLOGIES (its own, lighter, drawing; tracking is solved in code)
 SUB = dict(
-    S=150.0,
-    h=134.0,
+    S=186.0,
+    h=164.0,
     os=6.0,
     sp=0.0,  # unused: the line is justified
     round_side=0.0,
     open_side=0.0,
-    widths=dict(T=1240, E=1100, C=1560, H=1340, N=1340, O=1600, L=1080, G=1600, I=150, S=1260),
+    widths=dict(T=1440, E=1260, C=1840, H=1560, N=1560, O=1880, L=1240, G=1880, I=196, S=1460),
     s_rx=1.30,
     sill_ext=0.0,
     lintel=False,
 )
 
-SUB_CAP_RATIO = 0.40  # line 2 cap height as a fraction of line 1 cap height
-LINE_GAP_RATIO = 0.36  # gap between lines, fraction of line 1 cap height
+SUB_CAP_RATIO = 0.45  # line 2 cap height as a fraction of line 1 cap height
+LINE_GAP_RATIO = 0.32  # gap between lines, fraction of line 1 cap height
 
 # Kerning, in font units of line 1 (negative = tighter)
 KERN = {
-    ("Q", "U"): -110.0,  # sill tucks under the U's round foot
+    ("Q", "U"): -270.0,  # tail runs ~100 u under the U's round foot
     ("T", "E"): -30.0,
     ("E", "S"): 70.0,
     ("S", "D"): 10.0,
     ("D", "O"): 0.0,
     ("O", "N"): 0.0,
-    ("N", "E"): 0.0,
+    ("N", "E"): -30.0,
     ("U", "O"): 0.0,
     ("O", "T"): 0.0,
 }
@@ -85,8 +90,8 @@ KERN = {
 # Palette
 BASALT = "#1D1C1A"  # warm near-black: primary ink
 LIMESTONE = "#ECE8E0"  # warm stone: paper / ink on dark
-AUBERGINE = "#5A2F4E"  # accent: mark tile, rules, app icon
-AUBERGINE_LIGHT = "#B98AA8"  # accent tint for use on Basalt
+OXBLOOD = "#6E2230"  # accent: mark tile, rules, app icon (never on the letters)
+OXBLOOD_TINT = "#D6A0A6"  # tint of the same hue, only for the mark on Basalt
 STONE_GREY = "#7A746C"  # neutral for captions only
 
 
@@ -173,18 +178,31 @@ def g_O(P):
 
 
 def g_Q(P):
-    """Q with the SILL: bottom-right corner squared and extended as a bar."""
+    """Q with the SILL tail.
+    q_style "sill":   full stadium bowl; a flat bar on the baseline starts
+                      inside the bowl, cuts through the bottom-right curve and
+                      runs out to the right, dropping slightly below the
+                      baseline (q_drop) so it visibly crosses the stroke.
+    q_style "square": (round-1 of this concept) bottom-right corner squared
+                      into a speech-bubble corner; kept for the before/after.
+    """
     W = P["widths"]["Q"]
     S, h, os = P["S"], P["h"], P["os"]
     R = (H + 2 * os) / 2
-    # bowl: the stadium with its bottom-right corner squared (a speech-bubble
-    # corner); the counter keeps its pure elliptical shape
-    outer = rrect(0, -os, W, H + os, R, R, "tl tr bl")
     inner = rrect(S, -os + h, W - S, H + os - h, R - S, R - h)
-    # the sill: the bowl's floor running on past the bowl, flush with baseline
-    sill = rect(W - R, -os, W + P["sill_ext"], -os + h)
-    shape = minus(union(outer, sill), inner)
-    return shape, W + P["sill_ext"], "round", "open"
+    if P.get("q_style", "sill") == "square":
+        outer = rrect(0, -os, W, H + os, R, R, "tl tr bl")
+        sill = rect(W - R, -os, W + P["sill_ext"], -os + h)
+        return minus(union(outer, sill), inner), W + P["sill_ext"], "round", "open"
+    outer = rrect(0, -os, W, H + os, R, R)
+    th = P["q_tail_h"]  # tail thickness
+    drop = P["q_drop"]  # how far the tail sits below the bowl's bottom
+    x_in = W - R * P["q_tail_in"]  # where the tail starts, under the counter
+    tail = rect(x_in, -os - drop, W + P["sill_ext"], -os - drop + th)
+    # a hairline of air between tail and counter floor is never allowed:
+    # the tail top must stay below the counter floor
+    assert -os - drop + th < -os + h, "tail would intrude into the counter"
+    return minus(union(outer, tail), inner), W + P["sill_ext"], "round", "open"
 
 
 def g_U(P):
@@ -266,7 +284,6 @@ def g_S(P):
     top, bot = H + os * 0.5, -os * 0.5
     inset = 0.025 * W  # upper bowl narrower than the lower one
     t_end = W - 0.035 * W  # top terminal
-    b_start = 0.0  # bottom terminal
     # upper bowl (open to the right)
     Ru = (top - (ym - hm / 2)) / 2
     up_o = rrect(inset, ym - hm / 2, t_end, top, Ru * P["s_rx"], Ru, "tl bl")
@@ -274,7 +291,7 @@ def g_S(P):
     upper = minus(up_o, up_i)
     # lower bowl (open to the left)
     Rl = ((ym + hm / 2) - bot) / 2
-    lo_o = rrect(b_start, bot, W, ym + hm / 2, Rl * P["s_rx"], Rl, "tr br")
+    lo_o = rrect(0.0, bot, W, ym + hm / 2, Rl * P["s_rx"], Rl, "tr br")
     lo_i = rrect(-10, bot + h, W - S, ym - hm / 2, Rl * P["s_rx"] - S, (ym - hm / 2 - bot - h) / 2, "tr br")
     lower = minus(lo_o, lo_i)
     # the two bowls overlap along the spine; clip the upper spine where it
@@ -309,10 +326,7 @@ def g_G(P):
     mid = 0.50 * H
     cut = rect(W - R * 0.62, mid + h / 2, W + 20, mid + 0.20 * H + h / 2)
     bar = rect(W * 0.60, mid - h / 2, W - S * 0.5, mid + h / 2)
-    side = rect(W - S, -5, W, mid + h / 2)  # straight right side below the bar
-    body = union(minus(ring, cut), bar)
-    body = union(body, pathops.op(side, rrect(0, -P["os"], W, H + P["os"], R, R), pathops.PathOp.INTERSECTION))
-    return body, W, "round", "round"
+    return union(minus(ring, cut), bar), W, "round", "round"
 
 
 GLYPHS = dict(Q=g_Q, U=g_U, O=g_O, T=g_T, E=g_E, S=g_S, D=g_D, N=g_N, C=g_C, H=g_H, L=g_L, G=g_G, I=g_I)
@@ -473,7 +487,7 @@ def write_all():
     ss = G["sub_scale"]
     sub = moved(G["sub"], dx=G["left_opt"], sy=ss, sx=ss)
     gap = LINE_GAP_RATIO * H
-    sub = moved(sub, dy=mb[1] - gap - H * ss)
+    sub = moved(sub, dy=-MAIN["os"] - gap - H * ss)  # measured from the baseline; the Q tail may hang into it
     sb = bounds(sub)
     xmin, xmax = min(mb[0], sb[0]), max(mb[2], sb[2])
     ymin, ymax = min(mb[1], sb[1]), mb[3]
@@ -489,43 +503,41 @@ def write_all():
         (HERE / fname).write_text(svg_doc(name, title, lw * sx, lh * sx, [("l1", fg, d1), ("l2", fg, d2)], bg))
         files.append(fname)
 
-    # ---- mark (800 x 800) ----
-    mark_shape, mark_fg_note = build_mark()
-    mbx = bounds(mark_shape)
-    msize = 800.0
-    # fit mark so its larger side is 62% of the tile
-    span = max(mbx[2] - mbx[0], mbx[3] - mbx[1])
-    msx = msize * 0.68 / span
-    mtx = (msize - (mbx[2] - mbx[0]) * msx) / 2 - mbx[0] * msx
-    mty = (msize - (mbx[3] - mbx[1]) * msx) / 2 + mbx[3] * msx
-    d_mark = to_d(mark_shape, msx, mtx, mty)
+    # ---- mark (800 x 800) and app icon (1024 x 1024) ----
+    mark_shape = build_mark()
+    d_mark = d_in_tile(mark_shape, 800.0, 0.68)
     (HERE / "mark.svg").write_text(
-        svg_doc("mark", "QUOTESDONE TECHNOLOGIES mark, Limestone on Aubergine", msize, msize,
-                [("glyph", LIMESTONE, d_mark)], AUBERGINE)
+        svg_doc("mark", "QUOTESDONE TECHNOLOGIES mark, Limestone on Oxblood", 800, 800,
+                [("glyph", LIMESTONE, d_mark)], OXBLOOD)
     )
     (HERE / "mark-onecolour.svg").write_text(
-        svg_doc("mark-onecolour", "QUOTESDONE TECHNOLOGIES mark, one colour", msize, msize,
+        svg_doc("mark-onecolour", "QUOTESDONE TECHNOLOGIES mark, one colour", 800, 800,
                 [("glyph", "#000000", d_mark)], None)
     )
-    files += ["mark.svg", "mark-onecolour.svg"]
+    # app icon: glyph box centred exactly, horizontally and vertically; square
+    # artwork (the platform applies its own corner mask)
+    (HERE / "app-icon.svg").write_text(
+        svg_doc("app-icon", "QUOTESDONE TECHNOLOGIES app icon, centred", 1024, 1024,
+                [("glyph", LIMESTONE, d_in_tile(mark_shape, 1024.0, 0.64))], OXBLOOD)
+    )
+    files += ["mark.svg", "mark-onecolour.svg", "app-icon.svg"]
 
     # ---- horizontal lockup: mark + stacked lockup ----
-    # mark sits on the wordmark's cap height and baseline only (secondary role:
-    # it never grows taller than the letters it accompanies)
-    block_h = ymax - ymin
-    mk = moved(mark_shape, dx=-mbx[0], dy=-mbx[1])
-    mk_scale = (mb[3] - mb[1]) / (mbx[3] - mbx[1])
-    mk = moved(mk, sx=mk_scale, sy=mk_scale)
-    mk = moved(mk, dx=xmin, dy=mb[1])
+    # the mark is drawn in the same units as the wordmark, so at scale 1 its
+    # bowl sits exactly on the wordmark's cap height and baseline and its tail
+    # descends like the Q's: it never grows taller than the letters.
+    mbx = bounds(mark_shape)
+    mk = moved(mark_shape, dx=xmin - mbx[0])
     mkb = bounds(mk)
     shift = (mkb[2] - mkb[0]) + 0.75 * H  # gap between mark and type
     m1, m2 = moved(main, dx=shift), moved(sub, dx=shift)
     hx0, hx1 = mkb[0], xmax + shift
-    hw, hh = (hx1 - hx0) + 2 * pad, block_h + 2 * pad
+    hymin = min(ymin, mkb[1])
+    hw, hh = (hx1 - hx0) + 2 * pad, (ymax - hymin) + 2 * pad
     tx, ty = (pad - hx0) * sx, (pad + ymax) * sx
     for fname, title, fg, acc, bg in [
-        ("lockup-horizontal-light.svg", "QUOTESDONE TECHNOLOGIES horizontal lockup, light", BASALT, AUBERGINE, LIMESTONE),
-        ("lockup-horizontal-dark.svg", "QUOTESDONE TECHNOLOGIES horizontal lockup, dark", LIMESTONE, AUBERGINE_LIGHT, BASALT),
+        ("lockup-horizontal-light.svg", "QUOTESDONE TECHNOLOGIES horizontal lockup, light", BASALT, OXBLOOD, LIMESTONE),
+        ("lockup-horizontal-dark.svg", "QUOTESDONE TECHNOLOGIES horizontal lockup, dark", LIMESTONE, OXBLOOD_TINT, BASALT),
         ("lockup-horizontal-onecolour.svg", "QUOTESDONE TECHNOLOGIES horizontal lockup, one colour", "#000000", "#000000", None),
     ]:
         name = fname[:-4]
@@ -536,29 +548,47 @@ def write_all():
     n = 0
     for f in files:
         n += verify_svg(HERE / f)
-    print(f"wrote + verified {len(files)} SVGs ({n} ids), line-2 gap {G['sub_gap']:.0f} u")
+    print(f"wrote + verified {len(files)} SVGs ({n} ids), line-2 tracking {G['sub_gap']:.0f} u")
     return files, G
 
 
-def build_mark():
-    """The mark is the Q alone, drawn with the wordmark's own geometry,
-    narrowed to a near-square bowl so it sits in a tile; the sill stays."""
+def d_in_tile(shape, size, frac):
+    """Path data for shape centred (bounding box) in a size x size tile,
+    its larger side spanning frac of the tile."""
+    bx = bounds(shape)
+    k = size * frac / max(bx[2] - bx[0], bx[3] - bx[1])
+    tx = (size - (bx[2] - bx[0]) * k) / 2 - bx[0] * k
+    ty = (size - (bx[3] - bx[1]) * k) / 2 + bx[3] * k
+    return to_d(shape, k, tx, ty)
+
+
+MARK = dict(
+    Q=1380,  # bowl narrower than the wordmark Q so the mark sits in a square
+    S=230.0,  # heavier than the wordmark: the mark mostly lives small
+    h=200.0,
+    q_tail_h=200.0,
+    q_drop=120.0,  # 0.6 h, the same proportion as the wordmark Q
+    q_tail_in=0.75,
+    sill_ext=210.0,
+)
+
+
+def build_mark(style="sill"):
+    """The mark is the wordmark's Q, alone and a little heavier.
+    style "square" rebuilds the earlier speech-bubble version (before/after)."""
     P = dict(MAIN)
-    P["widths"] = dict(MAIN["widths"], Q=1380)
-    P["sill_ext"] = 170.0
-    P["S"], P["h"] = 220.0, 196.0  # heavier than the wordmark: it lives small
+    P.update({k: v for k, v in MARK.items() if k != "Q"})
+    P["widths"] = dict(MAIN["widths"], Q=MARK["Q"])
+    P["q_style"] = style
+    if style == "square":
+        P["sill_ext"] = 170.0
     shape, *_ = g_Q(P)
-    return shape, "Q"
+    return shape
 
 
 # --------------------------------------------------------------------------
 # Preview
 # --------------------------------------------------------------------------
-def svg_inline(fname):
-    s = (HERE / fname).read_text()
-    return s
-
-
 def render_preview():
     import base64
 
@@ -568,16 +598,32 @@ def render_preview():
         return "data:image/svg+xml;base64," + base64.b64encode(t.encode()).decode()
 
     def uri(f):
-        return "data:image/svg+xml;base64," + base64.b64encode((HERE / f).read_bytes()).decode()
+        return uri_text((HERE / f).read_text())
+
+    def recolour(f, fg):  # transparent one-colour file in another ink (preview only)
+        return uri_text((HERE / f).read_text().replace("#000000", fg))
+
+    before = uri_text(svg_doc("before", "mark before", 800, 800,
+                              [("g", LIMESTONE, d_in_tile(build_mark("square"), 800, 0.68))], OXBLOOD))
+    after = uri("mark.svg")
+
+    def mark_row(label, src):
+        return f"""<div class="row" style="margin-bottom:28px"><div style="width:90px" class="cap">{label}</div>
+          <img src="{src}" style="width:256px;height:256px">
+          <img src="{src}" style="width:32px;height:32px">
+          <img src="{src}" style="width:16px;height:16px">
+          <canvas data-src="{src}" width="16" height="16" class="px" style="width:96px;height:96px"></canvas>
+          <canvas data-src="{src}" width="32" height="32" class="px" style="width:96px;height:96px"></canvas>
+          <div class="cap" style="margin:0">256 / 32 / 16 px, then 16 and 32 px enlarged</div></div>"""
 
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>
     body{{margin:0;background:#D9D4CB;font:14px/1.4 -apple-system,system-ui,sans-serif;color:{BASALT}}}
     .p{{padding:40px 56px}} .l{{background:{LIMESTONE}}} .d{{background:{BASALT}}}
     img{{display:block}} .cap{{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:{STONE_GREY};margin:0 0 14px}}
-    .row{{display:flex;gap:40px;align-items:flex-end}}
-    .sign{{background:linear-gradient(#2a2826,#151413);padding:70px 60px;position:relative}}
-    .sign:before{{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 2px,transparent 2px 120px)}}
-    .letter{{background:#fff;width:560px;height:300px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.15)}}
+    .row{{display:flex;gap:36px;align-items:flex-end}}
+    .sign{{background:linear-gradient(#2a2826,#121110);padding:80px 60px;position:relative}}
+    .sign:before{{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 120px),repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 60px)}}
+    .letter{{background:#fff;width:620px;height:320px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.15)}}
     .tile{{width:180px;height:180px;border-radius:40px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25)}}
     .tile img{{width:180px;height:180px}}
     .px{{image-rendering:pixelated}}
@@ -586,43 +632,42 @@ def render_preview():
     <div class="p d"><p class="cap">Wordmark, dark</p><img src="{uri('wordmark-dark.svg')}" style="width:1480px"></div>
     <div class="p l"><div class="row">
       <div><p class="cap">Stacked lockup, light</p><img src="{uri('lockup-stacked-light.svg')}" style="width:700px"></div>
-      <div><p class="cap">One colour</p><img src="{uri('lockup-stacked-onecolour.svg')}" style="width:700px"></div>
+      <div><p class="cap">Stacked lockup, one colour</p><img src="{uri('lockup-stacked-onecolour.svg')}" style="width:700px"></div>
     </div></div>
     <div class="p d"><p class="cap">Horizontal lockup with mark, dark</p><img src="{uri('lockup-horizontal-dark.svg')}" style="width:1100px"></div>
     <div class="p l"><p class="cap">Horizontal lockup with mark, light</p><img src="{uri('lockup-horizontal-light.svg')}" style="width:1100px"></div>
-    <div class="p l"><p class="cap">Mark at 512 / 32 / 16 px (and 16 px enlarged x6)</p><div class="row">
-      <img src="{uri('mark.svg')}" style="width:512px;height:512px">
-      <img src="{uri('mark.svg')}" style="width:32px;height:32px">
-      <img src="{uri('mark.svg')}" style="width:16px;height:16px">
-      <canvas id="c16" width="16" height="16" class="px" style="width:96px;height:96px"></canvas>
-      <canvas id="c32" width="32" height="32" class="px" style="width:96px;height:96px"></canvas>
-    </div></div>
-    <div class="sign"><p class="cap" style="color:#8d867c;position:relative">Signage line, tower crown (dark, lit)</p>
-      <img src="{uri('wordmark-dark.svg')}" style="width:1480px;position:relative;filter:drop-shadow(0 0 6px rgba(236,232,224,.35))"></div>
+    <div class="p l" style="border-top:1px solid #d6d0c6"><p class="cap">Mark fix, before and after</p>
+      {mark_row("Before", before)}
+      {mark_row("After", after)}
+    </div>
+    <div class="sign"><p class="cap" style="color:#8d867c;position:relative">Signage line, tower crown (dark, lit letters)</p>
+      <img src="{recolour('wordmark-onecolour.svg', LIMESTONE)}" style="width:1480px;position:relative;filter:drop-shadow(0 0 10px rgba(255,246,230,.45))"></div>
     <div class="p" style="background:#CFC9BF"><div class="row">
       <div><p class="cap">Letterhead corner</p><div class="letter">
-        <img src="{uri_text((HERE / 'lockup-stacked-onecolour.svg').read_text().replace('#000000', BASALT))}" style="position:absolute;left:44px;top:44px;width:250px;mix-blend-mode:multiply">
-        <div style="position:absolute;left:44px;top:120px;width:472px;height:1px;background:{AUBERGINE}"></div>
-        <div style="position:absolute;left:44px;top:134px;font-size:10px;letter-spacing:.06em;color:{STONE_GREY}">DUBAI, UNITED ARAB EMIRATES</div>
+        <img src="{recolour('lockup-stacked-onecolour.svg', BASALT)}" style="position:absolute;left:30px;top:26px;width:330px">
+        <div style="position:absolute;left:52px;top:136px;width:516px;height:1px;background:{OXBLOOD}"></div>
+        <div style="position:absolute;left:52px;top:150px;font-size:10px;letter-spacing:.06em;color:{STONE_GREY}">DUBAI, UNITED ARAB EMIRATES</div>
       </div></div>
-      <div><p class="cap">App icon tile</p><div class="tile"><img src="{uri('mark.svg')}"></div></div>
-      <div><p class="cap">App icon on dark</p><div class="tile" style="background:{BASALT}"><img src="{uri('mark.svg')}"></div></div>
+      <div><p class="cap">App icon (centred)</p><div class="tile"><img src="{uri('app-icon.svg')}"></div></div>
+      <div><p class="cap">Mark, one colour</p><div class="tile" style="background:{LIMESTONE}"><img src="{recolour('mark-onecolour.svg', BASALT)}"></div></div>
     </div></div>
     <script>
-    for (const n of [16,32]) {{ const c=document.getElementById('c'+n).getContext('2d'); const i=new Image();
-      i.onload=()=>c.drawImage(i,0,0,n,n); i.src="{uri('mark.svg')}"; }}
+    document.querySelectorAll('canvas[data-src]').forEach(c => {{ const i = new Image();
+      i.onload = () => c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); i.src = c.dataset.src; }});
     </script>
     </body></html>"""
     out_html = HERE / "_preview.html"
     out_html.write_text(html)
-    with sync_playwright() as p:
-        b = launch(p)
-        pg = b.new_page(viewport={"width": 1600, "height": 900}, device_scale_factor=1)
-        pg.goto(out_html.as_uri())
-        pg.wait_for_timeout(500)
-        pg.screenshot(path=str(HERE / "preview.png"), full_page=True)
-        b.close()
-    out_html.unlink()
+    try:
+        with sync_playwright() as p:
+            b = launch(p)
+            pg = b.new_page(viewport={"width": 1600, "height": 900}, device_scale_factor=1)
+            pg.goto(out_html.as_uri())
+            pg.wait_for_timeout(600)
+            pg.screenshot(path=str(HERE / "preview.png"), full_page=True)
+            b.close()
+    finally:
+        out_html.unlink()
     print("wrote preview.png")
 
 
