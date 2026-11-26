@@ -10,7 +10,7 @@
 | `wordmark-light.svg` / `wordmark-dark.svg` / `wordmark-onecolour.svg` | Primary two-line wordmark in Carbon (for light grounds), Alloy (for dark grounds) and pure black. The backgrounds are transparent. |
 | `wordmark-compact.svg` | Small-size cut with the joints closed. Use it below 480 px wide on screen or 120 mm in print. |
 | `wordmark-line1-light.svg` / `-dark.svg` | QUOTESDONE on its own, for fascia signage and tight spaces. |
-| `lockup-horizontal.svg` / `lockup-horizontal-dark.svg` | Q tile + wordmark. The tile matches the height of the two-line block. |
+| `lockup-horizontal.svg` / `lockup-horizontal-dark.svg` | Q tile + wordmark. The tile is the height of line 1 (QUOTESDONE). |
 | `lockup-stacked.svg` | Q centred above the wordmark. |
 | `mark.svg` (800×800), `mark-small.svg`, `mark-dark.svg`, `mark-onecolour-carbon.svg` | Companion mark: the wordmark's Q, re-weighted for its secondary role. `mark-small` closes the joint for 32 px and below. |
 | `strokes.json` | 43 strokes ready for animation (see below). |
@@ -36,8 +36,8 @@
 - **Mid height:** the E arm and S spine sit at 52, just above centre. The S's lower bowl is therefore larger than its upper bowl.
 - **Assembly rule:** beams run through and stems drop in between them (T, E, D, L); in N and H the stems run full height and the brace or bar drops in. U, O and S are drawn as one continuous stroke each. The Q is one motion: the bowl sweeps about 315 degrees and leaves along the baseline as its tail.
 - **Ligatures:** `TE.beam_shared` (T bar plus E top arm) and `ES.base_and_S` (E base arm runs straight into the S). They sit at the centre of the word, QUO-**TES**-DONE, and act as its keystone.
-- **Spacing:** each glyph has its own side bearings (straight side 9–10, round side 5, open side 2–3), plus +6 tracking and a short kerning table (`KERN`). It was set letter by letter on renders 2000 to 6000 px wide.
-- **Line 2:** TECHNOLOGIES is drawn in the same system with C, H, L, G and I added. Its cap height is 29% of line 1, with joints closed and slightly bolder relative weights for its size. It is tracked to the optical width of line 1, starting 1.4 units inside the Q's overshoot so the round hangs out past the T. Tracking is calculated, not chosen by eye.
+- **Spacing:** each glyph has its own side bearings (straight side 9–10, round side 5, open side 2–3), plus +6 tracking and a short kerning table (`KERN`). Line-1 pairs (Q-U, O-T, S-D, N-E) and the T-E and E-S distances inside the ligature were adjusted over two visual passes on full-line renders at 1900–2000 px. It has not had a finished foundry-grade spacing pass.
+- **Line 2:** TECHNOLOGIES is drawn in the same system with C, H, L, G and I added. Its cap height is 36% of line 1, with joints closed and slightly bolder relative weights for its size. It is tracked to the optical width of line 1, starting 1.4 units inside the Q's overshoot so the round hangs out past the T. Tracking is calculated, not chosen by eye.
 - **Parameters** live in `Params` (`H, wv, wh, wd, gap, over, mid, track, q_tail`) together with the presets `MASTER`, `COMPACT`, `LINE2`, `MARK` and `MARK_SMALL`.
 
 ## strokes.json (for the website)

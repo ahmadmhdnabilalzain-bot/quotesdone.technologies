@@ -271,6 +271,7 @@ class Stroke:
     center: list[tuple]          # centre-line commands (design space)
     width: float                 # nominal weight
     butt: bool = True            # outline == centre-line stroked with butt caps?
+    modulated: bool = False      # weight varies along the stroke (wh on beams, wv on sides)
     note: str = ""
 
 
@@ -299,7 +300,7 @@ def line_stroke(name, role, a: Pt, b: Pt, w: float) -> Stroke:
 
 
 def pen_stroke(name, role, pen: Pen, closed=False, w=None) -> Stroke:
-    return Stroke(name, role, pen.outline(closed), pen.centerline(), w or pen.p.wv)
+    return Stroke(name, role, pen.outline(closed), pen.centerline(), w or pen.p.wv, modulated=True)
 
 
 def ring_radius(p: Params) -> float:
@@ -323,6 +324,12 @@ def glyph_Q(p: Params) -> Glyph:
     R = r + p.wv / 2
     cx, cy = R, p.H / 2
     yb = cy - r                          # tail centre-line height
+    if p.gap <= 0:
+        # fused (small-size) cut: closed ring + tail bar overlapping its bottom
+        ring = pen_stroke("Q.ring", "ring", Pen(p, (cx + r, cy)).arc((cx, cy), 360), closed=True)
+        tip = cx + R + p.q_tail
+        tail = line_stroke("Q.tail", "tail", (cx, yb), (tip, yb), p.wh)
+        return Glyph("Q", tip, 5.0, 2.0, [ring, tail], "Q")
     tail_top = yb + p.wh / 2
     yc = tail_top + j(p) + p.q_slot_open  # horizontal cut of the bowl's free end
 
@@ -350,7 +357,7 @@ def glyph_Q(p: Params) -> Glyph:
     start = (cx + r * math.cos(math.radians(a_c)), cy + r * math.sin(math.radians(a_c)))
     center = [("M", start), ("A", r, 1, True, (cx - r, cy)), ("A", r, 0, True, (cx, yb)),
               ("L", (tip, yb))]
-    s = Stroke("Q.bowl_tail", "bowl+tail", [c], center, p.wv, butt=False,
+    s = Stroke("Q.bowl_tail", "bowl+tail", [c], center, p.wv, butt=False, modulated=True,
                note="free end of the bowl is cut horizontally (parallel to the tail); "
                     "reveal with a mask, or stroke the centre line and clip to outline")
     return Glyph("Q", tip, 5.0, 2.0, [s], "Q")
@@ -419,7 +426,7 @@ def glyph_S(p: Params, W=82.0) -> Glyph:
 
 
 # --- TES ligature: T and E share the top beam, E and S share the base beam -
-def glyph_TES(p: Params, Wt=88.0, We=74.0, Ws=78.0, te=7.0, es=14.0) -> Glyph:
+def glyph_TES(p: Params, Wt=88.0, We=74.0, Ws=78.0, te=3.0, es=14.0) -> Glyph:
     """te: clear space from T beam's natural end to E stem; es: E arms to S."""
     xE = Wt + te
     xS = xE + We + es
@@ -544,10 +551,11 @@ def glyph_I(p: Params) -> Glyph:
 # LAYOUT
 # --------------------------------------------------------------------------
 
-# Pair kerning (units, added to side-bearings). Tuned by eye at 3000 px.
+# Pair kerning (units, added to side-bearings). Line 1 pairs adjusted over two
+# visual passes (full-line render at 1900-2000 px); line-2 pairs are placeholders.
 KERN = {
-    ("Q", "U"): 1.0, ("U", "O"): -1.0, ("O", "TES"): -3.0, ("TES", "D"): 2.0,
-    ("D", "O"): -1.0, ("O", "N"): 0.0, ("N", "E"): 0.0,
+    ("Q", "U"): -2.0, ("U", "O"): -1.0, ("O", "TES"): -1.0, ("TES", "D"): -3.0,
+    ("D", "O"): -1.0, ("O", "N"): 0.0, ("N", "E"): -3.0,
     # line 2
     ("T", "E"): 0.0, ("E", "C"): 0.0, ("O", "L"): 0.0, ("L", "O"): -4.0,
     ("O", "G"): 0.0, ("G", "I"): 0.0, ("I", "E"): 0.0, ("E", "S"): 0.0,
@@ -675,6 +683,7 @@ def group_svg(placed: list[Placed], xf: Xf, fill: str, gid: str, records=None, l
                     "outline": d,
                     "bbox": [round(x0, 2), round(y0, 2), round(x1 - x0, 2), round(y1 - y0, 2)],
                     "butt_reproducible": s.butt,
+                    "modulated": s.modulated,
                     **({"note": s.note} if s.note else {}),
                 })
         out.append("</g>")
@@ -682,8 +691,13 @@ def group_svg(placed: list[Placed], xf: Xf, fill: str, gid: str, records=None, l
     return "\n".join(out)
 
 
+def tile_path(pid, x, y, w, h, fill) -> str:
+    return (f'<path id="{pid}" fill="{fill}" d="M{fmt(x)} {fmt(y)}H{fmt(x + w)}V{fmt(y + h)}'
+            f'H{fmt(x)}Z"/>')
+
+
 def svg_doc(w: float, h: float, title: str, desc: str, body: str, bg: str | None = None, pid="") -> str:
-    bgr = f'<rect id="{pid}-bg" width="{fmt(w)}" height="{fmt(h)}" fill="{bg}"/>' if bg else ""
+    bgr = tile_path(f"{pid}-bg", 0, 0, w, h, bg) if bg else ""
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {fmt(w)} {fmt(h)}" '
             f'width="{fmt(w)}" height="{fmt(h)}" role="img" aria-labelledby="{pid}-title">\n'
             f'<title id="{pid}-title">{title}</title>\n<desc id="{pid}-desc">{desc}</desc>\n'
@@ -694,7 +708,7 @@ def svg_doc(w: float, h: float, title: str, desc: str, body: str, bg: str | None
 
 SCALE = 4.0          # SVG px per design unit for wordmark files
 LINE_GAP = 30.0      # space between line 1 baseline area and line 2 cap line (units)
-L2_CAP = 29.0        # line-2 cap height in line-1 units
+L2_CAP = 36.0        # line-2 cap height in line-1 units
 OPTICAL_IN = 1.4     # line 2 starts this far inside the Q's round edge (units)
 
 
@@ -733,7 +747,7 @@ def line1_only_body(p1, fill, pid, ox, oy, s):
     return group_svg(L1, xf, fill, f"{pid}-l1"), s * (x1 - x0), s * (y1 - y0)
 
 
-def mark_body(p: Params, fill: str, pid: str, size: float, pad_frac=0.17):
+def mark_body(p: Params, fill: str, pid: str, size: float, pad_frac=0.17, at=(0.0, 0.0)):
     g = glyph_Q(p)
     pl = [Placed(g, 0.0)]
     x0, y0, x1, y1 = ink_box(pl)
@@ -744,7 +758,7 @@ def mark_body(p: Params, fill: str, pid: str, size: float, pad_frac=0.17):
     ink_w = (x1 - x0) * s
     ox = (size - ink_w) / 2 - s * x0 + s * 0.5 * ((x1 - x0) - bowl_w) * 0.35
     oy = (size - (y1 - y0) * s) / 2 + s * y1
-    return group_svg(pl, Xf(ox, oy, s), fill, f"{pid}-q")
+    return group_svg(pl, Xf(ox + at[0], oy + at[1], s), fill, f"{pid}-q")
 
 
 # --------------------------------------------------------------------------
@@ -790,32 +804,24 @@ def build_all():
                                    "Alloy Q on Carbon tile.",
                                    mark_body(MARK, ALLOY, "md", 800), CARBON, "md"))
 
-    # horizontal lockup: Carbon tile with the Q (reversed) | two-line wordmark.
-    # The tile is the full height of the wordmark block; the gap is half a tile.
+    # horizontal lockup: Q tile at the height of line 1 | two-line wordmark
     s = SCALE
-    m_s = wm_h
-    gap = m_s * 0.42
-    tile = (f'<rect id="hl-tile" x="{fmt(pad)}" y="{fmt(pad)}" width="{fmt(m_s)}" '
-            f'height="{fmt(m_s)}" fill="{CARBON}"/>')
-    mk = mark_body(MARK, ALLOY, "hl-m", m_s, pad_frac=0.2)
-    mk = f'<g id="hl-mark" transform="translate({fmt(pad)} {fmt(pad)})">{tile.replace(fmt(pad), "0", 2)}{mk}</g>'
-    body, w, h = wordmark_body(MASTER, CARBON, "hl", pad + m_s + gap, pad, s)
-    write("lockup-horizontal.svg", svg_doc(pad + m_s + gap + w + pad, h + 2 * pad,
-                                           "QUOTESDONE TECHNOLOGIES horizontal lockup", DESC,
-                                           mk + body, None, "hl"))
-    body, w, h = wordmark_body(MASTER, ALLOY, "hd", pad + m_s + gap, pad, s)
-    tile_d = tile.replace(CARBON, ALLOY).replace('hl-tile', 'hd-tile').replace(fmt(pad), "0", 2)
-    mkd = mark_body(MARK, CARBON, "hd-m", m_s, pad_frac=0.2)
-    mkd = f'<g id="hd-mark" transform="translate({fmt(pad)} {fmt(pad)})">{tile_d}{mkd}</g>'
-    write("lockup-horizontal-dark.svg", svg_doc(pad + m_s + gap + w + pad, h + 2 * pad,
-                                                "QUOTESDONE TECHNOLOGIES horizontal lockup (reversed)", DESC,
-                                                mkd + body, None, "hd"))
+    m_s = s * 103.2                      # line-1 ink height (cap + overshoots)
+    gap = m_s * 0.36
+    for fname, ink, ground, pid, ttl in (
+            ("lockup-horizontal.svg", CARBON, ALLOY, "hl", ""),
+            ("lockup-horizontal-dark.svg", ALLOY, CARBON, "hd", " (reversed)")):
+        tile = tile_path(f"{pid}-tile", pad, pad, m_s, m_s, ink)
+        mk = mark_body(MARK, ground, f"{pid}-m", m_s, pad_frac=0.2, at=(pad, pad))
+        body, w, h = wordmark_body(MASTER, ink, pid, pad + m_s + gap, pad, s)
+        write(fname, svg_doc(pad + m_s + gap + w + pad, h + 2 * pad,
+                             "QUOTESDONE TECHNOLOGIES horizontal lockup" + ttl, DESC,
+                             tile + mk + body, None, pid))
 
     # stacked lockup: mark centred above wordmark
     m_s2 = s * 150.0
     body, w, h = wordmark_body(MASTER, CARBON, "st", pad, pad + m_s2 + s * 46.0, s)
-    mk2 = mark_body(MARK, CARBON, "st-m", m_s2, pad_frac=0.0)
-    mk2 = f'<g id="st-mark" transform="translate({fmt(pad + (w - m_s2) / 2)} {fmt(pad)})">{mk2}</g>'
+    mk2 = mark_body(MARK, CARBON, "st-m", m_s2, pad_frac=0.0, at=(pad + (w - m_s2) / 2, pad))
     write("lockup-stacked.svg", svg_doc(w + 2 * pad, h + m_s2 + s * 46.0 + 2 * pad,
                                         "QUOTESDONE TECHNOLOGIES stacked lockup", DESC, mk2 + body, None, "st"))
 
@@ -843,8 +849,9 @@ def build_all():
                         "(translate in from its joint, then settle). Joints are 2.4 units (9.6 px).",
             "extrude_3d": "each 'outline' is a single closed shape (rings have outer+inner subpaths) "
                           "suitable for THREE.ExtrudeGeometry / SVGLoader.",
-            "weights_vary": "rounds are modulated (thinner at top/bottom); the stroked centre line "
-                            "uses the nominal weight, so finish the reveal by swapping to the outline.",
+            "weights_vary": "strokes with modulated=true change weight along their length (beams wh, "
+                            "sides wv); a stroked centre line uses one nominal weight, so finish the "
+                            "reveal by swapping to the outline.",
         },
         "strokes": records,
     }
@@ -855,6 +862,7 @@ def build_all():
 # VALIDATION
 # --------------------------------------------------------------------------
 
+ALLOWED = {"svg", "title", "desc", "g", "path"}
 FORBIDDEN = {"text", "tspan", "font", "font-face", "style", "image", "use", "foreignObject", "script"}
 
 
@@ -864,7 +872,9 @@ def validate():
         raw = f.read_text(encoding="utf-8")
         root = ET.fromstring(raw)          # raises on malformed XML
         tags = {el.tag.split("}")[-1] for el in root.iter()}
-        bad = tags & FORBIDDEN
+        bad = (tags - ALLOWED) | (tags & FORBIDDEN)
+        if "transform" in raw:
+            bad.add("transform attribute")
         ids = [el.get("id") for el in root.iter() if el.get("id")]
         dup = {i for i in ids if ids.count(i) > 1}
         refs = re.findall(r'(?:href|url\()', raw)
@@ -922,7 +932,7 @@ body{width:1800px;background:#D9D7D1;font-family:'Inter',sans-serif;color:%(carb
    <div class="tiny"><img src="wordmark-compact.svg" style="width:240px"><img src="wordmark-compact.svg" style="width:160px"><img src="wordmark-compact.svg" style="width:110px"></div>
    <div class="cap">Compact cut (joints closed) at 240 / 160 / 110 px wide</div>
    <div class="tiny" style="margin-top:28px"><img src="wordmark-light.svg" style="width:240px"><img src="wordmark-light.svg" style="width:160px"></div>
-   <div class="cap">Master cut at 240 / 160 px: joints start to fill, use compact below ~320 px</div>
+   <div class="cap">Master cut at 240 / 160 px: joints start to fill, use compact below ~480 px</div>
   </div>
  </div>
 </div>
@@ -933,9 +943,9 @@ body{width:1800px;background:#D9D7D1;font-family:'Inter',sans-serif;color:%(carb
   <div><img src="mark-small.svg" style="width:32px"> <img src="mark-small.svg" style="width:16px"><div class="cap">small cut</div></div>
   <div style="background:%(carbon)s;padding:16px"><img src="mark-dark.svg" style="width:32px"> <img src="mark-dark.svg" style="width:16px"></div>
   <div class="tile" style="background:%(carbon)s"><img src="mark-dark.svg" style="width:220px;border-radius:48px"></div>
-  <div class="tile" style="background:%(rhod)s"><img src="mark-onecolour-carbon.svg" style="width:220px"></div>
+  <div><div class="tile" style="background:%(rhod)s"><img src="mark-onecolour-carbon.svg" style="width:220px"></div>
+  <div class="cap">App-icon tiles: Carbon / Rhodamine accent</div></div>
  </div>
- <div class="cap">App-icon tiles: Carbon / Rhodamine accent</div>
 </div>
 <div class="sec" style="padding:0"><span class="lab" style="color:#fff;z-index:2">Signage line mock</span>
  <div class="sign"><div class="band"><img src="wordmark-line1-dark.svg" style="height:62px"></div></div>
@@ -945,7 +955,7 @@ body{width:1800px;background:#D9D7D1;font-family:'Inter',sans-serif;color:%(carb
   <div class="addr">QUOTESDONE TECHNOLOGIES L.L.C.<br>Dubai, United Arab Emirates<br>quotesdone.technologies</div>
   <div class="body">Dear partner,<br><br>Placeholder letter copy to judge the lockup at its real size on A4: the wordmark here is about 300 px wide, the size it would print at the top-left of a letterhead.</div>
  </div>
- <div class="paper" style="width:600px"><img src="lockup-stacked.svg" style="width:170px"></div>
+ <div class="paper" style="width:600px"><img src="lockup-stacked.svg" style="width:250px"></div>
 </div>
 </body></html>
 """
