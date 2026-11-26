@@ -15,3 +15,4 @@ Status: `standing` (always applies) | `open` | `done`.
 | 8 | 2026-11-26 | Rule 6: always use more than one agent in parallel when possible. | standing | session-rules rule 6 |
 | 9 | 2026-11-26 | Save these rules as a skill and apply always (must persist through context compression). | done | skill + CLAUDE.md imports |
 | 10 | 2026-11-26 | Rules skill must be available on every project (global install). | done | `~/.claude/skills/session-rules` (this container, ephemeral) + copy in `global/` with install steps |
+| 11 | 2026-11-26 | Read (read-only) the descriptions of repos quotesdone / ERP / DJ AI / HR and say what each is. | done | Mapped to `quotesdone`, `ERP`, `djai-engine`, `HR-Payroll`; summary in HANDOVER |

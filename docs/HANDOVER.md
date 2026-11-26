@@ -6,6 +6,14 @@ Resume point for any account/session. Update at every milestone; newest checkpoi
 1. Read `.claude/skills/session-rules/SKILL.md` (standing rules), this file, `docs/LEDGER.md`.
 2. Work on branch `claude/sleepy-newton-64snxe`; push there only.
 
+## Owner's repo map (read-only survey, 2026-11-26)
+All under github user `ahmadmhdnabilalzain-bot`.
+- `quotesdone` (public): UAE B2B anonymous quotation marketplace; Next.js 16 + Supabase (79 edge functions), Stripe, 3% reveal fee, pre-launch, AI "seats" run the company.
+- `ERP` (private): "Manar One" ERP/CRM for UAE scaffolding sales & manufacturing groups; Next.js + Prisma/Postgres; modules sales, stock, production, finance, HR/payroll.
+- `djai-engine` (private): "Sonobolt" (code name DJAI) Python engine turning recordings into beat-aligned DJ mixes; FFmpeg, web app via uvicorn.
+- `HR-Payroll` (public): HR & payroll product for UAE SMEs; pnpm TypeScript monorepo (engine, WPS SIF, API, contract); web UI paused pending owner's design pick. No README; HANDOVER.md/LEDGER.md instead.
+- `quotesdone.technologies` (this repo): currently only the session-rules scaffolding; purpose not yet defined.
+
 ## Checkpoint 1 — 2026-11-26
 **Done**
 - Repo was empty. Added standing rules skill, `CLAUDE.md` (imports rules/handover/ledger so they reload after compaction), `docs/LEDGER.md`, this handover.
