@@ -33,10 +33,14 @@ export function trackSlots(slots: TrackedSlot[]): SlotTracker {
         start: slot.section.dataset.sceneStart ?? 'top top',
         end: slot.section.dataset.sceneEnd ?? 'bottom top',
       }),
-      // The SECTION (not the stage) drives visibility: a sticky stage keeps its natural top while it is pinned,
-      // so a trigger on it would report the scene off-screen after about one viewport and free it mid-scroll.
-      // A section spans the whole pinned range, so its bounds are the true on-screen window of its stage.
-      visibility: ScrollTrigger.create({ trigger: slot.section, start: 'top bottom', end: 'bottom top' }),
+      // A sticky stage keeps its natural top while pinned, so a trigger on it would report the scene off-screen
+      // after about one viewport and free it mid-scroll. For sticky stages the SECTION (which spans the whole
+      // pinned range) is the true on-screen window; in-flow stages are measured directly.
+      visibility: ScrollTrigger.create({
+        trigger: getComputedStyle(slot.stage).position === 'sticky' ? slot.section : slot.stage,
+        start: 'top bottom',
+        end: 'bottom top',
+      }),
     });
   }
 
