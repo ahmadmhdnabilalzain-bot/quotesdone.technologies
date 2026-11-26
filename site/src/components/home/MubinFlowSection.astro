@@ -68,9 +68,10 @@ import p from '../../content/en/products/mubinflow.json';
     }
   }
 
-  /* SceneSlot is another component, so its root and stage are reached with :global (scoped to the slot class). */
+  /* SceneSlot is another component: reach its stage with :global, one attribute more specific than
+     its own scoped .scene-stage rule so the CSS order of the bundle cannot flip the aspect ratio. */
   /* The stage: 16:9, capped so it renders at full DPR on the 'high' tier. */
-  :global(.mubinflow-slot .scene-stage) {
+  :global(.mubinflow-slot .scene-stage[data-scene-stage]) {
     aspect-ratio: 16 / 9;
     inline-size: min(100%, 73rem);
     margin-inline: auto;

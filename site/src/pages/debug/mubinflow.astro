@@ -59,7 +59,7 @@ import SceneSlot from '../../components/SceneSlot.astro';
   }
   .harness__scrub input { inline-size: min(40rem, 70vw); }
   /* Same stage box as the home section (MubinFlowSection.astro): 16:9, capped for full DPR 2. */
-  :global(.harness__slot .scene-stage) {
+  :global(.harness__slot .scene-stage[data-scene-stage]) {
     aspect-ratio: 16 / 9;
     inline-size: min(100%, 73rem);
     margin-inline: auto;
