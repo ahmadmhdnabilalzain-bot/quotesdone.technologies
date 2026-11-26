@@ -8,7 +8,7 @@
  *   0.33-0.52  gaps close and the seams fuse; the weld light peaks at 0.52, cools to 0 by 0.61
  *   0.54-0.93  the one ribbon winds into a flat coil (ease "travel"); the grid fades by 0.66
  *   0.86-1.00  the Mix slot's status light comes fully on
- * Camera: one continuous Catmull-Rom move over five keys, from a low look up the rail to a
+ * Camera: one continuous Catmull-Rom move over six keys, from a low look up the rail to a
  * high look down on the coil and the three product slots.
  */
 import type { SonoboltParams } from './params.ts';
@@ -45,11 +45,12 @@ export interface CameraKey {
  * the +z side. Tuned by eye on /debug/sonobolt screenshots.
  */
 export const CAMERA_KEYS: readonly CameraKey[] = [
-  { p: 0.0, pos: [-6.6, 1.05, 3.9], target: [-12.2, 0.18, -0.2] },
-  { p: 0.3, pos: [-2.4, 1.35, 4.1], target: [-6.2, 0.2, 0.0] },
-  { p: 0.52, pos: [0.2, 2.0, 4.7], target: [-2.2, 0.2, 0.55] },
-  { p: 0.76, pos: [0.9, 3.7, 5.6], target: [-0.1, 0.1, 1.2] },
-  { p: 1.0, pos: [2.1, 6.0, 6.5], target: [1.55, 0.0, 1.5] },
+  { p: 0.0, pos: [-8.0, 1.15, 1.25], target: [-12.5, 0.15, -0.15] },
+  { p: 0.3, pos: [-2.7, 1.2, 1.5], target: [-7.0, 0.15, -0.15] },
+  { p: 0.52, pos: [-0.3, 1.5, 2.3], target: [-4.2, 0.2, -0.1] },
+  { p: 0.64, pos: [-0.4, 2.3, 3.9], target: [-0.8, 0.15, 0.85] },
+  { p: 0.8, pos: [-1.2, 3.6, 4.6], target: [0.2, 0.1, 1.35] },
+  { p: 1.0, pos: [-3.7, 5.3, 5.5], target: [0.95, 0.0, 1.45] },
 ];
 
 export interface TimelineInput {

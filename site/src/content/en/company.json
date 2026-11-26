@@ -44,12 +44,14 @@
         {
           "product": "Sonobolt",
           "label": "support@sonobolt.com",
-          "href": "mailto:support@sonobolt.com"
+          "href": "mailto:support@sonobolt.com",
+          "after": " for Sonobolt; "
         },
         {
           "product": "QuotesDone",
           "label": "quotesdone.com/contact",
-          "href": "https://quotesdone.com/contact"
+          "href": "https://quotesdone.com/contact",
+          "after": " for QuotesDone."
         }
       ],
       "identity": [

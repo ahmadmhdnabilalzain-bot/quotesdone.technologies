@@ -12,7 +12,7 @@ export const CLOSE_PARAMS = {
   // ---- Rail profile (keep equal to company/params.ts so the line is one object) ----
   railHeight: { value: 0.14, min: 0.04, max: 0.4, step: 0.005, description: 'Rail profile height (Y), world units. Also the Q tail thickness' },
   railDepth: { value: 0.22, min: 0.06, max: 0.6, step: 0.005, description: 'Rail profile depth (Z), world units' },
-  railChamfer: { value: 0.012, min: 0, max: 0.05, step: 0.001, description: 'Chamfer on the rail edges and ends' },
+  railChamfer: { value: 0.018, min: 0, max: 0.05, step: 0.001, description: 'Chamfer on the rail edges and ends' },
   railRoughness: { value: 0.55, min: 0, max: 1, step: 0.01, description: 'Anodised rail roughness (satin, so the top face does not read as a tube light)' },
   railLength: { value: 14, min: 2, max: 40, step: 0.5, description: 'Rail length behind the end cap (runs out of frame)' },
   jointGap: { value: 0.014, min: 0, max: 0.06, step: 0.001, description: 'Open joint between rail and end-cap block (the logo joint, scaled)' },
@@ -25,8 +25,8 @@ export const CLOSE_PARAMS = {
   markRoughness: { value: 0.42, min: 0, max: 1, step: 0.01, description: 'Alloy roughness of the Q' },
 
   // ---- Seat motion ----
-  seatStart: { value: 0.0, min: 0, max: 1, step: 0.01, description: 'Progress where the Q starts to lower' },
-  seatEnd: { value: 0.5, min: 0, max: 1, step: 0.01, description: 'Progress where the Q is seated' },
+  seatStart: { value: 0.2, min: 0, max: 1, step: 0.01, description: 'Progress where the Q starts to lower' },
+  seatEnd: { value: 0.6, min: 0, max: 1, step: 0.01, description: 'Progress where the Q is seated' },
   seatSplit: { value: 0.78, min: 0.1, max: 0.95, step: 0.01, description: 'Fraction of the seat range spent approaching; the rest is the seat itself' },
   seatGap: { value: 0.06, min: 0, max: 0.3, step: 0.005, description: 'Lift fraction left when the approach ends (the last travel into the joint)' },
   liftHeight: { value: 0.38, min: 0, max: 2, step: 0.01, description: 'Height above the seat at progress 0' },
@@ -39,8 +39,8 @@ export const CLOSE_PARAMS = {
   keyAzimuthEnd: { value: 0.42, min: -3.2, max: 3.2, step: 0.01, description: 'Key azimuth at rest' },
   keyElevationStart: { value: 0.18, min: 0, max: 1.5, step: 0.01, description: 'Key elevation at lightStart, radians' },
   keyElevationEnd: { value: 0.34, min: 0, max: 1.5, step: 0.01, description: 'Key elevation at rest, radians' },
-  lightStart: { value: 0.2, min: 0, max: 1, step: 0.01, description: 'Progress where the light starts to settle' },
-  lightEnd: { value: 0.7, min: 0, max: 1, step: 0.01, description: 'Progress where the light is at rest' },
+  lightStart: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Progress where the light starts to settle' },
+  lightEnd: { value: 0.72, min: 0, max: 1, step: 0.01, description: 'Progress where the light is at rest' },
   envIntensity: { value: 0.3, min: 0, max: 3, step: 0.05, description: 'Neutral environment reflection intensity' },
   rimIntensity: { value: 0.9, min: 0, max: 5, step: 0.05, description: 'Cool back light that separates the Q from the void' },
 
@@ -48,11 +48,11 @@ export const CLOSE_PARAMS = {
   datumThickness: { value: 0.006, min: 0.001, max: 0.03, step: 0.0005, description: 'Datum line thickness at full strength' },
   datumHairline: { value: 0.0018, min: 0.0005, max: 0.01, step: 0.0001, description: 'Datum thickness at hairline' },
   datumClearance: { value: 0.5, min: 0.1, max: 3, step: 0.05, description: 'The datum stops this far before the Q footprint (Rhodamine never beside the mark)' },
-  datumOutStart: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Progress where the datum starts to dim' },
+  datumOutStart: { value: 0.4, min: 0, max: 1, step: 0.01, description: 'Progress where the datum starts to dim' },
   datumOutEnd: { value: 0.62, min: 0, max: 1, step: 0.01, description: 'Progress where the datum is out' },
 
   // ---- Fade to Carbon ----
-  fadeStart: { value: 0.82, min: 0, max: 1, step: 0.01, description: 'Progress where the canvas starts fading to Carbon' },
+  fadeStart: { value: 0.84, min: 0, max: 1, step: 0.01, description: 'Progress where the canvas starts fading to Carbon' },
   shadowOpacity: { value: 0.6, min: 0, max: 1, step: 0.01, description: 'Contact shadow under the seated Q (high tier)' },
 
   // ---- Camera ----

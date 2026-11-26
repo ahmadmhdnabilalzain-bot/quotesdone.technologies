@@ -174,10 +174,24 @@ const masked = parts.filter((p) => !p.butt_reproducible);
       const handoff = live && progress < p.pDockEnd.value ? 'flight' : 'dom';
       if (html.dataset.logoHandoff !== handoff) html.dataset.logoHandoff = handoff;
     };
-    new MutationObserver(apply).observe(hero, { attributes: true, attributeFilter: ['data-scene-state'] });
+    // Sticky-stage workaround (until motion/scroll.ts handles sticky stages): ScrollTrigger caches a
+    // trigger's position at refresh, and a sticky stage measures at its natural top, so the runtime
+    // would think the pinned stage left the screen after ~1 viewport and free the scene. While
+    // ScrollTrigger measures, the stage spans the whole pinned section instead (CSS .is-measuring).
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.addEventListener('refreshInit', () => hero.classList.add('is-measuring'));
+    ScrollTrigger.addEventListener('refresh', () => hero.classList.remove('is-measuring'));
+    let refreshedForSlot = false;
+    new MutationObserver(() => {
+      // The runtime creates its triggers at mount, outside a global refresh: re-measure once.
+      if (!refreshedForSlot && hero.dataset.sceneState !== 'still') {
+        refreshedForSlot = true;
+        ScrollTrigger.refresh();
+      }
+      apply();
+    }).observe(hero, { attributes: true, attributeFilter: ['data-scene-state'] });
 
     if (pinned === null) {
-      gsap.registerPlugin(ScrollTrigger);
       ScrollTrigger.create({
         trigger: hero,
         start: hero.dataset.sceneStart ?? 'top top',
@@ -230,12 +244,15 @@ const masked = parts.filter((p) => !p.butt_reproducible);
     pointer-events: none;
   }
   .hero__stage .scene-still { position: absolute; inset: 0; margin: 0; }
+  /* Only during a ScrollTrigger refresh (see the script): the stage spans the pinned section. */
+  .hero.is-measuring .hero__sticky { position: static; }
+  .hero.is-measuring .hero__stage { inset: 0; }
   .hero__frame {
     position: relative;
     display: grid;
     align-content: start;
     gap: var(--s-8);
-    padding-block: calc(var(--header-h) + var(--s-12)) var(--s-12);
+    padding-block: calc(var(--header-h) + var(--s-12)) var(--s-4);
   }
   .hero__mark {
     position: relative;

@@ -33,7 +33,8 @@ import SceneSlot from '../../components/SceneSlot.astro';
 
 <style>
   .dbg { padding-inline: 0; }
-  :global(.dbg__slot .scene-stage) { aspect-ratio: auto; inline-size: 58vw; block-size: 100svh; margin-inline: auto; }
+  /* Extra .dbg raises specificity above SceneSlot's scoped .scene-stage rule. */
+  :global(.dbg .dbg__slot .scene-stage) { aspect-ratio: auto; inline-size: 58vw; block-size: 100svh; margin-inline: auto; }
   :global(.dbg__slot .scene-fallback) { display: none; }
   .dbg__bar {
     position: fixed;

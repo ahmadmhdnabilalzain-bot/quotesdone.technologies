@@ -34,7 +34,7 @@ export const RAIL_PARAMS = {
 
   // ---- Product stand-ins (low detail, structure-v1 §2.2.1) ----
   objectHeight: { value: 0.86, min: 0.3, max: 1.6, step: 0.01, description: 'Height of each docked object' },
-  dockLift: { value: 1.35, min: 0.2, max: 4, step: 0.05, description: 'How high above the pad an object starts its dock' },
+  dockLift: { value: 2.8, min: 0.2, max: 5, step: 0.05, description: 'How high above the pad an object starts its dock (above the frame at aspect 4:3 and wider)' },
   dockLead: { value: 0.9, min: 0, max: 4, step: 0.05, description: 'How far upstream (against the flow) an object starts its dock' },
   settleOvershoot: { value: 0.018, min: 0, max: 0.08, step: 0.001, description: 'Tiny settle below the seat before it rests (fraction of objectHeight)' },
   coilTurns: { value: 7, min: 1, max: 10, step: 0.05, description: 'Sonobolt coil turns' },
@@ -42,7 +42,7 @@ export const RAIL_PARAMS = {
 
   // ---- Light and material ----
   keyLight: { value: 3.4, min: 0, max: 8, step: 0.1, description: 'Key light intensity (upper left front)' },
-  rakeLight: { value: 0.9, min: 0, max: 4, step: 0.05, description: 'Low raking light from behind right, catches the chamfers' },
+  rakeLight: { value: 0.55, min: 0, max: 4, step: 0.05, description: 'Low raking light from behind right, catches the chamfers' },
   envIntensity: { value: 0.55, min: 0, max: 3, step: 0.05, description: 'Neutral environment reflection intensity' },
   alloyRoughness: { value: 0.32, min: 0, max: 1, step: 0.01, description: 'Bead-blasted Alloy roughness' },
   carbonEnv: { value: 0.32, min: 0, max: 2, step: 0.01, description: 'Environment reflection on Carbon (keeps the anodised rail dark)' },
@@ -61,7 +61,7 @@ export const RAIL_PARAMS = {
   finalPitchDeg: { value: 15, min: 0, max: 60, step: 0.5, description: 'Three-quarter view: pitch above the rail, degrees' },
   finalDistance: { value: 9.2, min: 2, max: 20, step: 0.1, description: 'Three-quarter view: camera distance to the target' },
   finalTargetX: { value: 0.2, min: -4, max: 6, step: 0.05, description: 'Three-quarter view: look-at x' },
-  finalTargetY: { value: 0.35, min: -1, max: 1.5, step: 0.01, description: 'Three-quarter view: look-at y' },
+  finalTargetY: { value: 0.12, min: -1, max: 1.5, step: 0.01, description: 'Three-quarter view: look-at y' },
   finalPush: { value: 0.35, min: 0, max: 2, step: 0.01, description: 'Slow push-in during the closing hold' },
 } satisfies SceneParams;
 

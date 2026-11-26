@@ -33,7 +33,7 @@ export const MUBINFLOW_PARAMS = {
   stripLength: { value: 2.2, min: 1, max: 4, step: 0.05, description: 'Length of each layered strip, w' },
   stripDepth: { value: 0.56, min: 0.2, max: 1.2, step: 0.01, description: 'Depth of each strip, w' },
   stripThickness: { value: 0.03, min: 0.005, max: 0.1, step: 0.001, description: 'Strip slab thickness, w' },
-  stripGap: { value: 0.5, min: 0.1, max: 0.8, step: 0.01, description: 'Vertical spacing between layers, w' },
+  stripGap: { value: 0.6, min: 0.1, max: 0.8, step: 0.01, description: 'Vertical spacing between layers, w' },
   stripOffset: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Gap from the extracted segment to the strips, w' },
   rows: { value: 8, min: 3, max: 12, step: 1, description: 'People in the example pay run (cells per strip)' },
   tracedRow: { value: 5, min: 0, max: 11, step: 1, description: 'Which person/payslip the callout traces (0-based)' },

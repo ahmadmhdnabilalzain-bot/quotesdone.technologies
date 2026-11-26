@@ -1,12 +1,128 @@
 ---
-/** Home scene section for mubinflow. Owned by the mubinflow scene agent. Copy comes from content/en/products/mubinflow.json */
+/**
+ * Home §4 MubinFlow (structure-v1 §2.2 scene 6). Owned by the mubinflow scene agent.
+ * Every word comes from content/en/products/mubinflow.json. No CTA and no link: the product has
+ * no site and the owner has not approved one (copy deck §4; the JSON's `cta` is empty).
+ *
+ * Layout: headline and promise, then the drafting scene on a 16:9 stage that plays as it crosses
+ * the viewport, then the three "built so far" points and the status line. Without JS, with
+ * reduced motion or with no WebGL, the stage shows its still and every word is still in the HTML.
+ *
+ * Stage size: capped at 73rem (1168 px) wide so a 16:9 stage stays under the 'high' tier's 3.1 MP
+ * target cap and renders at the full DPR 2 (lines stay crisp).
+ */
 import SceneSlot from '../SceneSlot.astro';
 import p from '../../content/en/products/mubinflow.json';
 ---
 <section class="home-mubinflow" aria-labelledby="mubinflow-title" data-section="mubinflow">
+  <div class="frame mf-head">
+    <h2 id="mubinflow-title" class="mf-title">{p.headline}</h2>
+    <p class="mf-promise">{p.promise}</p>
+  </div>
+
   <div class="frame">
-    <h2 id="mubinflow-title">{p.headline}</h2>
-    <p>{p.promise}</p>
-    <SceneSlot slot="mubinflow" scene="mubinflow" />
+    <SceneSlot slot="mubinflow" scene="mubinflow" start="top 85%" end="center 45%" class="mubinflow-slot" />
+  </div>
+
+  <div class="frame mf-body">
+    <ul class="mf-proof">
+      {p.proof.map((item) => (
+        <li class="mf-proof__item">
+          <h3 class="mf-proof__title">{item.title}</h3>
+          <p class="mf-proof__body">{item.body}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="mf-status">
+      <span class="mf-status__ring" aria-hidden="true"></span>
+      <span>{p.statusLine}</span>
+    </p>
   </div>
 </section>
+
+<style>
+  .home-mubinflow { padding-block: var(--s-16) var(--s-12); }
+
+  .mf-head {
+    display: grid;
+    gap: var(--s-3);
+    margin-block-end: var(--s-6);
+  }
+  .mf-title {
+    max-inline-size: 14ch;
+    font-size: var(--t-xl);
+    font-weight: 600;
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-display);
+    text-wrap: balance;
+  }
+  .mf-promise {
+    max-inline-size: var(--measure);
+    font-size: var(--t-md);
+    color: var(--fg-muted);
+  }
+  @media (min-width: 64rem) {
+    .mf-head {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: end;
+    }
+  }
+
+  /* SceneSlot is another component, so its root and stage are reached with :global (scoped to the slot class). */
+  /* The stage: 16:9, capped so it renders at full DPR on the 'high' tier. */
+  :global(.mubinflow-slot .scene-stage) {
+    aspect-ratio: 16 / 9;
+    inline-size: min(100%, 73rem);
+    margin-inline: auto;
+  }
+  /*
+   * No sticky stage on purpose: the runtime measures distance and coverage on the stage's
+   * layout position (motion/scroll.ts), so a sticky stage is released while it is still on
+   * screen. The scene scrubs as the stage enters and completes once the stage is centred
+   * (start/end on the slot); a pinned version needs sticky-aware measuring in scroll.ts.
+   */
+
+  .mf-body { margin-block-start: var(--s-8); }
+  .mf-proof {
+    display: grid;
+    gap: var(--s-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 60rem) {
+    .mf-proof { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
+  }
+  .mf-proof__item {
+    padding-block-start: var(--s-2);
+    border-block-start: var(--hairline) solid var(--rule);
+  }
+  .mf-proof__title {
+    margin: 0 0 var(--s-1);
+    font-size: var(--t-base);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .mf-proof__body {
+    max-inline-size: var(--measure);
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+
+  /* Status: an OPEN Rhodamine ring (outline = in development; a filled dot means live, scene 3). */
+  .mf-status {
+    display: flex;
+    align-items: center;
+    gap: var(--s-1);
+    margin-block-start: var(--s-6);
+    font-size: var(--t-sm);
+    color: var(--fg-muted);
+  }
+  .mf-status__ring {
+    flex: none;
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    border: 1.5px solid var(--rhodamine);
+    border-radius: 50%;
+  }
+</style>

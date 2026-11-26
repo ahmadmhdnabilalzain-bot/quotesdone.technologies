@@ -40,11 +40,13 @@ import {
   anodisedMaterial,
   chamferedBox,
   createFadePass,
+  DATUM_Y,
   datumMaterial,
   easeTravel,
   lerp,
   railBar,
   segment,
+  worldPerDevicePixel,
 } from '../close/shared.ts';
 
 export const COMPANY_NAMES = {
@@ -100,6 +102,8 @@ export function createCompanyScene(): RenderableScene {
   let datumMat: MeshBasicMaterial | null = null;
   let dirSign = 1;
   let aspect = 1;
+  let viewHeight = 1;
+  let pixelRatio = 1;
   let runLength = 1;
 
   const stationX = (i: number): number => i * params.stationPitch.value;
@@ -138,7 +142,7 @@ export function createCompanyScene(): RenderableScene {
       const dx1 = runLength + params.railTail.value;
       datum = new Mesh(new BoxGeometry(dx1 - dx0, 1, 1), datumMat);
       datum.name = COMPANY_NAMES.datum;
-      datum.position.set((dx0 + dx1) / 2, -H * 0.5, D / 2 + 0.002);
+      datum.position.set((dx0 + dx1) / 2, -H * DATUM_Y, D / 2 + 0.002);
       world.add(datum);
 
       const dw = params.dockWidth.value;
@@ -233,9 +237,12 @@ export function createCompanyScene(): RenderableScene {
       // Datum: full strength -> hairline.
       if (datum && datumMat) {
         const d = easeTravel(segment(p, params.datumDimStart.value, params.datumDimEnd.value));
-        const th = lerp(params.datumThickness.value, params.datumHairline.value, d);
+        const wanted = lerp(params.datumThickness.value, params.datumHairline.value, d);
+        // Never thinner than ~1 device pixel (it would alias into dashes): thin by opacity instead.
+        const floor = worldPerDevicePixel(dist, params.fov.value, viewHeight, pixelRatio);
+        const th = Math.max(wanted, floor);
         datum.scale.set(1, th, th);
-        datumMat.opacity = lerp(1, params.datumHairlineOpacity.value, d);
+        datumMat.opacity = lerp(1, params.datumHairlineOpacity.value, d) * Math.min(1, wanted / th);
       }
 
       // Hand over to the words.
@@ -244,6 +251,8 @@ export function createCompanyScene(): RenderableScene {
 
     resize(view: Viewport) {
       aspect = view.aspect;
+      viewHeight = view.height;
+      pixelRatio = view.pixelRatio;
       dirSign = view.dir === 'rtl' ? -1 : 1;
       world.scale.x = dirSign;
       camera.aspect = view.aspect;

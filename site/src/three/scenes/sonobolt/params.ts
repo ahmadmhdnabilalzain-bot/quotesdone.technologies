@@ -20,14 +20,14 @@ export const SONOBOLT_PARAMS = {
   bobHz: { value: 0.35, min: 0, max: 2, step: 0.01, description: 'Idle float frequency, Hz' },
 
   // ---- Ribbon section ----
-  bandHalfHeight: { value: 0.13, min: 0.04, max: 0.4, step: 0.005, description: 'Half the band height at full amplitude, units' },
+  bandHalfHeight: { value: 0.14, min: 0.04, max: 0.4, step: 0.005, description: 'Half the band height at full amplitude, units' },
   bandThickness: { value: 0.014, min: 0.004, max: 0.05, step: 0.001, description: 'Band thickness, units' },
   bandCenterY: { value: 0.2, min: 0.1, max: 0.6, step: 0.005, description: 'Band centre line above the rail top, units' },
   ampFloor: { value: 0.12, min: 0, max: 0.5, step: 0.01, description: 'Lowest amplitude inside a song (0..1)' },
   endTaper: { value: 0.9, min: 0.1, max: 3, step: 0.05, description: 'Length of the pinched end of a separate song, beats' },
   crossfadeBeats: { value: 2.5, min: 0.5, max: 8, step: 0.25, description: 'Half-width of the seam blend once fused, beats' },
   crown: { value: 0.32, min: 0, max: 1, step: 0.01, description: 'Face normal tilt toward the band edges (a slightly crowned strip catches a gradient of light)' },
-  roughness: { value: 0.27, min: 0, max: 1, step: 0.01, description: 'Ribbon Alloy roughness' },
+  roughness: { value: 0.15, min: 0, max: 1, step: 0.01, description: 'Ribbon Alloy roughness' },
 
   // ---- Coil (the one continuous file) ----
   hubRadius: { value: 0.36, min: 0.15, max: 0.8, step: 0.01, description: 'Inner radius of the coil (hub), units' },
@@ -39,13 +39,13 @@ export const SONOBOLT_PARAMS = {
   // ---- Station: three product slots ----
   socketRadius: { value: 0.98, min: 0.8, max: 1.6, step: 0.01, description: 'Product slot radius, units' },
   socketSpacing: { value: 2.3, min: 2, max: 4, step: 0.05, description: 'Distance between product slot centres, units' },
-  statusGlow: { value: 1.6, min: 0, max: 4, step: 0.05, description: 'Mix status ring brightness when fully lit (linear)' },
-  statusIdle: { value: 0.35, min: 0, max: 1, step: 0.01, description: 'Mix status ring level before the coil seats (fraction of statusGlow)' },
-  datumGlow: { value: 0.9, min: 0, max: 3, step: 0.05, description: 'Rail datum line brightness (linear)' },
+  statusGlow: { value: 1.15, min: 0, max: 4, step: 0.05, description: 'Mix status ring brightness when fully lit (linear)' },
+  statusIdle: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Mix status ring level before the coil seats (fraction of statusGlow)' },
+  datumGlow: { value: 0.75, min: 0, max: 3, step: 0.05, description: 'Rail datum line brightness (linear)' },
 
   // ---- Seam weld (light only) ----
   weldGlow: { value: 3.2, min: 0, max: 8, step: 0.1, description: 'Peak Rhodamine weld light at the seams (linear)' },
-  weldWidth: { value: 0.035, min: 0.005, max: 0.2, step: 0.005, description: 'Weld light half-width along the ribbon, units' },
+  weldWidth: { value: 0.022, min: 0.005, max: 0.2, step: 0.005, description: 'Weld light half-width along the ribbon, units' },
 
   // ---- Timeline (progress breakpoints) ----
   gridIn: { value: 0.06, min: 0, max: 0.5, step: 0.01, description: 'Beat grid starts to appear' },
@@ -64,10 +64,10 @@ export const SONOBOLT_PARAMS = {
 
   // ---- Camera and light ----
   fov: { value: 27, min: 15, max: 60, step: 0.5, description: 'Vertical field of view, degrees' },
-  keyLight: { value: 2.7, min: 0, max: 8, step: 0.1, description: 'Key light intensity' },
+  keyLight: { value: 4.2, min: 0, max: 8, step: 0.1, description: 'Key light intensity' },
   rimLight: { value: 0.55, min: 0, max: 4, step: 0.05, description: 'Back rim light intensity' },
-  envIntensity: { value: 0.85, min: 0, max: 3, step: 0.05, description: 'Environment reflection intensity' },
-  portraitPullback: { value: 0.85, min: 0, max: 2, step: 0.05, description: 'Extra camera distance per unit of aspect below 1' },
+  envIntensity: { value: 0.45, min: 0, max: 3, step: 0.05, description: 'Environment reflection intensity' },
+  portraitPullback: { value: 0.4, min: 0, max: 2, step: 0.05, description: 'Extra camera distance per unit of aspect below 1' },
 } satisfies SceneParams;
 
 export type SonoboltParams = typeof SONOBOLT_PARAMS;

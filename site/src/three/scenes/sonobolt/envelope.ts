@@ -125,7 +125,7 @@ export function generateEnvelopes(opts: EnvelopeOptions): SongEnvelope[] {
   };
 
   // Pass 1: per-song smooth level and pulse, before seams are known.
-  const raw = [];
+  const raw: Array<{ levels: number[]; beatGain: Float32Array; tempo: number; lift: number; roll: number; phase: number }> = [];
   for (let s = 0; s < opts.songCount; s++) {
     const levels = songShape(bars, rand);
     const beatGain = Float32Array.from({ length: opts.beatsPerSong }, () => 0.85 + rand() * 0.3);

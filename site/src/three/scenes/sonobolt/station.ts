@@ -121,11 +121,11 @@ export function createStation(layout: StationLayout, datumGlow: number): Station
   const seg = (n: number): number => Math.max(8, Math.round(n * layout.detail));
 
   // ---- Materials ----
-  const carbonMetal = new MeshPhysicalMaterial({ color: new Color('#1b1d22'), metalness: 0.75, roughness: 0.42 });
+  const carbonMetal = new MeshPhysicalMaterial({ color: new Color('#16181c'), metalness: 0.6, roughness: 0.5 });
   carbonMetal.name = 'sonobolt-carbon';
-  const plateMetal = new MeshPhysicalMaterial({ color: new Color('#15171b'), metalness: 0.6, roughness: 0.55 });
+  const plateMetal = new MeshPhysicalMaterial({ color: new Color('#0f1114'), metalness: 0.45, roughness: 0.68 });
   plateMetal.name = 'sonobolt-plate';
-  const machinedAlloy = new MeshPhysicalMaterial({ color: ALLOY, metalness: 1, roughness: 0.3 });
+  const machinedAlloy = new MeshPhysicalMaterial({ color: ALLOY, metalness: 1, roughness: 0.36 });
   machinedAlloy.name = 'sonobolt-machined';
   const capAlloy = new MeshPhysicalMaterial({ color: ALLOY, metalness: 1, roughness: 0.56 });
   capAlloy.name = 'sonobolt-cap';
@@ -208,12 +208,12 @@ export function createStation(layout: StationLayout, datumGlow: number): Station
   const R = layout.socketRadius;
   // Lathe profiles run outer-bottom -> up -> over -> inward, so normals face out of the solid.
   const rimProfile = [
-    new Vector2(R + 0.05, 0),
-    new Vector2(R + 0.05, 0.016),
-    new Vector2(R + 0.032, 0.034),
-    new Vector2(R - 0.032, 0.034),
-    new Vector2(R - 0.05, 0.016),
-    new Vector2(R - 0.05, 0),
+    new Vector2(R + 0.022, 0),
+    new Vector2(R + 0.022, 0.01),
+    new Vector2(R + 0.012, 0.02),
+    new Vector2(R - 0.012, 0.02),
+    new Vector2(R - 0.022, 0.01),
+    new Vector2(R - 0.022, 0),
   ];
   const rimGeo = new LatheGeometry(rimProfile, seg(160));
   const capR = R - 0.075;

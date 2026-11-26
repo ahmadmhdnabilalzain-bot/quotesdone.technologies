@@ -26,6 +26,7 @@ import {
   InstancedMesh,
   LineSegments,
   Matrix4,
+  type Object3D,
   Mesh,
   type Material,
   PerspectiveCamera,
@@ -199,7 +200,7 @@ export function createRailScene(): RailScene {
       const key = new DirectionalLight(0xffffff, params.keyLight.value);
       key.position.set(-3, 5, 4);
       const rake = new DirectionalLight(0xffffff, params.rakeLight.value);
-      rake.position.set(5, 1.1, -3.5);
+      rake.position.set(6, 0.35, -2.2); // low and behind: it rims the chamfers, not the top faces
       root.add(key, rake, new AmbientLight(0xffffff, 0.04));
 
       // Rail body + pads + caps + status lights live in the extruding group.
@@ -337,6 +338,7 @@ export function createRailScene(): RailScene {
       // The env map belongs to the runtime. disposeObject3D frees each shared geometry/material once.
       object3d.environment = null;
       disposeObject3D(object3d);
+      object3d.clear(); // drop references to the freed graph
       docked = [];
       stations = [];
       emptyStations = [];
@@ -348,7 +350,7 @@ export function createRailScene(): RailScene {
 }
 
 /** Materials of every drawable under `root` (tests use this to check the palette rules). */
-export function materialsOf(root: Group | ThreeScene): Material[] {
+export function materialsOf(root: Object3D): Material[] {
   const found = new Set<Material>();
   root.traverse((o) => {
     const m = (o as Mesh).material;

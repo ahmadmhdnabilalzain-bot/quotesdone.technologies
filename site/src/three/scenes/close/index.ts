@@ -27,12 +27,14 @@ import {
   anodisedMaterial,
   createContactShadow,
   createFadePass,
+  DATUM_Y,
   datumMaterial,
   easeSeat,
   easeTravel,
   lerp,
   railBar,
   segment,
+  worldPerDevicePixel,
 } from './shared.ts';
 
 export interface CloseSceneOptions {
@@ -77,6 +79,8 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
   let markCentreX = -0.4;
   let dirSign = 1;
   let aspect = 1;
+  let viewHeight = 1;
+  let pixelRatio = 1;
 
   /** Where the camera looks, in world space (the seated Q's centre). */
   const target = { x: 0, y: 0, z: 0 };
@@ -133,13 +137,13 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
       const datumX0 = railX1 - params.railLength.value;
       datum = new Mesh(new BoxGeometry(datumX1 - datumX0, 1, 1), datumMat);
       datum.name = CLOSE_NAMES.datum;
-      datum.position.set((datumX0 + datumX1) / 2, -H * 0.5, D / 2 + 0.002);
+      datum.position.set((datumX0 + datumX1) / 2, -H * DATUM_Y, D / 2 + 0.002);
       world.add(datum);
       // A short vertical stop at the datum's end, like the terminator on a drawing's datum, so
       // the line ends on purpose rather than just stopping.
       tick = new Mesh(new BoxGeometry(1, 1, 1), datumMat);
       tick.name = CLOSE_NAMES.datumTick;
-      tick.position.set(datumX1, -H * 0.5, D / 2 + 0.002);
+      tick.position.set(datumX1, -H * DATUM_Y, D / 2 + 0.002);
       world.add(tick);
 
       tierAllowsShadow = ctx.tierConfig.contactShadow;
@@ -181,9 +185,11 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
       // 3. Datum: full -> hairline -> out.
       if (datum && datumMat) {
         const d = segment(p, params.datumOutStart.value, params.datumOutEnd.value);
-        const thickness = lerp(params.datumThickness.value, params.datumHairline.value, easeTravel(Math.min(1, d * 1.6)));
+        const wanted = lerp(params.datumThickness.value, params.datumHairline.value, easeTravel(Math.min(1, d * 1.6)));
+        const floor = worldPerDevicePixel(params.cameraDistance.value / Math.min(1, aspect), params.fov.value, viewHeight, pixelRatio);
+        const thickness = Math.max(wanted, floor);
         datum.scale.set(1, thickness, thickness);
-        datumMat.opacity = 1 - easeTravel(d);
+        datumMat.opacity = (1 - easeTravel(d)) * Math.min(1, wanted / thickness);
         datum.visible = datumMat.opacity > 0.001;
         if (tick) {
           tick.scale.set(thickness, params.railHeight.value * 0.62, thickness);
@@ -211,6 +217,8 @@ export function createCloseScene(options: CloseSceneOptions = {}): RenderableSce
 
     resize(view: Viewport) {
       aspect = view.aspect;
+      viewHeight = view.height;
+      pixelRatio = view.pixelRatio;
       dirSign = view.dir === 'rtl' ? -1 : 1;
       // Mirror the line for RTL, but never the mark itself (logos do not mirror).
       world.scale.x = dirSign;

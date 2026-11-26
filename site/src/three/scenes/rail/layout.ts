@@ -85,14 +85,28 @@ export interface DockState {
   lift: number;
   /** Upstream offset against the flow, world units (multiply by the flow sign). */
   lead: number;
-  /** Status light 0..1, on only once the object is seated. */
+  /** Status light 0..1, on from the moment the object touches its pad. */
   light: number;
 }
 
+function dockBeat(productIndex: number): readonly [number, number] {
+  return RAIL_BEATS.docks[productIndex] ?? RAIL_BEATS.docks[RAIL_BEATS.docks.length - 1]!;
+}
+
+/**
+ * Progress at which product i touches its pad (the start of the settle). Its status light comes on
+ * here, and ProductIndex reveals its DOM label here: one number for both.
+ */
+export function contactAt(productIndex: number): number {
+  const beat = dockBeat(productIndex);
+  return beat[0] + DOCK_TRAVEL_FRACTION * (beat[1] - beat[0]);
+}
+
 export function dockAt(progress: number, productIndex: number, params: RailParams): DockState {
-  const beat = RAIL_BEATS.docks[productIndex] ?? RAIL_BEATS.docks[RAIL_BEATS.docks.length - 1]!;
+  const beat = dockBeat(productIndex);
   const t = windowed(progress, beat);
-  const light = windowed(progress, [beat[1], beat[1] + 0.03]);
+  const contact = contactAt(productIndex);
+  const light = windowed(progress, [contact, contact + 0.03]);
   if (progress <= beat[0]) return { visible: false, lift: params.dockLift.value, lead: params.dockLead.value, light: 0 };
   if (t < DOCK_TRAVEL_FRACTION) {
     const u = t / DOCK_TRAVEL_FRACTION;
@@ -103,6 +117,7 @@ export function dockAt(progress: number, productIndex: number, params: RailParam
   }
   // Seat: a tiny dip below the seat and back (one damped half-wave), then rest exactly at 0.
   const s = (t - DOCK_TRAVEL_FRACTION) / (1 - DOCK_TRAVEL_FRACTION);
+  if (s >= 1) return { visible: true, lift: 0, lead: 0, light };
   const dip = -params.settleOvershoot.value * params.objectHeight.value * Math.sin(Math.PI * s) * (1 - s);
   return { visible: true, lift: dip, lead: 0, light };
 }

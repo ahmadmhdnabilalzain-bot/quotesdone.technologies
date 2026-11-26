@@ -14,27 +14,21 @@ import Closing from '../../components/Closing.astro';
 <Base title="Scene harness: company and close" description="Development harness for the company and close scenes. Not part of the public site." noindex>
   <div data-harness="company"><CompanySection /></div>
   <div data-harness="close"><Closing /></div>
-  <script is:inline>
-    // Runs during parse, before the deferred boot module: keep only the requested section, so
-    // the scene host registers one slot.
-    (function () {
-      var params = new URLSearchParams(location.search);
-      var want = params.get('scene') === 'company' ? 'company' : 'close';
-      document.querySelectorAll('[data-harness]').forEach(function (el) {
-        if (el.getAttribute('data-harness') !== want) el.remove();
-      });
-      document.documentElement.setAttribute('data-harness-scene', want);
-    })();
-  </script>
-  <form class="harness" aria-label="Scene progress" onsubmit="return false">
+  <div class="harness" role="group" aria-label="Scene progress">
     <label for="harness-p">p</label>
     <input id="harness-p" type="range" min="0" max="1" step="0.005" value="0" />
     <output for="harness-p" id="harness-out">0</output>
-  </form>
+  </div>
   <script is:inline>
+    // Runs during parse, before the deferred boot module: keep only the requested section, so
+    // the scene host registers one slot. Then wire the scrubber.
     (function () {
       var params = new URLSearchParams(location.search);
-      var scene = document.documentElement.getAttribute('data-harness-scene') || 'close';
+      var scene = params.get('scene') === 'company' ? 'company' : 'close';
+      document.querySelectorAll('[data-harness]').forEach(function (el) {
+        if (el.getAttribute('data-harness') !== scene) el.remove();
+      });
+      document.documentElement.setAttribute('data-harness-scene', scene);
       var input = document.getElementById('harness-p');
       var out = document.getElementById('harness-out');
       var p = Number(params.get('p') || 0);

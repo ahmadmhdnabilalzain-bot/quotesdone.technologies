@@ -24,6 +24,12 @@ import {
 
 export const ALLOY = new Color('#ECEAE4');
 export const RHODAMINE = new Color('#E3185B');
+/**
+ * Datum height on the rail's front face, as a fraction of the rail height below the top face.
+ * Matches the rail scene (scenes/rail/params.ts: grooveY -0.2 of railHeight 0.34).
+ */
+export const DATUM_Y = 0.59;
+
 /** Dark anodised metal for the rail and docks: a lifted Carbon so it reads against the page. */
 export const ANODISED = new Color('#1c1f24');
 
@@ -187,6 +193,14 @@ export function easeSeat(t: number): number {
 export function easeTravel(t: number): number {
   const x = clamp01(t);
   return x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2;
+}
+
+/**
+ * World size of one device pixel at `distance` in front of a perspective camera. Lines thinner
+ * than this alias into dashes, so hairlines are clamped to it and dimmed by opacity instead.
+ */
+export function worldPerDevicePixel(distance: number, fovDeg: number, heightCss: number, pixelRatio: number): number {
+  return (2 * distance * Math.tan((fovDeg * Math.PI) / 360)) / Math.max(1, heightCss * pixelRatio);
 }
 
 export function lerp(a: number, b: number, t: number): number {

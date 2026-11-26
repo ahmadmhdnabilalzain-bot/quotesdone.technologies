@@ -23,6 +23,7 @@ import {
   MeshPhysicalMaterial,
   Object3D,
   PerspectiveCamera,
+  PointLight,
   PlaneGeometry,
   Scene as ThreeScene,
   ShaderMaterial,
@@ -67,6 +68,7 @@ export const NAMES = {
   engraving: (i: number) => `plate-${i}-engraving`,
   shadow: (i: number) => `plate-${i}-shadow`,
   filament: 'datum-filament',
+  datumLight: 'datum-light',
   floorDatum: 'floor-datum',
   pool: 'light-pool',
   notch: (i: number) => `plate-${i}-notch`,
@@ -174,7 +176,9 @@ export function createQuotesDoneScene(): RenderableScene {
   const camera = new PerspectiveCamera(params.fov.value, 1, 0.1, 80);
   const plates: PlateParts[] = [];
   let filament: Mesh | null = null;
+  let datumLight: PointLight | null = null;
   let pool: Mesh | null = null;
+  let floorDatumMaterial: ShaderMaterial | null = null;
   let poolMaterial: ShaderMaterial | null = null;
   let filamentMaterial: MeshBasicMaterial | null = null;
   let key: SpotLight | null = null;
@@ -292,20 +296,24 @@ export function createQuotesDoneScene(): RenderableScene {
       filament.name = NAMES.filament;
       filament.position.z = T / 2 + 0.0018;
       filament.visible = false;
+      // The filament is real light: a small point light just off the face washes the Alloy
+      // around the line in Rhodamine. Parented to the filament, so it follows it.
+      datumLight = new PointLight(RHODAMINE, 0, v('datumLightRange'), 2);
+      datumLight.name = NAMES.datumLight;
+      datumLight.position.set(0, 0, v('datumLightOffset'));
+      filament.add(datumLight);
       object3d.add(filament);
 
       // The hairline datum on the floor: the rail the products sit on. Ends fade so it never
       // meets the stage edge as a hard cut.
-      const floorDatum = new Mesh(
-        new PlaneGeometry(v('rowSpacing') * (PLATE_COUNT + 2.4), 0.008),
-        new ShaderMaterial({
-          vertexShader: FLOOR_DATUM_VERTEX,
-          fragmentShader: FLOOR_DATUM_FRAGMENT,
-          uniforms: { uColor: { value: RHODAMINE.clone() }, uOpacity: { value: v('floorDatumOpacity') } },
-          transparent: true,
-          depthWrite: false,
-        }),
-      );
+      floorDatumMaterial = new ShaderMaterial({
+        vertexShader: FLOOR_DATUM_VERTEX,
+        fragmentShader: FLOOR_DATUM_FRAGMENT,
+        uniforms: { uColor: { value: RHODAMINE.clone() }, uOpacity: { value: 0 } },
+        transparent: true,
+        depthWrite: false,
+      });
+      const floorDatum = new Mesh(new PlaneGeometry(v('rowSpacing') * (PLATE_COUNT + 0.6), 0.008), floorDatumMaterial);
       floorDatum.name = NAMES.floorDatum;
       floorDatum.rotation.x = -Math.PI / 2;
       floorDatum.position.set(0, 0.001, T / 2 + 0.32);
@@ -360,7 +368,10 @@ export function createQuotesDoneScene(): RenderableScene {
         if (host && filament.parent !== host) host.add(filament);
         filament.visible = pose.datum > 0.001;
         filament.scale.set(Math.max(0.001, pose.datum), 1, 1);
+        if (datumLight) datumLight.intensity = v('datumLightIntensity') * pose.datum;
       }
+
+      if (floorDatumMaterial) floorDatumMaterial.uniforms.uOpacity!.value = v('floorDatumOpacity') * pose.floorDatum;
 
       if (pool && poolMaterial) {
         // Pool radius follows the cone: wide over the row, tight under the chosen plate.
@@ -404,8 +415,10 @@ export function createQuotesDoneScene(): RenderableScene {
       plates.length = 0;
       studio = null; // freed by disposeObject3D through the materials' envMap
       filament = null;
+      datumLight = null;
       pool = null;
       poolMaterial = null;
+      floorDatumMaterial = null;
       filamentMaterial = null;
       key = null;
       keyTarget = null;

@@ -25,10 +25,8 @@ const contact = company.home.contact;
           <h3 class="closing__contact-title"><a href={contact.href}>{contact.headline}</a></h3>
           <p class="closing__routing">
             {contact.routingLead}{' '}
-            {contact.routing.map((r, i) => (
-              <>
-                <a href={r.href} rel={r.href.startsWith('http') ? 'noopener' : undefined}>{r.label}</a>{` for ${r.product}`}{i < contact.routing.length - 1 ? '; ' : '.'}
-              </>
+            {contact.routing.map((r) => (
+              <><a href={r.href} rel={r.href.startsWith('http') ? 'noopener' : undefined}>{r.label}</a>{r.after}</>
             ))}
           </p>
           <p class="closing__identity">
@@ -43,11 +41,16 @@ const contact = company.home.contact;
 <style>
   .closing { position: relative; padding-block-start: var(--s-16); }
 
+  /* Narrow screens: words first, then the end cap below them (the Q is centred in portrait and
+     would sit behind the text). Wide screens: one grid cell, words beside the Q. */
   .closing :global(.closing__slot) { display: grid; }
-  .closing :global(.closing__slot > *) { grid-area: 1 / 1; }
   .closing :global(.closing__slot .scene-stage) {
     aspect-ratio: auto;
-    block-size: clamp(32rem, 96svh, 68rem);
+    block-size: clamp(24rem, 60svh, 40rem);
+  }
+  @media (min-width: 60rem) {
+    .closing :global(.closing__slot > *) { grid-area: 1 / 1; }
+    .closing :global(.closing__slot .scene-stage) { block-size: clamp(32rem, 96svh, 68rem); }
   }
   /* Still: the datum hairline at the rail's height, ending where the end cap would be. */
   .closing :global(.closing__slot .scene-still) { justify-items: start; }
@@ -58,10 +61,13 @@ const contact = company.home.contact;
     transform: none;
     border: 0;
     background: color-mix(in srgb, var(--signal) 55%, transparent);
-    translate: 0 9svh;
+  }
+  @media (min-width: 60rem) {
+    /* about where the rail sits in the live frame */
+    .closing :global(.closing__slot .scene-still__plate) { translate: 0 30svh; }
   }
   .closing :global(.closing__slot .scene-fallback) {
-    grid-area: 2 / 1;
+    grid-row: 3;
     padding-inline: var(--gutter);
   }
 

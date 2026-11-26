@@ -350,7 +350,7 @@ export function calloutAnchors(l: Layout, figure: { x0: number; x1: number; z: n
   return {
     figureStart: [sx + figure.x0, yPay, figure.z],
     figureEnd: [sx + figure.x1, yPay, figure.z],
-    rule: { x0: rx0, x1: rx0 + 0.5, z0: -0.2, z1: 0.2, y: yPay },
+    rule: { x0: rx0, x1: rx0 + 0.5, z0: figure.z - 0.2, z1: figure.z + 0.2, y: yPay },
     source: { x0: rx0 + 0.08, x1: rx0 + 0.42, z0: -0.72, z1: -0.28, y: sy },
   };
 }
@@ -389,9 +389,8 @@ export function traceLeaders(a: CalloutAnchors): { toRule: Polyline[]; toSource:
   const [fx, fy, fz] = a.figureEnd as [number, number, number];
   const r = a.rule;
   const s = a.source;
-  const rz = (r.z0 + r.z1) / 2;
-  const elbowX = r.x0 - 0.12;
-  const toRule: Polyline[] = [{ points: [fx + 0.02, fy, fz, elbowX, fy, fz, elbowX, fy, rz, r.x0, fy, rz] }];
+  // The rule card is centred on the figure's row, so the leader runs straight along it.
+  const toRule: Polyline[] = [{ points: [fx + 0.02, fy, fz, r.x0, fy, fz] }];
   const top = (r.x0 + r.x1) / 2;
   const toSource: Polyline[] = [{ points: [top, r.y, r.z0, top, r.y, r.z0 - 0.08, top, s.y, s.z1] }];
   return { toRule, toSource };

@@ -228,6 +228,9 @@ export function createLogoScene(options: LogoSceneOptions = {}): RenderableScene
     dispose() {
       object3d.environment = null; // owned by the runtime
       disposeObject3D(object3d);
+      key.dispose();
+      object3d.clear(); // detach light, target and groups so nothing keeps the old graph alive
+      wordmark.clear();
       rig = null;
     },
   };

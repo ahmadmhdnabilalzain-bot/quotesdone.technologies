@@ -107,7 +107,7 @@ export function inverseAgx(targetHex: string, iterations = 40): { linear: Vec3; 
     const h = 1e-4;
     const J: Mat3 = [0, 1, 2].map((j) => {
       const xp = [...x] as Vec3;
-      xp[j] += h;
+      xp[j] = x[j as 0 | 1 | 2] + h;
       const rp = residual(xp);
       return [(rp[0] - r[0]) / h, (rp[1] - r[1]) / h, (rp[2] - r[2]) / h];
     }) as Mat3; // columns = d r / d x_j

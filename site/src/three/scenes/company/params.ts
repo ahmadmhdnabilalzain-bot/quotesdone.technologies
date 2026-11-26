@@ -11,12 +11,12 @@ export const COMPANY_PARAMS = {
   // ---- Rail profile (keep equal to close/params.ts so the line is one object) ----
   railHeight: { value: 0.14, min: 0.04, max: 0.4, step: 0.005, description: 'Rail profile height (Y), world units' },
   railDepth: { value: 0.22, min: 0.06, max: 0.6, step: 0.005, description: 'Rail profile depth (Z), world units' },
-  railChamfer: { value: 0.012, min: 0, max: 0.05, step: 0.001, description: 'Chamfer on rail edges' },
+  railChamfer: { value: 0.018, min: 0, max: 0.05, step: 0.001, description: 'Chamfer on rail edges' },
   railLead: { value: 8, min: 0, max: 30, step: 0.5, description: 'Rail length before station 1 (runs out of frame)' },
   railTail: { value: 3, min: 0, max: 30, step: 0.5, description: 'Rail length after the last station' },
 
   // ---- Stations ----
-  stationCount: { value: 10, min: 3, max: 16, step: 1, description: 'Docks on the rail: 3 products, the rest empty (room for more, no claim)' },
+  stationCount: { value: 9, min: 3, max: 16, step: 1, description: 'Docks on the rail: 3 products, the rest empty (room for more, no claim)' },
   stationPitch: { value: 1.5, min: 0.6, max: 4, step: 0.05, description: 'Distance between docks, world units' },
   dockWidth: { value: 0.62, min: 0.2, max: 1.5, step: 0.01, description: 'Dock (saddle) length along the rail' },
   dockHeight: { value: 0.04, min: 0.02, max: 0.3, step: 0.005, description: 'Dock height above the rail top' },
@@ -34,8 +34,8 @@ export const COMPANY_PARAMS = {
   // ---- Camera ----
   fov: { value: 20, min: 8, max: 60, step: 0.5, description: 'Vertical field of view, degrees' },
   dollyEase: { value: 0.45, min: 0, max: 1, step: 0.01, description: 'Blend from linear (0) to ease-travel (1) for the pull-back; scrubbed shots read better near linear' },
-  dollyStart: { value: 0.08, min: 0, max: 1, step: 0.01, description: 'Progress where the pull-back starts' },
-  dollyEnd: { value: 0.78, min: 0, max: 1, step: 0.01, description: 'Progress where the pull-back ends' },
+  dollyStart: { value: 0.12, min: 0, max: 1, step: 0.01, description: 'Progress where the pull-back starts' },
+  dollyEnd: { value: 0.5, min: 0, max: 1, step: 0.01, description: 'Progress where the pull-back ends' },
   nearDistance: { value: 3.2, min: 1, max: 20, step: 0.1, description: 'Camera distance at the start (close on station 3)' },
   farDistance: { value: 14, min: 4, max: 60, step: 0.5, description: 'Camera distance at the end (whole line)' },
   nearAzimuth: { value: 0.55, min: -1.5, max: 1.5, step: 0.01, description: 'Azimuth at the start, radians (three-quarter view)' },
@@ -55,10 +55,10 @@ export const COMPANY_PARAMS = {
   datumThickness: { value: 0.006, min: 0.001, max: 0.03, step: 0.0005, description: 'Datum thickness at the start' },
   datumHairline: { value: 0.0016, min: 0.0003, max: 0.01, step: 0.0001, description: 'Datum thickness at hairline' },
   datumDimStart: { value: 0.3, min: 0, max: 1, step: 0.01, description: 'Progress where the datum starts dimming' },
-  datumDimEnd: { value: 0.7, min: 0, max: 1, step: 0.01, description: 'Progress where the datum is a hairline' },
+  datumDimEnd: { value: 0.55, min: 0, max: 1, step: 0.01, description: 'Progress where the datum is a hairline' },
   datumHairlineOpacity: { value: 0.45, min: 0, max: 1, step: 0.01, description: 'Datum opacity once it is a hairline' },
-  yieldStart: { value: 0.7, min: 0, max: 1, step: 0.01, description: 'Progress where the frame steps back for the text' },
-  yieldAmount: { value: 0.55, min: 0, max: 1, step: 0.01, description: 'How far the frame fades at progress 1 (1 = gone)' },
+  yieldStart: { value: 0.6, min: 0, max: 1, step: 0.01, description: 'Progress where the frame steps back for the text' },
+  yieldAmount: { value: 0.6, min: 0, max: 1, step: 0.01, description: 'How far the frame fades at progress 1 (1 = gone)' },
 } satisfies SceneParams;
 
 export type CompanyParams = typeof COMPANY_PARAMS;

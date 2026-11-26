@@ -9,7 +9,8 @@
  * - Staged (JS and a 3D tier): the section is tall, the stage is sticky and full-bleed, and each
  *   label is anchored beside its station. The anchors are computed HERE at build time from the
  *   scene's own layout maths (three-free), so the canvas and the DOM cannot drift apart. Each
- *   label reveals when its product has docked (the same beats the scene uses).
+ *   label reveals when its product touches its pad (layout.ts contactAt, the same moment its
+ *   status light comes on).
  *
  * Handover from scene 2: Statements.astro ends with a quiet beat holding the DOM datum line at
  * the stage centre; this section overlaps it by one viewport, so the canvas datum (progress 0)
@@ -17,14 +18,14 @@
  */
 import home from '../content/en/home.json';
 import SceneSlot from './SceneSlot.astro';
-import { RAIL_BEATS, RAIL_PARAMS } from '../three/scenes/rail/params.ts';
-import { labelAnchors } from '../three/scenes/rail/layout.ts';
+import { RAIL_PARAMS } from '../three/scenes/rail/params.ts';
+import { contactAt, labelAnchors } from '../three/scenes/rail/layout.ts';
 
 const anchors = new Map(labelAnchors(home.productIndex.items, RAIL_PARAMS).map((a) => [a.slug, a]));
 const items = home.productIndex.items.map((p, i) => {
   const a = anchors.get(p.slug);
-  const beat = RAIL_BEATS.docks[i] ?? RAIL_BEATS.docks[RAIL_BEATS.docks.length - 1]!;
-  const style = a ? `--ax:${a.inlineFraction.toFixed(4)};--ak:${a.k.toFixed(4)};--t:${(beat[1] - 0.02).toFixed(3)}` : '';
+  // --t: the label reveals when its product touches the pad, together with its status light.
+  const style = a ? `--ax:${a.inlineFraction.toFixed(4)};--ak:${a.k.toFixed(4)};--t:${contactAt(i).toFixed(4)}` : '';
   return { ...p, style };
 });
 ---
@@ -66,14 +67,19 @@ const items = home.productIndex.items.map((p, i) => {
       slot.dataset.railFrozen = '';
     } else if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       gsap.registerPlugin(ScrollTrigger);
-      ScrollTrigger.create({
+      // onUpdate fires only when progress changes, so also write it on refresh (load, resize):
+      // before the range starts the labels must read p = 0, not the CSS fallback.
+      const sync = (self: ScrollTrigger): void => {
+        if (slot.dataset.railFrozen === undefined) set(self.progress);
+      };
+      const trigger = ScrollTrigger.create({
         trigger: slot,
         start: slot.dataset.sceneStart ?? 'top top',
         end: slot.dataset.sceneEnd ?? 'bottom bottom',
-        onUpdate: (self) => {
-          if (slot.dataset.railFrozen === undefined) set(self.progress);
-        },
+        onUpdate: sync,
+        onRefresh: sync,
       });
+      sync(trigger);
       log.debug('label reveals bound to scroll');
     }
   }

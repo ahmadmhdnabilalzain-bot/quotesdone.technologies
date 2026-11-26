@@ -379,6 +379,9 @@ export function createMubinFlowScene(): RenderableScene {
         const ph = stripPhases(p, STRIP_WINDOWS[i]!);
         g.visible = ph.grow > 0;
         g.scale.set(Math.max(1e-3, ph.grow), 1, 1);
+        // Each strip comes out of the month's outer face, then travels to its station and layer.
+        const fromX = l.ringOuter + l.extractDistance;
+        g.position.x = fromX + (stripStartX(l) - fromX) * ph.grow;
         g.position.y = i * l.stripGap * ph.grow;
         setDraw(`strip-${i}`, 1);
         setDraw(`strip-${i}:hidden`, 1);

@@ -47,7 +47,7 @@ test.describe('home, JavaScript disabled', () => {
     await expect(page.locator('h1')).toHaveText(home.hero.headline);
     // No JS: the still is the visible state.
     await expect(page.locator('[data-scene-slot="hero"]')).toHaveAttribute('data-scene-state', 'still');
-    await expect(page.locator('.scene-fallback')).toBeVisible();
+    await expect(page.locator('[data-scene-slot="hero"] .scene-fallback')).toBeVisible();
     // The CSS wordmark intro (placeholder for scene 1a) must END fully drawn, with no JS.
     await page.waitForTimeout(1800);
     await expect(page.locator('.hero__wordmark')).toHaveCSS('clip-path', /^(none|inset\(0(px|%)?( 0(px|%)?){0,3}\))$/);
@@ -80,13 +80,13 @@ test.describe('home, 3D smoke scene', () => {
     console.log(`[${info.project.name}] ${JSON.stringify(dump)}`);
 
     await page.screenshot({ path: `${ARTIFACTS}/${info.project.name}-smoke.png` });
-    // Prove the canvas is live (not blank, not frozen): the box spins with time, so two stage
-    // screenshots 400 ms apart must differ. (Reading a WebGL canvas from JS is not reliable:
-    // without preserveDrawingBuffer it reads back empty after compositing.)
-    const stage = page.locator('[data-scene-stage]');
-    const a = await stage.screenshot();
-    await page.waitForTimeout(400);
-    const b = await stage.screenshot({ path: `${ARTIFACTS}/${info.project.name}-smoke-stage.png` });
+    // Prove the canvas is live (not blank, not frozen): the hero is the logo scene, whose rest frame
+    // is deliberately identical to the DOM SVG, so move the scroll into the exploded view and
+    // compare. (Reading a WebGL canvas from JS is not reliable without preserveDrawingBuffer.)
+    const a = await page.screenshot();
+    await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.6));
+    await page.waitForTimeout(600);
+    const b = await page.screenshot({ path: `${ARTIFACTS}/${info.project.name}-logo-exploded.png` });
     expect(a.equals(b)).toBe(false);
     expect(errors).toEqual([]);
   });
@@ -99,7 +99,7 @@ test.describe('home, 3D smoke scene', () => {
     const lost = await page.evaluate(() => (window as unknown as { __qdt: { loseContext(): boolean } }).__qdt.loseContext());
     expect(lost).toBe(true);
     await expect(page.locator('[data-scene-slot="hero"]')).toHaveAttribute('data-scene-state', 'failed');
-    await expect(page.locator('.scene-still')).toHaveCSS('opacity', '1');
+    await expect(page.locator('[data-scene-slot="hero"] .scene-still')).toHaveCSS('opacity', '1');
     await expect(page.locator('h1')).toHaveText(home.hero.headline);
     expect(await page.locator('h1').boundingBox()).toEqual(before);
     expect(errors).toEqual([]);

@@ -254,8 +254,11 @@ describe('company: the line from a distance', () => {
     const near = s.camera.position.length();
     const thick = datum.scale.y;
     s.update(1, 0);
-    expect(datum.scale.y).toBeCloseTo(COMPANY_PARAMS.datumHairline.value, 6);
+    // A hairline: thinner than at the start, never under ~1 device pixel (clamped, then dimmed).
     expect(datum.scale.y).toBeLessThan(thick);
+    expect(datum.scale.y).toBeGreaterThanOrEqual(COMPANY_PARAMS.datumHairline.value);
+    const mat = (datum as Mesh).material as Material;
+    expect(mat.opacity).toBeLessThanOrEqual(COMPANY_PARAMS.datumHairlineOpacity.value + 1e-9);
     expect(s.camera.position.distanceTo(s.object3d.position)).toBeGreaterThan(near);
     s.dispose();
   });

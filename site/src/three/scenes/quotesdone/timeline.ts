@@ -33,6 +33,9 @@ export interface SealedPose {
   key: { target: [number, number, number]; angleDeg: number; intensity: number };
   /** Studio (reflection) yaw in radians: the light pass along the row is a turn of the studio. */
   envYaw: number;
+  /** Floor datum visibility 0..1: it appears as the plates seat on it, so it never crosses the
+   *  stage edge in the close block shot. */
+  floorDatum: number;
   camera: CameraPose;
 }
 
@@ -56,17 +59,20 @@ function orbit(target: [number, number, number], distance: number, azimuthDeg: n
   ];
 }
 
-/** The plate index that advances, mirrored for RTL so the choice reads the same way in Arabic. */
-export function chosenIndexFor(params: SealedParams, dir: 'ltr' | 'rtl'): number {
-  const ltr = Math.round(clamp01(params.chosenIndex.value / (PLATE_COUNT - 1)) * (PLATE_COUNT - 1));
-  return dir === 'rtl' ? PLATE_COUNT - 1 - ltr : ltr;
+/**
+ * The plate index that advances. Indices are layout slots; in RTL the whole layout is mirrored
+ * in x (see `sign` below), so the same index lands on the mirrored side. The index itself must
+ * NOT be mirrored as well, or the two mirrors cancel out (a unit test guards this).
+ */
+export function chosenIndexFor(params: SealedParams): number {
+  return Math.round(clamp01(params.chosenIndex.value / (PLATE_COUNT - 1)) * (PLATE_COUNT - 1));
 }
 
 export function sealedPose(progress: number, timeMs: number, params: SealedParams, dir: 'ltr' | 'rtl', aspect: number): SealedPose {
   const p = clamp01(Number.isFinite(progress) ? progress : 0);
   const v = (k: keyof SealedParams): number => params[k].value;
   const sign = dir === 'rtl' ? -1 : 1;
-  const chosen = chosenIndexFor(params, dir);
+  const chosen = chosenIndexFor(params);
   const mid = (PLATE_COUNT - 1) / 2;
 
   const H = v('plateHeight');
@@ -117,12 +123,24 @@ export function sealedPose(progress: number, timeMs: number, params: SealedParam
   const envYaw = sign * lerp(-1, 1, easeTravel(sweep)) * sweepWeight * v('sweepDegrees') * DEG;
 
   // ---- Camera: block -> row -> opened plate, with a slow pure idle drift.
-  const narrow = aspect < 1 ? Math.pow(Math.max(0.3, aspect), -v('portraitExponent')) : 1;
+  // Each pose's distance is at least what fits its subject's projected width into the stage's
+  // horizontal field of view, so a narrow stage pulls back instead of cropping the row.
+  const tanHalfV = Math.tan((v('fov') * DEG) / 2);
+  const tanHalfH = tanHalfV * Math.max(0.2, aspect);
+  const fit = (halfWidth: number, azimuthDeg: number): number =>
+    (halfWidth * Math.cos(azimuthDeg * DEG) + v('plateDepth')) * v('frameMargin') / tanHalfH;
+  const W = v('plateWidth');
+  const blockHalf = Math.max(W, PLATE_COUNT * pitch) / 2;
+  const rowHalf2 = mid * v('rowSpacing') + W / 2;
+  const dBlock = Math.max(v('blockDistance'), fit(blockHalf, v('blockAzimuth')));
+  const dRow = Math.max(v('rowDistance'), fit(rowHalf2, v('rowAzimuth')));
+  // The opened plate and its two neighbours stay inside the stage; farther plates are near black.
+  const dReveal = Math.max(v('revealDistance'), fit(v('rowSpacing') * 1.05 + W / 2, v('revealAzimuth')));
   const toRow = easeTravel(segment(p, v('splitStart'), v('alignEnd')));
   const toReveal = easeTravel(segment(p, v('advanceStart'), Math.min(1, v('datumEnd') + 0.06)));
   const breath = Math.sin((timeMs / 1000) * ((2 * Math.PI) / v('breathPeriodSec'))) * v('breathDegrees');
 
-  const targetRow: [number, number, number] = [0, H * 0.46, 0];
+  const targetRow: [number, number, number] = [0, H * 0.66, 0];
   const targetBlock: [number, number, number] = [0, H * 0.5, 0];
   const targetReveal: [number, number, number] = [chosenX, H * 0.74, v('advanceDepth')]; // room for the raised cover
   const t1: [number, number, number] = [
@@ -130,7 +148,7 @@ export function sealedPose(progress: number, timeMs: number, params: SealedParam
     lerp(lerp(targetBlock[1], targetRow[1], toRow), targetReveal[1], toReveal),
     lerp(lerp(targetBlock[2], targetRow[2], toRow), targetReveal[2], toReveal),
   ];
-  const distance = lerp(lerp(v('blockDistance'), v('rowDistance'), toRow), v('revealDistance'), toReveal) * narrow;
+  const distance = lerp(lerp(dBlock, dRow, toRow), dReveal, toReveal);
   const azimuth = sign * (lerp(lerp(v('blockAzimuth'), v('rowAzimuth'), toRow), v('revealAzimuth'), toReveal) + breath);
   const elevation = lerp(lerp(v('blockElevation'), v('rowElevation'), toRow), v('revealElevation'), toReveal) + breath * 0.3;
 
@@ -140,6 +158,7 @@ export function sealedPose(progress: number, timeMs: number, params: SealedParam
     datum,
     key: { target: [keyX, H * 0.5, keyZ], angleDeg: keyAngle, intensity: v('keyIntensity') },
     envYaw,
+    floorDatum: easeSeat(segment(p, v('alignStart') + (v('alignEnd') - v('alignStart')) * 0.5, v('alignEnd') + 0.06)),
     camera: { position: orbit(t1, distance, azimuth, elevation), target: t1 },
   };
 }
