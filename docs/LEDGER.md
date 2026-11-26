@@ -25,3 +25,4 @@ Status: `standing` (always applies) | `open` | `done`.
 | 18 | 2026-11-26 | Product portfolio for the company profile: DJ AI = "sunobolt.com"; QuotesDone = quotesdone.com; HR = "MubinFlow" (no website yet; its logo is in the HR-Payroll repo); same applies to the rest. ERP ("Manar One") is NOT to be included for now, its name will change later. | standing | Portfolio table in HANDOVER. Spelling resolved (#19) |
 | 19 | 2026-11-26 | Confirmed the DJ AI product name is "Sonobolt" (sonobolt.com). | done | HANDOVER portfolio table updated |
 | 20 | 2026-11-26 | Owner: Sonobolt already has a live website, "you can even check it". | done | Verified live (sonobolt.com, plus quotesdone.com); HANDOVER corrected |
+| 21 | 2026-11-26 | Shared 99designs 3D-websites gallery as website inspiration. | done | Analysed: mood-only reference, concepts not live sites; notes in `docs/references/website-inspiration.md` |

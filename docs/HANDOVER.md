@@ -33,7 +33,7 @@ Each product keeps its own brand; the parent logo must not imitate any of them. 
 
 ## Workstream: logo then website (2026-11-26)
 1. **Logo (in progress).** Direction = bespoke text logotype in the manner of Emaar/Damac, all-caps QUOTESDONE + TECHNOLOGIES, small companion mark secondary; fully original; no resemblance to the QuotesDone app (no teal/gold/navy, no ring+check). Round 1 (symbol-led) archived at `brand/concepts/round1-archive/`. Round 2 = three lettering directions at `brand/concepts/r2-*` (build scripts included). Before final use: trademark clearance by a UAE IP lawyer (not done; we cannot certify uniqueness ourselves).
-2. **Website (not started).** Waits for logo approval and the owner's reference video. Bar: extremely advanced 3D/motion, futuristic, big-tech, must not look AI-generated. Must present each product from the repos above in the company profile.
+2. **Website (not started; references logged in `docs/references/website-inspiration.md`).** Waits for logo approval and the owner's reference video. Bar: extremely advanced 3D/motion, futuristic, big-tech, must not look AI-generated. Must present each product from the repos above in the company profile.
 
 ## Checkpoint 1 — 2026-11-26
 **Done**
