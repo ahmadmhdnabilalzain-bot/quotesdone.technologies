@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1800px;background:#D9D7D1;font-family:'Inter',sans-serif;color:#0E1013}
+.sec{padding:70px 90px;position:relative}
+.lab{position:absolute;left:24px;top:18px;font:600 13px/1 'Inter';letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+.light{background:#ECEAE4}.dark{background:#0E1013;color:#ECEAE4}.white{background:#fff}
+.big img{width:100%;display:block}
+.row{display:flex;gap:70px;align-items:flex-end}
+.cap{font:500 13px/1.4 'Inter';opacity:.6;margin-top:10px}
+.sign{height:300px;background:linear-gradient(#8C8880,#77736B);display:flex;align-items:center;justify-content:center}
+.band{background:#0E1013;width:1560px;height:150px;display:flex;align-items:center;justify-content:center;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.paper{background:#fff;width:820px;height:520px;padding:64px 70px;box-shadow:0 18px 50px rgba(0,0,0,.18);position:relative}
+.paper .addr{position:absolute;right:70px;top:66px;text-align:right;font:400 12px/1.7 'Inter';color:#5E636B}
+.paper .body{margin-top:120px;font:400 13px/1.8 'Inter';color:#44484F;width:560px}
+.tile{width:220px;height:220px;border-radius:48px;display:flex;align-items:center;justify-content:center}
+.tiny{display:flex;gap:40px;align-items:center}
+</style></head><body>
+<div class="sec light big"><span class="lab">Wordmark, light (Carbon on Alloy)</span><img src="wordmark-light.svg"></div>
+<div class="sec dark big"><span class="lab">Wordmark, dark (Alloy on Carbon)</span><img src="wordmark-dark.svg"></div>
+<div class="sec white"><span class="lab">One colour, black &amp; lockups</span>
+ <div class="row" style="align-items:center;gap:90px">
+  <img src="wordmark-onecolour.svg" style="width:760px">
+  <img src="lockup-horizontal.svg" style="width:820px">
+ </div>
+ <div class="row" style="margin-top:60px;align-items:center;gap:90px">
+  <img src="lockup-stacked.svg" style="width:520px">
+  <div>
+   <div class="tiny"><img src="wordmark-compact.svg" style="width:240px"><img src="wordmark-compact.svg" style="width:160px"><img src="wordmark-compact.svg" style="width:110px"></div>
+   <div class="cap">Compact cut (joints closed) at 240 / 160 / 110 px wide</div>
+   <div class="tiny" style="margin-top:28px"><img src="wordmark-light.svg" style="width:240px"><img src="wordmark-light.svg" style="width:160px"></div>
+   <div class="cap">Master cut at 240 / 160 px: joints start to fill, use compact below ~320 px</div>
+  </div>
+ </div>
+</div>
+<div class="sec light"><span class="lab">Mark at 512 / 32 / 16 px</span>
+ <div class="row">
+  <img src="mark.svg" style="width:512px;height:512px;background:#fff">
+  <div><img src="mark.svg" style="width:32px"> <img src="mark.svg" style="width:16px"><div class="cap">master</div></div>
+  <div><img src="mark-small.svg" style="width:32px"> <img src="mark-small.svg" style="width:16px"><div class="cap">small cut</div></div>
+  <div style="background:#0E1013;padding:16px"><img src="mark-dark.svg" style="width:32px"> <img src="mark-dark.svg" style="width:16px"></div>
+  <div class="tile" style="background:#0E1013"><img src="mark-dark.svg" style="width:220px;border-radius:48px"></div>
+  <div class="tile" style="background:#E3185B"><img src="mark-onecolour-carbon.svg" style="width:220px"></div>
+ </div>
+ <div class="cap">App-icon tiles: Carbon / Rhodamine accent</div>
+</div>
+<div class="sec" style="padding:0"><span class="lab" style="color:#fff;z-index:2">Signage line mock</span>
+ <div class="sign"><div class="band"><img src="wordmark-line1-dark.svg" style="height:62px"></div></div>
+</div>
+<div class="sec light" style="display:flex;gap:80px;align-items:flex-start"><span class="lab">Letterhead corner</span>
+ <div class="paper"><img src="lockup-horizontal.svg" style="width:300px">
+  <div class="addr">QUOTESDONE TECHNOLOGIES L.L.C.<br>Dubai, United Arab Emirates<br>quotesdone.technologies</div>
+  <div class="body">Dear partner,<br><br>Placeholder letter copy to judge the lockup at its real size on A4: the wordmark here is about 300 px wide, the size it would print at the top-left of a letterhead.</div>
+ </div>
+ <div class="paper" style="width:600px"><img src="lockup-stacked.svg" style="width:170px"></div>
+</div>
+</body></html>

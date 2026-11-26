@@ -71,6 +71,12 @@ class Params:
     SB: float = 64.0       # base side-bearing for a straight stem side
     TRACK: float = 150.0   # extra tracking added to every gap
     WIDTH: float = 1.0     # global width factor for letter bodies
+    Q_STYLE: str = "plumb" # "plumb" (centre blade) or "pillar" (right drop)
+    Q_BLADE: float = 104.0 # width of the Q blade
+    Q_X: float = 0.50      # blade centre as fraction of Q width
+    Q_TOP: float = 150.0   # blade starts this high inside the counter
+    FOOT_DEG: float = 24.0 # slope of the blade's sliced ends
+    G_BAR: float = 0.50    # height of the G bar (top edge, xH)
 
 
 DISPLAY = Params()                       # QUOTESDONE, line 1
@@ -308,17 +314,23 @@ def g_O(p, w=900):
 
 
 def g_Q(p, w=900):
-    """Pillar Q: lower-right quarter of the bowl becomes a vertical pillar
-    that drops below the baseline; its foot takes the forward cut."""
+    """Plumb-line Q: a straight vertical blade drops through the centre of
+    the bowl's bottom hairline, starting inside the counter.  Both blade ends
+    are sliced parallel (FOOT_DEG from horizontal, rising forward)."""
     w *= p.WIDTH
     outer, inner = contrast_ring(p, 0, w, -p.OV, p.H + p.OV)
-    pw = p.ROUND
-    ym = p.H / 2
-    foot_t = math.tan(math.radians(90 - p.CUT_DEG - 45))   # foot slope
-    pillar = poly([(w - pw, ym), (w, ym), (w, -p.DESC),
-                   (w - pw, -p.DESC + pw * foot_t)])
-    body = union(outer, pillar)
-    return diff(body, inner), w
+    ring = diff(outer, inner)
+    if p.Q_STYLE == "pillar":
+        pw, ym = p.ROUND, p.H / 2
+        pillar = poly([(w - pw, ym), (w, ym), (w, -p.DESC), (w - pw, -p.DESC + pw * 0.5)])
+        return diff(union(outer, pillar), inner), w
+    bw = p.Q_BLADE
+    xc = w * p.Q_X
+    t = math.tan(math.radians(p.FOOT_DEG)) * bw / 2
+    y_top, y_bot = p.Q_TOP, -p.DESC
+    blade = poly([(xc - bw / 2, y_bot - t), (xc + bw / 2, y_bot + t),
+                  (xc + bw / 2, y_top + t), (xc - bw / 2, y_top - t)])
+    return union(ring, blade), w
 
 
 def g_C(p, w=820):
@@ -330,21 +342,19 @@ def g_C(p, w=820):
 
 
 def g_G(p, w=860):
-    """C bowl whose lower-right quarter straightens into a jaw (Q's sibling)."""
+    """C bowl with a short straight jaw and a bar with a forward-cut entry."""
     w *= p.WIDTH
     outer, inner = contrast_ring(p, 0, w, -p.OV, p.H + p.OV)
     ring = diff(outer, inner)
-    jaw_top = p.H * 0.47
-    cut = union(half_plane(w * 0.79, p.H / 2, p.CUT_DEG, keep="left"),
-                rect(0, -2 * p.H, 2 * w, jaw_top - p.ARM))
-    upper = inter(ring, cut)
-    pw = p.ROUND * 0.96
-    jaw = rect(w - pw, p.H * 0.12, w, jaw_top)
-    bar = arm(p, w * 0.56, w, jaw_top - p.ARM, jaw_top, cut_left=True,
+    jaw_top = p.H * p.G_BAR
+    keep = union(half_plane(w * 0.80, p.H / 2, p.CUT_DEG, keep="left"),
+                 rect(-10, -2 * p.H, 2 * w, jaw_top - p.ARM))
+    bowl = inter(ring, keep)
+    pw = p.ROUND * 0.95
+    jaw = diff(inter(outer, rect(w - pw, -p.OV, w + 10, jaw_top)), inner)
+    bar = arm(p, w * 0.54, w - 0.5, jaw_top - p.ARM, jaw_top, cut_left=True,
               cut_right=False)
-    lower_fill = inter(outer, rect(w - pw, -p.OV, w, jaw_top))
-    lower_fill = diff(lower_fill, inner)
-    return union(upper, jaw, bar, lower_fill), w
+    return union(bowl, jaw, bar), w
 
 
 def g_D(p, w=820):
@@ -374,25 +384,24 @@ def g_U(p, w=750):
     return union(bowl, left, right), w
 
 
-def g_S(p, w=540):
+def g_S(p, w=560):
+    """Pen-drawn S: centreline as a Hermite chain, vertical-stress nib."""
     w *= p.WIDTH
     H, OV, R, h = p.H, p.OV, p.ROUND, p.HAIR
-    nodes = [
-        (w * 0.905, H * 0.790, 100, 0, H * 0.105),
-        (w * 0.505, H + OV - h / 2, 180, w * 0.245, w * 0.250),
-        (w * 0.045 + R / 2, H * 0.735, 270, H * 0.140, H * 0.120),
-        (w * 0.500, H * 0.500, -38, w * 0.250, w * 0.250),
-        (w - R / 2, H * 0.255, 270, H * 0.130, H * 0.150),
-        (w * 0.480, -OV + h / 2, 180, w * 0.270, w * 0.270),
-        (w * 0.060, H * 0.215, 112, H * 0.110, 0),
+    nodes = [  # x, y, tangent angle, handle in, handle out
+        (w * 0.93, H * 0.835, 128, 0, H * 0.075),
+        (w * 0.52, H + OV - h / 2, 180, w * 0.250, w * 0.255),
+        (w * 0.03 + R / 2, H * 0.750, 270, H * 0.130, H * 0.150),
+        (w * 0.50, H * 0.505, -34, w * 0.260, w * 0.260),
+        (w - R / 2, H * 0.250, 270, H * 0.160, H * 0.140),
+        (w * 0.48, -OV + h / 2, 180, w * 0.265, w * 0.255),
+        (w * 0.05, H * 0.165, 140, H * 0.080, 0),
     ]
-    stroke = pen_stroke(p, hermite_chain(nodes))
-    # forward cuts: slice away what lies beyond a forward-leaning line, only
-    # inside the band of each terminal
-    cuts = union(cut_band(w * 0.995, H * 0.80, p.CUT_DEG, "right", H * 0.60, H * 2),
-                 cut_band(w * 0.005, H * 0.20, p.CUT_DEG, "left", -H, H * 0.40))
-    s = diff(stroke, cuts)
-    return s, w
+    stroke = pen_stroke(p, hermite_chain(nodes), ext=160.0)
+    # forward cuts on both terminals (bands keep the cuts local)
+    cuts = union(cut_band(w * 0.975, H * 0.83, p.CUT_DEG, "right", H * 0.64, H * 2),
+                 cut_band(w * 0.020, H * 0.17, p.CUT_DEG, "left", -H, H * 0.36))
+    return diff(stroke, cuts), w
 
 
 GLYPHS = {"I": g_I, "L": g_L, "E": g_E, "T": g_T, "H": g_H, "N": g_N,
