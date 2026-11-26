@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="qdt-c-mark-t qdt-c-mark-d">
-  <title id="qdt-c-mark-t">QuotesDone Technologies</title>
-  <desc id="qdt-c-mark-d">Four-tile platform mark: a leaf, a disc, a leaf and an open slot reserved for the next product.</desc>
-  <path fill="#10161F" d="M230 80H380V380H80V230A150 150 0 0 1 230 80Z"/>
-  <path fill="#F25430" d="M570 80a150 150 0 1 0 .01 0Z"/>
-  <path fill="#1AA68A" d="M80 420H380V720H230A150 150 0 0 1 80 570V420Z"/>
-  <path fill="#10161F" fill-rule="evenodd" d="M420 420H720V720H420V420ZM470 470H670V670H470V470Z"/>
-</svg>

@@ -4,12 +4,11 @@
   <defs>
     <mask id="qdt-b-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="800">
       <rect width="800" height="800" fill="#fff"/>
-      <path d="M300 250H360A150 150 0 0 1 360 550H300Z" fill="#000"/>
+      <path d="M270 230H340A150 150 0 0 1 340 530H270Z" fill="#000"/>
+      <rect x="506" y="506" width="240" height="240" fill="#000"/>
     </mask>
   </defs>
-  <g mask="url(#qdt-b-cut)">
-    <path id="qdt-b-body" fill="#0F1F1C" d="M400 100A300 300 0 0 1 699.9 392H392V699.9A300 300 0 0 1 400 100Z"/>
-    <path id="qdt-b-corner" fill="#FF5B3A" d="M408 408H700V700H408Z"/>
-  </g>
+  <circle id="qdt-b-ring" cx="380" cy="380" r="290" fill="#0F1F1C" mask="url(#qdt-b-cut)"/>
+  <rect id="qdt-b-tail" x="520" y="520" width="180" height="180" fill="#FF5B3A"/>
   </g>
 </svg>
