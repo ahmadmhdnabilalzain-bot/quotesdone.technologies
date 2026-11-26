@@ -41,10 +41,10 @@ import home from '../content/en/home.json';
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-  /** Titles that have risen past the line fade toward this opacity (the next one is on the line). */
-  const RISEN_OPACITY = 0.22;
+  /** Titles that have risen past the line fade out completely (so no residue peeks under the header). */
+  const RISEN_OPACITY = 0;
   /** Distance above the line (viewport heights) over which a risen title fades to RISEN_OPACITY. */
-  const RISEN_FADE_VH = 0.42;
+  const RISEN_FADE_VH = 0.4;
 
   const section = document.querySelector<HTMLElement>('.statements');
   const datum = section?.querySelector<HTMLElement>('.statements__datum');
@@ -76,19 +76,31 @@ import home from '../content/en/home.json';
     const slot = (): void => {
       const lineY = datum.getBoundingClientRect().top;
       const vh = window.innerHeight;
-      const boxes = statements.map(({ title, body }) => ({ t: title.getBoundingClientRect(), b: body.getBoundingClientRect() }));
+      const boxes = statements.map(({ title, body }) => ({
+        t: title.getBoundingClientRect(),
+        b: body.getBoundingClientRect(),
+        tPad: parseFloat(getComputedStyle(title).fontSize) * 0.5,
+        bPad: parseFloat(getComputedStyle(body).fontSize) * 0.5,
+      }));
       statements.forEach(({ title, body }, i) => {
-        const { t, b } = boxes[i]!;
-        // Title: hidden below the line, printed upward out of it.
-        const tHidden = Math.min(t.height, Math.max(0, t.bottom - lineY));
-        title.style.clipPath = tHidden > 0 ? `inset(0 0 ${tHidden.toFixed(1)}px 0)` : '';
+        const { t, b, tPad, bPad } = boxes[i]!;
+        // Title: printed upward out of the line. The inset is measured from the line, not the
+        // box: the box is trimmed to the baseline (text-box), so descenders must still be cut by
+        // the line itself. Negative insets let ink overflow the trimmed box elsewhere.
+        const tCut = t.bottom - lineY; // > height: the ascenders above the cap line are cut too
+        // (Opposing insets that sum past the box are rescaled by CSS, so "fully cut" is explicit.)
+        title.style.clipPath = tCut >= t.height + tPad ? 'inset(0 0 100% 0)' : `inset(-0.5em -0.5em ${tCut.toFixed(1)}px -0.5em)`;
         // Once fully above the line, fade with distance so only the statement on the line reads.
         const risen = Math.max(0, lineY - t.bottom) / vh;
         const k = Math.min(1, risen / RISEN_FADE_VH);
         title.style.opacity = k > 0 ? String(1 - k * (1 - RISEN_OPACITY)) : '';
         // Body: hangs below the line; taken back into it as it rises.
-        const bHidden = Math.min(b.height, Math.max(0, lineY - b.top));
-        body.style.clipPath = bHidden > 0 ? `inset(${bHidden.toFixed(1)}px 0 0 0)` : '';
+        const bCut = lineY - b.top;
+        // An arriving body waits for its title: it shows only as far as the title is printed,
+        // so no paragraph floats below the line without its heading.
+        const printed = Math.min(1, Math.max(0, (lineY - t.top) / Math.max(1, t.height)));
+        body.style.opacity = printed < 1 ? printed.toFixed(3) : '';
+        body.style.clipPath = bCut >= b.height + bPad ? 'inset(100% 0 0 0)' : `inset(${bCut.toFixed(1)}px -0.5em -0.5em -0.5em)`;
       });
     };
     ScrollTrigger.create({ trigger: section, start: 'top bottom', end: 'bottom top', onUpdate: slot, onRefresh: slot });
@@ -98,16 +110,18 @@ import home from '../content/en/home.json';
     // the top), the canvas datum is exactly under the DOM line. Fade line and beat together over
     // a few viewport-percent; both lines coincide, so nothing visibly changes. Only when the rail
     // scene will pick the line up; checked on every update (boot may set the tier later).
+    const handover = (self: ScrollTrigger): void => {
+      const o = staged() ? String(1 - self.progress) : '1';
+      line.style.opacity = o;
+      beat.style.opacity = o;
+    };
     const beatPct = (): number => (beat.getBoundingClientRect().height / window.innerHeight) * 100;
     ScrollTrigger.create({
       trigger: section,
       start: () => `bottom ${beatPct().toFixed(2)}%`,
       end: () => `bottom ${(beatPct() - 3).toFixed(2)}%`,
-      onUpdate: (self) => {
-        const o = staged() ? String(1 - self.progress) : '1';
-        line.style.opacity = o;
-        beat.style.opacity = o;
-      },
+      onUpdate: handover,
+      onRefresh: handover, // a reload restored mid-handover must not leave the opaque beat up
     });
   }
 </script>
@@ -145,13 +159,18 @@ import home from '../content/en/home.json';
     align-self: end;
     padding-block-end: var(--s-3);
     font-family: var(--font-display);
-    font-size: var(--t-statement);
+    /* Width-driven size, capped by height so a short wide window (1920x640) keeps the first line
+       clear of the header. */
+    font-size: min(var(--t-statement), 11.5svh);
     font-stretch: var(--wdth-display);
     font-weight: var(--w-display);
     line-height: var(--lh-display);
     letter-spacing: var(--track-hero);
     max-inline-size: 13em; /* em, not ch: stable across the font swap (docs/typography.md) */
     text-wrap: balance;
+    /* Trimmed to cap height and baseline (progressive): the baseline stands exactly three joints
+       above the datum, and the body's cap line hangs three joints below it. */
+    text-box: trim-both cap alphabetic;
   }
   .statement__body {
     grid-row: 2;
@@ -162,6 +181,7 @@ import home from '../content/en/home.json';
     line-height: var(--leading-md);
     color: var(--fg-muted);
     text-wrap: pretty;
+    text-box: trim-both cap alphabetic;
   }
   /* Wide: the body hangs from the line in the second half of the frame, so title and body read as
      one figure across the datum instead of two blocks side by side. */

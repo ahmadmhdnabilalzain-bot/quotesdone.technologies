@@ -184,13 +184,16 @@ const items = home.productIndex.items.map((p, i) => {
   :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__line {
     font-size: var(--t-sm);
   }
-  /* Staged: the name is the label's headline, set in the display width beside its station. */
-  :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__name {
-    font-family: var(--font-display);
-    font-stretch: var(--wdth-display);
-    font-size: var(--t-lg);
-    font-weight: var(--w-display);
-    line-height: var(--lh-display);
+  /* Staged, wide screens: the name is the label's headline, set in the display width beside its
+     station. (Narrower, the label column is about a quarter of a phone: the text size stays.) */
+  @media (min-width: 60rem) {
+    :global(html.js:not([data-tier="still"]):not([data-tier="none"]) .products__slot:not([data-scene-state="failed"])) .product__name {
+      font-family: var(--font-display);
+      font-stretch: var(--wdth-display);
+      font-size: var(--t-lg);
+      font-weight: var(--w-display);
+      line-height: var(--lh-display);
+    }
   }
   /* Reveal each label once its product has docked. Only while the scene is live: in every other
      state the words stay visible. Opacity and a short rise only (transform + opacity). */

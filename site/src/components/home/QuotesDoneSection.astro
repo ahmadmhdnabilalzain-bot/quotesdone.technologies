@@ -9,14 +9,14 @@
  * Scroll progress 0..1 = slot top at viewport top -> slot bottom at viewport bottom.
  *
  * Text beats line up with the scene's progress map (scenes/quotesdone/README.md). Beat heights
- * (polish pass): intro 75svh, three proofs 55svh, end 65svh = 315svh, so the scrub is 215svh.
+ * (polish pass): intro 75svh, three proofs 55svh, end 55svh = 295svh, so the scrub is 195svh.
  * Progress at which each beat's centre crosses the viewport centre:
  *   intro (headline, promise)   p 0.00   one sealed block
- *   proof 1 (name off brief)    p 0.24   five identical sealed plates in a row
- *   proof 2 (licence-checked)   p 0.50   the row is compared under one sweep of light
- *   proof 3 (3% of the one)     p 0.76   one plate advances, its cover slides off
+ *   proof 1 (name off brief)    p 0.27   five identical sealed plates in a row
+ *   proof 2 (licence-checked)   p 0.55   the row is compared under one sweep of light
+ *   proof 3 (3% of the one)     p 0.83   one plate advances, its cover slides off
  *   status + CTAs               p 1.00   the open face holds; the end beat's content then sits
- *                                        at about 58% of the viewport, with no empty viewport after
+ *                                        at about 62% of the viewport, with no empty viewport after
  *
  * The tall range is applied only when 3D can run (html.js, tier not 'still'). Without JS, with
  * reduced motion, on the still tier, or once the scene has failed (data-scene-state="failed", e.g.
@@ -170,9 +170,12 @@ const [primary, secondary] = p.cta;
       aspect-ratio: auto;
     }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__text { grid-column: 1; grid-row: 1; gap: 0; }
+    /* The fallback line is hidden while 3D runs; as a grid row it added about 90px (row + gap) of
+       empty Carbon between the CTAs and Sonobolt. A failed scene brings it back (selector). */
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"]) .scene-fallback) { display: none; }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proofs { gap: 0; }
-    /* Beat heights set the pacing: intro 75svh, three proofs 55svh each, end 65svh = 315svh,
-       so the pinned range is 215svh (see the beat map at the top of this file). */
+    /* Beat heights set the pacing: intro 75svh, three proofs 55svh each, end 55svh = 295svh,
+       so the pinned range is 195svh (see the beat map at the top of this file). */
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat {
       display: flex;
       flex-direction: column;
@@ -181,7 +184,7 @@ const [primary, secondary] = p.cta;
     }
     /* The intro starts below the sticky header, so its centre is the optical centre of the screen. */
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--intro { min-block-size: 75svh; padding-block-start: var(--header-h, 0px); justify-content: center; }
-    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--end { min-block-size: 65svh; }
+    :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__beat--end { min-block-size: 55svh; }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proof { border-block-start: 0; padding-block-start: 0; }
     :global(html.js:not([data-tier="still"]) .qd__slot:not([data-scene-state="failed"])) .qd__proof-title { padding-block-start: var(--s-3); border-block-start: var(--hairline) solid var(--rule); }
   }
