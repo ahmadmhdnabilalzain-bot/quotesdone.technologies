@@ -10,3 +10,11 @@ Owner-confirmed: concept "Engineered". All files in `final/` are the master asse
 - **Known limits (accepted by owner):** gaps blur at small sizes (use compact/small cuts); N diagonal tips need a small flat for fabricated signage; the wide shape (about 10.7:1) is awkward in square formats, so use the mark there.
 - **Clearance:** UAE name trademark reported cleared by owner. Visual (logo) similarity check NOT completed: see `../clearance/upload-pack/README.md`.
 - **Rejected / history:** `../concepts/` (round 1 symbol-led, Monolith, Refined) kept for reference only.
+
+## Vector storage (verified 2026-11-26)
+- **Masters:** `final/*.svg`: 13 files, paths only; no embedded raster, no live text, no fonts, no external references (checked by script).
+- **Print / signage vendors:** `exports/pdf/*.pdf`: vector PDFs, one page each, 0 embedded images, 0 fonts (checked with `pdfimages` / `pdffonts`). Scale freely.
+- **Raster copies (convenience only, never masters):** `exports/png/`, transparent: wordmarks 600 to 2400 px wide, marks 512/1024, favicons 16/32/48/180/192 from `mark-small`.
+- **Regenerate everything:** `python3 brand/logo/source/build.py` (masters), then `python3 brand/logo/source/export_assets.py` (PDF + PNG). Set `LOGO_EXPORT_VERBOSE=1` for logging.
+- **Not included:** native `.ai`/`.eps` (no Adobe tools here). Any vendor that insists on EPS/AI can convert the PDF in seconds; give them the PDF, never the PNG.
+- **Backup:** the repo on GitHub is the system of record; also keep a copy of `brand/logo/` in the owner's own cloud storage.
