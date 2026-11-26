@@ -389,8 +389,9 @@ def g_S(p, w=540):
     stroke = pen_stroke(p, hermite_chain(nodes))
     # forward cuts: slice away what lies beyond a forward-leaning line, only
     # inside the band of each terminal
-    s = diff(stroke, cut_band(w * 0.995, H * 0.80, p.CUT_DEG, "right", H * 0.60, H * 2))
-    s = diff(s, cut_band(w * 0.005, H * 0.20, p.CUT_DEG, "left", -H, H * 0.40))
+    cuts = union(cut_band(w * 0.995, H * 0.80, p.CUT_DEG, "right", H * 0.60, H * 2),
+                 cut_band(w * 0.005, H * 0.20, p.CUT_DEG, "left", -H, H * 0.40))
+    s = diff(stroke, cuts)
     return s, w
 
 
