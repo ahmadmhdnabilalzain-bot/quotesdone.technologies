@@ -73,7 +73,7 @@ LINE_GAP_RATIO = 0.36  # gap between lines, fraction of line 1 cap height
 KERN = {
     ("Q", "U"): -110.0,  # sill tucks under the U's round foot
     ("T", "E"): -30.0,
-    ("E", "S"): 0.0,
+    ("E", "S"): 70.0,
     ("S", "D"): 10.0,
     ("D", "O"): 0.0,
     ("O", "N"): 0.0,
@@ -350,17 +350,23 @@ def set_main(text="QUOTESDONE", P=MAIN):
     return out, x, pos
 
 
+JUSTIFY_SIDE = {"straight": 1.0, "round": 0.80, "open": 0.62}  # optical gap weights
+
+
 def set_justified(text, P, target_width, left_inset=0.0, right_inset=0.0):
-    """Line 2: equal gaps between glyph boxes so the line spans target_width."""
+    """Line 2: solve one tracking value g so the line spans target_width.
+    Each gap is g times the mean optical weight of the two facing sides, so
+    round and open sides (O, C, L, T) get proportionally less air."""
     shapes = [GLYPHS[c](P) for c in text]
     total = sum(s[1] for s in shapes)
-    gap = (target_width - left_inset - right_inset - total) / (len(text) - 1)
+    weights = [(JUSTIFY_SIDE[a[3]] + JUSTIFY_SIDE[b[2]]) / 2 for a, b in zip(shapes, shapes[1:])]
+    g = (target_width - left_inset - right_inset - total) / sum(weights)
     out = pathops.Path()
     x = left_inset
-    for shape, W, _, _ in shapes:
+    for i, (shape, W, _, _) in enumerate(shapes):
         out = union(out, moved(shape, dx=x))
-        x += W + gap
-    return out, gap
+        x += W + (g * weights[i] if i < len(weights) else 0)
+    return out, g
 
 
 # --------------------------------------------------------------------------
@@ -489,7 +495,7 @@ def write_all():
     msize = 800.0
     # fit mark so its larger side is 62% of the tile
     span = max(mbx[2] - mbx[0], mbx[3] - mbx[1])
-    msx = msize * 0.62 / span
+    msx = msize * 0.68 / span
     mtx = (msize - (mbx[2] - mbx[0]) * msx) / 2 - mbx[0] * msx
     mty = (msize - (mbx[3] - mbx[1]) * msx) / 2 + mbx[3] * msx
     d_mark = to_d(mark_shape, msx, mtx, mty)
@@ -537,8 +543,8 @@ def build_mark():
     """The mark is the Q alone, drawn with the wordmark's own geometry,
     narrowed to a near-square bowl so it sits in a tile; the sill stays."""
     P = dict(MAIN)
-    P["widths"] = dict(MAIN["widths"], Q=1180)
-    P["sill_ext"] = 190.0
+    P["widths"] = dict(MAIN["widths"], Q=1380)
+    P["sill_ext"] = 170.0
     shape, *_ = g_Q(P)
     return shape, "Q"
 

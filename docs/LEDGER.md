@@ -26,3 +26,4 @@ Status: `standing` (always applies) | `open` | `done`.
 | 19 | 2026-11-26 | Confirmed the DJ AI product name is "Sonobolt" (sonobolt.com). | done | HANDOVER portfolio table updated |
 | 20 | 2026-11-26 | Owner: Sonobolt already has a live website, "you can even check it". | done | Verified live (sonobolt.com, plus quotesdone.com); HANDOVER corrected |
 | 21 | 2026-11-26 | Shared 99designs 3D-websites gallery as website inspiration. | done | Analysed: mood-only reference, concepts not live sites; notes in `docs/references/website-inspiration.md` |
+| 22 | 2026-11-26 | The 99designs gallery designs show the MINIMUM level of 3D/motion advancement the website must reach. Copywriting must be "Apple" quality (and Apple-type content quality overall). | standing | Quality bar recorded in HANDOVER; every claim on the site must still be true and sourced |

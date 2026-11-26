@@ -35,6 +35,10 @@ Each product keeps its own brand; the parent logo must not imitate any of them. 
 1. **Logo (in progress).** Direction = bespoke text logotype in the manner of Emaar/Damac, all-caps QUOTESDONE + TECHNOLOGIES, small companion mark secondary; fully original; no resemblance to the QuotesDone app (no teal/gold/navy, no ring+check). Round 1 (symbol-led) archived at `brand/concepts/round1-archive/`. Round 2 = three lettering directions at `brand/concepts/r2-*` (build scripts included). Before final use: trademark clearance by a UAE IP lawyer (not done; we cannot certify uniqueness ourselves).
 2. **Website (not started; references logged in `docs/references/website-inspiration.md`).** Waits for logo approval and the owner's reference video. Bar: extremely advanced 3D/motion, futuristic, big-tech, must not look AI-generated. Must present each product from the repos above in the company profile.
 
+## Website quality bar (owner, 2026-11-26)
+- 3D/motion: the 99designs 3D gallery is the MINIMUM; aim above it with real-time 3D and scroll-driven choreography, and avoid the generic crypto/AI tropes logged in `docs/references/website-inspiration.md`.
+- Copy: Apple-grade: short, concrete, declarative, product-first; no filler or hype words. Every factual claim must be true and checkable (e.g. do not claim market dominance, user numbers or awards we cannot prove); product facts come from the live sites/repos.
+
 ## Checkpoint 1 — 2026-11-26
 **Done**
 - Repo was empty. Added standing rules skill, `CLAUDE.md` (imports rules/handover/ledger so they reload after compaction), `docs/LEDGER.md`, this handover.
